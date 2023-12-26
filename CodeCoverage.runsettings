@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- File name extension must be .runsettings -->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>      
+       <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <Exclude>[xunit.*]*,
+          [*Tests]*
+          </Exclude> <!-- [Assembly-Filter]Type-Filter -->
+          <ExcludeByFile>
+          **/test/**/*.cs
+          ,**/src/EwellServer.Domain/**/*.cs
+          ,**/src/EwellServer.Domain.Shared/**/*.cs
+          ,**/src/EwellServer.Application.Contracts/**/*.cs
+          ,**/src/EwellServer.AuthServer/**/*.cs
+          ,**/src/EwellServer.DbMigrator/**/*.cs
+          ,**/src/EwellServer.HttpApi/**/*.cs
+          ,**/src/EwellServer.HttpApi.Client/**/*.cs
+          ,**/src/EwellServer.HttpApi.Host/**/*.cs
+          ,**/src/EwellServer.HttpApi.MongoDB/**/*.cs
+          ,**/src/EwellServer.Silo/**/*.cs
+          ,**/src/EwellServer.Grains/**/*.cs
+          </ExcludeByFile>
+          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute</ExcludeByAttribute>
+          <SingleHit>false</SingleHit>
+        </Configuration>
+      </DataCollector>    
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
