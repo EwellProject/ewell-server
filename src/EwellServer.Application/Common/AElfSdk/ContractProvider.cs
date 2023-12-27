@@ -20,7 +20,7 @@ namespace EwellServer.Common.AElfSdk;
 
 public interface IContractProvider
 {
-    Task<(Hash transactionId, Transaction transaction)> CreateTransaction(string chainId, string senderName,
+    Task<(Hash transactionId, Transaction transaction)> CreateTransactionAsync(string chainId, string senderName,
         string contractName, string methodName,
         IMessage param);
 
@@ -28,7 +28,7 @@ public interface IContractProvider
 
     Task<T> CallTransactionAsync<T>(string chainId, Transaction transaction) where T : class;
 
-    Task<TransactionResultDto> QueryTransactionResult(string transactionId, string chainId);
+    Task<TransactionResultDto> QueryTransactionResultAsync(string transactionId, string chainId);
 }
 
 public class ContractProvider : IContractProvider, ISingletonDependency
@@ -106,12 +106,12 @@ public class ContractProvider : IContractProvider, ISingletonDependency
         });
     }
 
-    public Task<TransactionResultDto> QueryTransactionResult(string transactionId, string chainId)
+    public Task<TransactionResultDto> QueryTransactionResultAsync(string transactionId, string chainId)
     {
         return Client(chainId).GetTransactionResultAsync(transactionId);
     }
 
-    public async Task<(Hash transactionId, Transaction transaction)> CreateTransaction(string chainId,
+    public async Task<(Hash transactionId, Transaction transaction)> CreateTransactionAsync(string chainId,
         string senderName, string contractName, string methodName,
         IMessage param)
     {

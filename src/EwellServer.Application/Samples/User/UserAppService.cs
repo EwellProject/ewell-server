@@ -37,7 +37,7 @@ public class UserAppService : EwellServerAppService, IUserAppService
         return await _userWriteProvider.SaveUserAsync(userGrainDto);
     }
 
-    public async Task<UserDto> GetById(string userId)
+    public async Task<UserDto> GetByIdAsync(string userId)
     {
         var pager = await _userQueryProvider.QueryUserPagerAsync(new UserQueryRequestDto(0, 1)
         {

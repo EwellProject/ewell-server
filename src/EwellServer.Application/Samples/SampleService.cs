@@ -30,7 +30,7 @@ public class SampleService : EwellServerAppService, ISampleService
     }
 
     // Cache sample
-    public async Task<TransactionResultDto> GetTransactionResultWithCache(string transactionId, string chainId = "AELF")
+    public async Task<TransactionResultDto> GetTransactionResultWithCacheAsync(string transactionId, string chainId = "AELF")
     {
         return await _seedLockCache.GetOrAddAsync(transactionId,
             () => GetTransactionResultAsync(transactionId, chainId),
@@ -42,7 +42,7 @@ public class SampleService : EwellServerAppService, ISampleService
     }
 
     // Distributed Lock sample
-    public async Task<TransactionResultDto> GetTransactionResultWithLock(string transactionId, string chainId = "AELF")
+    public async Task<TransactionResultDto> GetTransactionResultWithLockAsync(string transactionId, string chainId = "AELF")
     {
         await using var handle =
             await _distributedLock.TryAcquireAsync("LockPrefix" + transactionId);

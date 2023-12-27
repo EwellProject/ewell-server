@@ -380,7 +380,7 @@ public class SignatureGrantHandler : ITokenExtensionGrant
         }
     }
 
-    private async Task<CAHolderManagerInfo> GetManagerList(string url, string caHash)
+    private async Task<CAHolderManagerInfo> GetManagerListAsync(string url, string caHash)
     {
         using var graphQlClient = new GraphQLHttpClient(url, new NewtonsoftJsonSerializer());
 

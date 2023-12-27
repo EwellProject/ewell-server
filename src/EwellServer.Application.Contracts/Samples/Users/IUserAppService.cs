@@ -18,7 +18,7 @@ public interface IUserAppService
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<UserDto> GetById(string userId);
+    Task<UserDto> GetByIdAsync(string userId);
     
     /// <summary>
     ///     query pager

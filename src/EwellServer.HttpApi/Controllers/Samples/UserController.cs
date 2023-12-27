@@ -32,7 +32,7 @@ public class UserDemoController : AbpController
     [HttpGet]
     public async Task<UserDto> GetUserById(string userId)
     {
-        return await _userAppService.GetById(userId);
+        return await _userAppService.GetByIdAsync(userId);
     }
 
     [HttpGet("page")]
