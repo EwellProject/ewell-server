@@ -1,6 +1,6 @@
 using System;
 
-namespace EwellServer.Users.Index;
+namespace EwellServer.Project;
 
 public class CrowdfundingProjectBasicProperty : CrowdfundingProjectBase
 {

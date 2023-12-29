@@ -1,7 +1,7 @@
 using System;
 using Nest;
 
-namespace EwellServer.Users.Index;
+namespace EwellServer.Token;
 
 public class TokenBasicInfo : IToken
 {

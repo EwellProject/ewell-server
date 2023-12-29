@@ -1,6 +1,9 @@
 using AElf.Indexing.Elasticsearch;
+using EwellServer.Project;
+using EwellServer.Token;
+using EwellServer.Users;
 
-namespace EwellServer.Users.Index;
+namespace EwellServer.Entities;
 
 public class UserProjectInfo : UserProjectInfoBase, IIndexBuild
 {

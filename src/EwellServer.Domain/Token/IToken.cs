@@ -1,4 +1,4 @@
-namespace EwellServer.Users.Index;
+namespace EwellServer.Token;
 
 public interface IToken
 {

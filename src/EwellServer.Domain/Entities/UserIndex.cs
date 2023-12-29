@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using AElf.Indexing.Elasticsearch;
+using EwellServer.Users;
 using Nest;
-using EwellServer.Entities;
 
-namespace EwellServer.Users.Index;
+namespace EwellServer.Entities;
 
 public class UserIndex : AbstractEntity<Guid>, IIndexBuild
 {

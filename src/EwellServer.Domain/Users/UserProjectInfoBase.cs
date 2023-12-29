@@ -1,6 +1,6 @@
 using Nest;
 
-namespace EwellServer.Users.Index;
+namespace EwellServer.Users;
 
 public class UserProjectInfoBase
 {

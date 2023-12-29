@@ -1,6 +1,8 @@
 using AElf.Indexing.Elasticsearch;
+using EwellServer.Project;
+using EwellServer.Token;
 
-namespace EwellServer.Users.Index;
+namespace EwellServer.Entities;
 
 public class CrowdfundingProject : CrowdfundingProjectBasicProperty, IIndexBuild
 {

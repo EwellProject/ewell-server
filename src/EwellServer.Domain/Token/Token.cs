@@ -1,6 +1,6 @@
 using System;
 
-namespace EwellServer.Users.Index;
+namespace EwellServer.Token;
 
 public class Token : TokenBasicInfo
 {
