@@ -22,6 +22,7 @@
           ,**/src/EwellServer.HttpApi.MongoDB/**/*.cs
           ,**/src/EwellServer.Silo/**/*.cs
           ,**/src/EwellServer.Grains/**/*.cs
+          ,**/src/EwellServer.Worker/**/*.cs
           </ExcludeByFile>
           <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute</ExcludeByAttribute>
           <SingleHit>false</SingleHit>
