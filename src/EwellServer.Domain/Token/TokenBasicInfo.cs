@@ -1,11 +1,11 @@
 using System;
+using EwellServer.Entities;
 using Nest;
 
 namespace EwellServer.Token;
 
-public class TokenBasicInfo : IToken
+public class TokenBasicInfo : AbstractEntity<Guid>, IToken
 {
-    public Guid Id { get; set; }
     [Keyword] public string Symbol { get; set; }
     [Keyword] public string Name { get; set; }
     [Keyword] public string Address { get; set; }
