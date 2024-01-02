@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using AElf.Indexing.Elasticsearch;
 using Nest;
 using EwellServer.Common.Dtos;
+using EwellServer.Entities;
 using EwellServer.Samples.Users.Dto;
-using EwellServer.Users.Index;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.ObjectMapping;
 

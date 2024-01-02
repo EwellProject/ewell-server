@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using EwellServer.Common.Dtos;
+using EwellServer.Entities;
 using EwellServer.Samples.User.Provider;
 using EwellServer.Samples.Users;
 using EwellServer.Samples.Users.Dto;
-using EwellServer.Users.Index;
 using Volo.Abp.ObjectMapping;
 
 namespace EwellServer.Samples.User;

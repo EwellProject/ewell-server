@@ -1,9 +1,8 @@
 using AutoMapper;
+using EwellServer.Entities;
 using EwellServer.Samples.Users;
 using EwellServer.Samples.Users.Eto;
 using EwellServer.Users.Eto;
-using EwellServer.Users.Index;
-
 
 namespace EwellServer.EntityEventHandler.Core;
 

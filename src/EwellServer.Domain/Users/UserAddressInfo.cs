@@ -1,8 +1,8 @@
 using Nest;
 
-namespace EwellServer.Users.Index;
+namespace EwellServer.Users;
 
-public class UserAddress
+public class UserAddressInfo
 {
     [Keyword] public string ChainId { get; set; }
     [Keyword] public string Address { get; set; }
