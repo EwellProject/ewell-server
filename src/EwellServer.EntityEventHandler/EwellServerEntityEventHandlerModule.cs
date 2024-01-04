@@ -1,26 +1,26 @@
 using AElf.Indexing.Elasticsearch.Options;
+using EwellServer.EntityEventHandler.Core;
+using EwellServer.EntityEventHandler.Core.Background.Options;
+using EwellServer.Grains;
+using EwellServer.MongoDB;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Configuration;
+using Orleans.Providers.MongoDB.Configuration;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
 using Volo.Abp.EventBus.RabbitMq;
 using Volo.Abp.Modularity;
 using Volo.Abp.Threading;
-using Orleans.Providers.MongoDB.Configuration;
-using EwellServer.EntityEventHandler;
-using EwellServer.EntityEventHandler.Core;
-using EwellServer.Grains;
-using EwellServer.MongoDB;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
 using Microsoft.Extensions.Configuration;
 using Volo.Abp.OpenIddict.Tokens;
 
-namespace EwellServer;
+namespace EwellServer.EntityEventHandler;
 
 [DependsOn(typeof(AbpAutofacModule),
     typeof(EwellServerMongoDbModule),
@@ -35,6 +35,8 @@ public class EwellServerEntityEventHandlerModule : AbpModule
     {
         ConfigureTokenCleanupService();
         var configuration = context.Services.GetConfiguration();
+        Configure<ApiOptions>(configuration.GetSection("Api"));
+        Configure<EwellOption>(configuration.GetSection("EwellOption"));
         context.Services.AddHostedService<EwellServerHostedService>();
         context.Services.AddSingleton<IClusterClient>(o =>
         {
