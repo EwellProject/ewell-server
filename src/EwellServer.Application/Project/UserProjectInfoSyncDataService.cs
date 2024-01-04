@@ -15,7 +15,6 @@ namespace EwellServer.Project;
 public class UserProjectInfoSyncDataService : ScheduleSyncDataService
 {
     private readonly ILogger<ScheduleSyncDataService> _logger;
-    private readonly IGraphQLProvider _graphQlProvider;
     private readonly IUserProjectInfoProvider _userProjectInfoProvider;
     private readonly INESTRepository<UserProjectInfoIndex, string> _userProjectInfoIndexRepository;
     private readonly IChainAppService _chainAppService;
@@ -25,10 +24,9 @@ public class UserProjectInfoSyncDataService : ScheduleSyncDataService
         IUserProjectInfoProvider userProjectInfoProvider,
         IChainAppService chainAppService, 
         INESTRepository<UserProjectInfoIndex, string> userProjectInfoIndexRepository)
-        : base(logger, graphQlProvider, chainAppService)
+        : base(logger, graphQlProvider)
     {
         _logger = logger;
-        _graphQlProvider = graphQlProvider;
         _userProjectInfoProvider = userProjectInfoProvider;
         _chainAppService = chainAppService;
         _userProjectInfoIndexRepository = userProjectInfoIndexRepository;

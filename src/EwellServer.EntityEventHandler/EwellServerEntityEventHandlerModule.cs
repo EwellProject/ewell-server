@@ -14,6 +14,10 @@ using EwellServer.EntityEventHandler;
 using EwellServer.EntityEventHandler.Core;
 using EwellServer.Grains;
 using EwellServer.MongoDB;
+using GraphQL.Client.Abstractions;
+using GraphQL.Client.Http;
+using GraphQL.Client.Serializer.Newtonsoft;
+using Microsoft.Extensions.Configuration;
 using Volo.Abp.OpenIddict.Tokens;
 
 namespace EwellServer;
@@ -54,6 +58,7 @@ public class EwellServerEntityEventHandlerModule : AbpModule
                 .Build();
         });
         ConfigureEsIndexCreation();
+        ConfigureGraphQl(context, configuration);
     }
     public override void OnApplicationInitialization(ApplicationInitializationContext context)
     {
@@ -77,5 +82,13 @@ public class EwellServerEntityEventHandlerModule : AbpModule
     private void ConfigureTokenCleanupService()
     {
         Configure<TokenCleanupOptions>(x => x.IsCleanupEnabled = false);
+    }
+    
+    private void ConfigureGraphQl(ServiceConfigurationContext context,
+        IConfiguration configuration)
+    {
+        context.Services.AddSingleton(new GraphQLHttpClient(configuration["GraphQL:Configuration"],
+            new NewtonsoftJsonSerializer()));
+        context.Services.AddScoped<IGraphQLClient>(sp => sp.GetRequiredService<GraphQLHttpClient>());
     }
 }

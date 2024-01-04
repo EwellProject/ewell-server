@@ -12,14 +12,11 @@ public abstract class ScheduleSyncDataService : IScheduleSyncDataService
 {
     private readonly ILogger<ScheduleSyncDataService> _logger;
     private readonly IGraphQLProvider _graphQlProvider;
-    private readonly IChainAppService _chainAppService;
 
-    protected ScheduleSyncDataService(ILogger<ScheduleSyncDataService> logger, IGraphQLProvider graphQlProvider,
-        IChainAppService chainAppService)
+    protected ScheduleSyncDataService(ILogger<ScheduleSyncDataService> logger, IGraphQLProvider graphQlProvider)
     {
         _logger = logger;
         _graphQlProvider = graphQlProvider;
-        _chainAppService = chainAppService;
     }
 
 
@@ -55,7 +52,8 @@ public abstract class ScheduleSyncDataService : IScheduleSyncDataService
         }
     }
 
-    public abstract Task<long> SyncIndexerRecordsAsync(string chainId,long lastEndHeight, long newIndexHeight);
+    public abstract Task<long> SyncIndexerRecordsAsync(string chainId, long lastEndHeight, long newIndexHeight);
+
     /**
      * different businesses obtain different multiple chains
      */

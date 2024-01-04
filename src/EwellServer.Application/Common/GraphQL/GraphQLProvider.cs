@@ -2,10 +2,8 @@ using System;
 using System.Threading.Tasks;
 using EwellServer.Grains.Grain.ApplicationHandler;
 using GraphQL;
-using GraphQL.Client.Http;
-using GraphQL.Client.Serializer.Newtonsoft;
+using GraphQL.Client.Abstractions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Orleans;
 using Volo.Abp.DependencyInjection;
 
@@ -20,22 +18,19 @@ public interface IGraphQLProvider
 
 public class GraphQLProvider : IGraphQLProvider, ISingletonDependency
 {
-    private readonly GraphQLOptions _graphQLOptions;
-    private readonly GraphQLHttpClient _graphQLClient;
+    private readonly IGraphQLClient _graphQLClient;
     private readonly IClusterClient _clusterClient;
     private readonly ILogger<GraphQLProvider> _logger;
 
 
-    public GraphQLProvider(ILogger<GraphQLProvider> logger, IClusterClient clusterClient,
-                           IOptionsSnapshot<GraphQLOptions> graphQLOptions)
+    public GraphQLProvider(IGraphQLClient graphQLClient, ILogger<GraphQLProvider> logger,
+        IClusterClient clusterClient)
     {
         _logger = logger;
         _clusterClient = clusterClient;
-        _graphQLOptions = graphQLOptions.Value;
-        _graphQLClient = new GraphQLHttpClient(_graphQLOptions.Configuration, new NewtonsoftJsonSerializer());
+        _graphQLClient = graphQLClient;
     }
-
-
+    
     public async Task<long> GetLastEndHeightAsync(string chainId, WorkerBusinessType queryChainType)
     {
         try
@@ -67,7 +62,7 @@ public class GraphQLProvider : IGraphQLProvider, ISingletonDependency
     {
         var graphQlResponse = await _graphQLClient.SendQueryAsync<ConfirmedBlockHeightRecord>(new GraphQLRequest
         {
-            Query = 
+            Query =
                 @"query($chainId:String,$filterType:BlockFilterType!) {
                     syncState(dto: {chainId:$chainId,filterType:$filterType}){
                         confirmedBlockHeight}
