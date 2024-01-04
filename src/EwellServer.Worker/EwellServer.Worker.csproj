@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\EwellServer.Application.Contracts\EwellServer.Application.Contracts.csproj" />
+        <ProjectReference Include="..\EwellServer.Application\EwellServer.Application.csproj" />
     </ItemGroup>
 
     <ItemGroup>
