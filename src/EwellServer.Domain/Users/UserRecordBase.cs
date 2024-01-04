@@ -4,7 +4,7 @@ using Nest;
 
 namespace EwellServer.Users;
 
-public class UserRecordBase : AbstractEntity<Guid>
+public class UserRecordBase : AbstractEntity<string>
 {
     [Keyword] public string User { get; set; }
     public BehaviorType BehaviorType { get; set; }
