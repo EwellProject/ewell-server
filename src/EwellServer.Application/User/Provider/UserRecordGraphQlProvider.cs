@@ -7,7 +7,7 @@ using GraphQL;
 using Microsoft.IdentityModel.Tokens;
 using Volo.Abp.DependencyInjection;
 
-namespace EwellServer.GraphQL;
+namespace EwellServer.User.Provider;
 
 public interface IUserRecordGraphQLProvider
 {
@@ -31,10 +31,10 @@ public class UserRecordGraphQlProvider : IUserRecordGraphQLProvider, ISingletonD
 			    query ($chainId:String,$startBlockHeight:Long!,$maxResultCount:Int,$skipCount:Int) {
                     getUserRecordList(dto: {$chainId:$chainId,$startBlockHeight:$startBlockHeight,$maxResultCount:$maxResultCount,$skipCount:$skipCount}){
                         data{
-                                chainId,id,blockHeight,
-                                user,behaviorType,toRaiseTokenAmount,crowdFundingIssueAmount,dateTime,
-                                crowdfundingProjectId,
-                                crowdfundingProjectBase{id,creator,crowdFundingType,startTime,endTime,tokenReleaseTime}
+                                id,chainId,user,behaviorType,toRaiseTokenAmount,crowdFundingIssueAmount,dateTime,blockHeight
+                                crowdfundingProjectBase{chainId,blockHeight,id,creator,crowdFundingType,startTime,endTime,tokenReleaseTime},
+                                toRaiseToken{symbol,name,address,decimals},
+                                crowdFundingIssueToken{symbol,name,address,decimals}
                             }
                         ,totalCount
                     }
@@ -44,6 +44,6 @@ public class UserRecordGraphQlProvider : IUserRecordGraphQLProvider, ISingletonD
                 startBlockHeight, chainId, maxResultCount, skipCount
             }
         });
-        return CollectionUtilities.IsNullOrEmpty(response.Data) ? new List<UserRecordIndex>() : response.Data;
+        return CollectionUtilities.IsNullOrEmpty(response.Data) ? [] : response.Data;
     }
 }

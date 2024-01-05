@@ -6,7 +6,7 @@ using EwellServer.Chains;
 using EwellServer.Common;
 using EwellServer.Common.GraphQL;
 using EwellServer.Entities;
-using EwellServer.GraphQL;
+using EwellServer.User.Provider;
 using Microsoft.Extensions.Logging;
 
 namespace EwellServer.User;
@@ -39,19 +39,19 @@ public class UserRecordSyncDataService : ScheduleSyncDataService
         do
         {
             userRecords = await _userRecordGraphQlProvider.GetUserRecordListAsync(lastEndHeight, chainId, maxResultCount, skipCount);
-            if (userRecords.IsNullOrEmpty())
+            if (!userRecords.IsNullOrEmpty())
             {
                 break;
             }
-
-            var maxCurrentBlockHeight = userRecords.Select(x => x.CrowdfundingProject.BlockHeight).Max();
+            
+            var maxCurrentBlockHeight = userRecords.Select(x => x.BlockHeight).Max();
             if (maxCurrentBlockHeight == lastEndHeight)
             {
                 skipCount += userRecords.Select(x => x.BlockHeight == lastEndHeight).Count();
             }
             else
             {
-                skipCount = userRecords.Select(x => x.BlockHeight == lastEndHeight).Count();
+                skipCount = userRecords.Select(x => x.BlockHeight == maxCurrentBlockHeight).Count();
                 lastEndHeight = maxCurrentBlockHeight;
             }
 

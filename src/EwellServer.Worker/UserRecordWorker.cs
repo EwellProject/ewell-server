@@ -24,5 +24,5 @@ public class UserRecordWorker : EwellServerWorkBase
         await _scheduleSyncDataContext.DealAsync(BusinessType);
     }
 
-    protected override WorkerBusinessType BusinessType { get; }
+    protected override WorkerBusinessType BusinessType => WorkerBusinessType.UserRecordSync;
 }
