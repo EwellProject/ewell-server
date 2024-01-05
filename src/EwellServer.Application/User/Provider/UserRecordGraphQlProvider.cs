@@ -33,8 +33,8 @@ public class UserRecordGraphQlProvider : IUserRecordGraphQLProvider, ISingletonD
                         data{
                                 id,chainId,user,behaviorType,toRaiseTokenAmount,crowdFundingIssueAmount,dateTime,blockHeight
                                 crowdfundingProjectBase{chainId,blockHeight,id,creator,crowdFundingType,startTime,endTime,tokenReleaseTime},
-                                toRaiseToken{symbol,name,address,decimals},
-                                crowdFundingIssueToken{symbol,name,address,decimals}
+                                toRaiseToken{symbol},
+                                crowdFundingIssueToken{symbol}
                             }
                         ,totalCount
                     }
@@ -44,6 +44,6 @@ public class UserRecordGraphQlProvider : IUserRecordGraphQLProvider, ISingletonD
                 startBlockHeight, chainId, maxResultCount, skipCount
             }
         });
-        return CollectionUtilities.IsNullOrEmpty(response.Data) ? [] : response.Data;
+        return CollectionUtilities.IsNullOrEmpty(response.Data) ? new List<UserRecordIndex>() : response.Data;
     }
 }

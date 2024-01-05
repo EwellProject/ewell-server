@@ -36,8 +36,8 @@ public class ProjectInfoProvider : IProjectInfoProvider, ISingletonDependency
                                 liquidityLockProportion,unlockTime,firstDistributeProportion,restDistributeProportion,totalPeriod,additionalInfo,isCanceled
                                 wsEnableWhitelist,whitelistId,currentRaisedAmount,currentCrowdFundingIssueAmount,participantCount,chainId,currentPeriod
                                 periodDuration,isBurnRestToken,receivableLiquidatedDamageAmount,lastModificationTime
-                                toRaiseToken{symbol,name,address,decimals},
-                                crowdFundingIssueToken{symbol,name,address,decimals}
+                                toRaiseToken{symbol},
+                                crowdFundingIssueToken{symbol}
                             }
                         ,totalCount
                     }
@@ -47,6 +47,6 @@ public class ProjectInfoProvider : IProjectInfoProvider, ISingletonDependency
                 startBlockHeight, chainId, maxResultCount, skipCount
             }
         });
-        return CollectionUtilities.IsNullOrEmpty(response.Data) ? [] : response.Data;
+        return CollectionUtilities.IsNullOrEmpty(response.Data) ? new List<CrowdfundingProjectIndex>() : response.Data;
     }
 }
