@@ -22,7 +22,7 @@ public class UserProjectInfoSyncDataService : ScheduleSyncDataService
     public UserProjectInfoSyncDataService(ILogger<UserProjectInfoSyncDataService> logger,
         IGraphQLProvider graphQlProvider,
         IUserProjectInfoProvider userProjectInfoProvider,
-        IChainAppService chainAppService, 
+        IChainAppService chainAppService,
         INESTRepository<UserProjectInfoIndex, string> userProjectInfoIndexRepository)
         : base(logger, graphQlProvider)
     {
@@ -34,21 +34,29 @@ public class UserProjectInfoSyncDataService : ScheduleSyncDataService
 
     public override async Task<long> SyncIndexerRecordsAsync(string chainId, long lastEndHeight, long newIndexHeight)
     {
-        var queryList = await _userProjectInfoProvider.GetSyncUserProjectInfosAsync(chainId, lastEndHeight, 0);
-        _logger.LogInformation(
-            "SyncUserProjectInfos queryList startBlockHeight: {lastEndHeight} endBlockHeight: {newIndexHeight} count: {count}",
-            lastEndHeight, newIndexHeight, queryList?.Count);
+        var skipCount = 0;
         long blockHeight = -1;
-        if (queryList.IsNullOrEmpty())
+        List<UserProjectInfoIndex> queryList;
+        do
         {
-            return 0;
-        }
+            queryList = await _userProjectInfoProvider.GetSyncUserProjectInfosAsync(skipCount, chainId, lastEndHeight,
+                0);
+            _logger.LogInformation(
+                "SyncUserProjectInfos queryList skipCount {skipCount} startBlockHeight: {lastEndHeight} endBlockHeight: {newIndexHeight} count: {count}",
+                skipCount, lastEndHeight, newIndexHeight, queryList?.Count);
+            if (queryList.IsNullOrEmpty())
+            {
+                break;
+            }
 
-        foreach (var info in queryList)
-        {
-            blockHeight = Math.Max(blockHeight, info.BlockHeight);
-            await _userProjectInfoIndexRepository.AddOrUpdateAsync(info);
-        }
+            foreach (var info in queryList)
+            {
+                blockHeight = Math.Max(blockHeight, info.BlockHeight);
+                await _userProjectInfoIndexRepository.AddOrUpdateAsync(info);
+            }
+
+            skipCount += queryList.Count;
+        } while (!queryList.IsNullOrEmpty());
 
         return blockHeight;
     }
