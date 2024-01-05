@@ -3,9 +3,9 @@ using EwellServer.Entities;
 
 namespace EwellServer.Dtos;
 
-public class UserRecordPageResult : PageResult<UserRecord>
+public class UserRecordPageResult : PageResult<UserRecordIndex>
 {
-    public UserRecordPageResult(long total, List<UserRecord> data) : base(total, data)
+    public UserRecordPageResult(long total, List<UserRecordIndex> data) : base(total, data)
     {
     }
 }

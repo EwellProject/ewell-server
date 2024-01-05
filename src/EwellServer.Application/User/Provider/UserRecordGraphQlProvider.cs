@@ -11,7 +11,7 @@ namespace EwellServer.GraphQL;
 
 public interface IUserRecordGraphQLProvider
 {
-    Task<List<UserRecord>> GetUserRecordListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount);
+    Task<List<UserRecordIndex>> GetUserRecordListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount);
 }
 
 public class UserRecordGraphQlProvider : IUserRecordGraphQLProvider, ISingletonDependency
@@ -23,7 +23,7 @@ public class UserRecordGraphQlProvider : IUserRecordGraphQLProvider, ISingletonD
         _graphQlHelper = graphQlHelper;
     }
 
-    public async Task<List<UserRecord>> GetUserRecordListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount)
+    public async Task<List<UserRecordIndex>> GetUserRecordListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount)
     {
         var response =  await _graphQlHelper.QueryAsync<UserRecordPageResult>(new GraphQLRequest
         {
@@ -44,6 +44,6 @@ public class UserRecordGraphQlProvider : IUserRecordGraphQLProvider, ISingletonD
                 startBlockHeight, chainId, maxResultCount, skipCount
             }
         });
-        return CollectionUtilities.IsNullOrEmpty(response.Data) ? new List<UserRecord>() : response.Data;
+        return CollectionUtilities.IsNullOrEmpty(response.Data) ? new List<UserRecordIndex>() : response.Data;
     }
 }

@@ -15,14 +15,14 @@ public class UserRecordSyncDataService : ScheduleSyncDataService
 {
     private readonly ILogger<ScheduleSyncDataService> _logger;
     private readonly IUserRecordGraphQLProvider _userRecordGraphQlProvider;
-    private readonly INESTRepository<UserRecord, string> _userRecordRepository;
+    private readonly INESTRepository<UserRecordIndex, string> _userRecordRepository;
     private readonly IChainAppService _chainAppService;
 
     public UserRecordSyncDataService(ILogger<UserRecordSyncDataService> logger,
         IGraphQLProvider graphQlProvider,
         IUserRecordGraphQLProvider userRecordProvider,
         IChainAppService chainAppService, 
-        INESTRepository<UserRecord, string> userRecordRepository)
+        INESTRepository<UserRecordIndex, string> userRecordRepository)
         : base(logger, graphQlProvider)
     {
         _logger = logger;
@@ -35,7 +35,7 @@ public class UserRecordSyncDataService : ScheduleSyncDataService
     {
         var skipCount = 0;
         const int maxResultCount = 800;
-        List<UserRecord> userRecords;
+        List<UserRecordIndex> userRecords;
         do
         {
             userRecords = await _userRecordGraphQlProvider.GetUserRecordListAsync(lastEndHeight, chainId, maxResultCount, skipCount);
