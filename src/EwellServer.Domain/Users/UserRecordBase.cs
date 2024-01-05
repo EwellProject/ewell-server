@@ -11,4 +11,5 @@ public class UserRecordBase : AbstractEntity<string>
     public long ToRaiseTokenAmount { get; set; }
     public long CrowdFundingIssueAmount { get; set; }
     public DateTime DateTime { get; set; }
+    public long BlockHeight { get; set; }
 }

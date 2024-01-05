@@ -15,7 +15,7 @@ using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using Orleans;
-using Portkey.Contracts.CA;
+// using Portkey.Contracts.CA;
 using EwellServer.Auth.Dtos;
 using EwellServer.Auth.Options;
 using EwellServer.Grains.Grain.Users;
@@ -262,20 +262,20 @@ public class SignatureGrantHandler : ITokenExtensionGrant
 
     private async Task<AddressInfo> GetAddressInfoAsync(string chainId, string caHash)
     {
-        var param = new GetHolderInfoInput
-        {
-            CaHash = Hash.LoadFromHex(caHash),
-            LoginGuardianIdentifierHash = Hash.Empty
-        };
-
-        var output =
-            await CallTransactionAsync<GetHolderInfoOutput>(chainId, AuthConstant.GetHolderInfo, param, false,
-                _chainOptions);
+        // var param = new GetHolderInfoInput
+        // {
+        //     CaHash = Hash.LoadFromHex(caHash),
+        //     LoginGuardianIdentifierHash = Hash.Empty
+        // };
+        //
+        // var output =
+        //     await CallTransactionAsync<GetHolderInfoOutput>(chainId, AuthConstant.GetHolderInfo, param, false,
+        //         _chainOptions);
 
         return new AddressInfo()
         {
-            Address = output.CaAddress.ToBase58(),
-            ChainId = chainId
+            // Address = output.CaAddress.ToBase58(),
+            // ChainId = chainId
         };
     }
 
@@ -323,17 +323,18 @@ public class SignatureGrantHandler : ITokenExtensionGrant
     private async Task<bool?> CheckAddressFromContractAsync(string chainId, string caHash, string manager,
         ChainOptions chainOptions)
     {
-        var param = new GetHolderInfoInput
-        {
-            CaHash = Hash.LoadFromHex(caHash),
-            LoginGuardianIdentifierHash = Hash.Empty
-        };
+        // var param = new GetHolderInfoInput
+        // {
+        //     CaHash = Hash.LoadFromHex(caHash),
+        //     LoginGuardianIdentifierHash = Hash.Empty
+        // };
 
-        var output =
-            await CallTransactionAsync<GetHolderInfoOutput>(chainId, AuthConstant.GetHolderInfo, param, false,
-                chainOptions);
+        // var output =
+        //     await CallTransactionAsync<GetHolderInfoOutput>(chainId, AuthConstant.GetHolderInfo, param, false,
+        //         chainOptions);
 
-        return output?.ManagerInfos?.Any(t => t.Address.ToBase58() == manager);
+        // return output?.ManagerInfos?.Any(t => t.Address.ToBase58() == manager);
+        return true;
     }
 
     private async Task<T> CallTransactionAsync<T>(string chainId, string methodName, IMessage param,

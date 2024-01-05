@@ -4,4 +4,5 @@ public enum WorkerBusinessType
 {
     ProjectInfoSync,
     UserProjectInfoSync,
+    UserRecordSync
 }
