@@ -21,4 +21,9 @@ public class ContractServiceGraphQLGrain : Grain<GraphQlState>, IContractService
     {
         return Task.FromResult(State.EndHeight);
     }
+
+    public Task<string> GetStringStateAsync()
+    {
+        return Task.FromResult(State.ProjectId);
+    }
 }

@@ -24,6 +24,7 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
     private readonly IChainAppService _chainAppService;
     private readonly IDistributedEventBus _distributedEventBus;
     private readonly IObjectMapper _objectMapper;
+    private readonly IGraphQLProvider _graphQlProvider;
 
     public ProjectInfoSyncDataService(ILogger<ProjectInfoSyncDataService> logger,
         IGraphQLProvider graphQlProvider,
@@ -34,6 +35,7 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
         : base(logger, graphQlProvider)
     {
         _logger = logger;
+        _graphQlProvider = graphQlProvider;
         _userProjectInfoGraphQlProvider = userProjectInfoGraphQlProvider;
         _chainAppService = chainAppService;
         _crowdfundingProjectIndexRepository = crowdfundingProjectIndexRepository;
@@ -67,17 +69,22 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
                 lastEndHeight = maxCurrentBlockHeight;
             }
 
-            var shouldQuery = projects.Select(project => (Func<QueryContainerDescriptor<CrowdfundingProjectIndex>, QueryContainer>)(
-                    q => q.Term(
-                        i => i.Field(f => f.Id).Value(project.Id))))
-                .ToList();
-            var existedProjectIds = (await _crowdfundingProjectIndexRepository
-                .GetListAsync(f => f.Bool(b => b.Must(shouldQuery)))).Item2
-                .Select(x => x.Id).ToList();
-            var registerProjects = projects.Where(project => !existedProjectIds.Contains(project.Id) && !project.IsCanceled).ToList();
+
+            var projectIds = projects.Select(x => x.Id).ToList();
+            var registerProjectIds = new List<string>();
+            foreach (var projectId in projectIds)
+            {
+                var projectIdExisted = await _graphQlProvider.GetProjectIdAsync(chainId, projectId);
+                if (projectIdExisted == CommonConstant.LongError)
+                {
+                    registerProjectIds.Add(projectId);
+                }
+            }
+            var registerProjects = projects.Where(project => registerProjectIds.Contains(project.Id) && !project.IsCanceled).ToList();
             var cancelProjects = projects.Where(project => project.IsCanceled).ToList();
             foreach (var registerProject in registerProjects)
             {
+                await _graphQlProvider.SetProjectIdAsync(chainId, registerProject.Id, CommonConstant.LongCommon);
                 await _distributedEventBus.PublishAsync(_objectMapper.Map<CrowdfundingProjectIndex, ProjectRegisteredEto>(registerProject));
             }
             foreach (var cancelProject in cancelProjects)

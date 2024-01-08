@@ -7,7 +7,6 @@ using EwellServer.Entities;
 using EwellServer.EntityEventHandler.Core.Background.BackgroundJobs.BackgroundJobDescriptions;
 using EwellServer.EntityEventHandler.Core.Background.Services;
 using EwellServer.Etos;
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.Logging;
 using Nest;
 using Volo.Abp.DependencyInjection;
@@ -21,19 +20,25 @@ public class EwellContractEventHandler : IDistributedEventHandler<ProjectRegiste
     private readonly IJobEnqueueService _jobEnqueueService;
     private readonly INESTRepository<UserProjectInfoIndex, string> _userProjectInfoIndexRepository;
     private readonly ILogger<EwellContractEventHandler> _logger;
+    private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     public EwellContractEventHandler(IJobEnqueueService jobEnqueueService, 
-        INESTRepository<UserProjectInfoIndex, string> userProjectInfoIndexRepository)
+        INESTRepository<UserProjectInfoIndex, string> userProjectInfoIndexRepository, 
+        ILogger<EwellContractEventHandler> logger)
     {
         _jobEnqueueService = jobEnqueueService;
         _userProjectInfoIndexRepository = userProjectInfoIndexRepository;
+        _logger = logger;
     }
 
     public async Task HandleEventAsync(ProjectRegisteredEto eto)
     {
         await AddUnlockJobAsync(eto.ChainId, eto.ProjectId, eto.TotalPeriod,
             eto.PeriodDuration,
-            eto.EndTime.ToTimestamp());
+            new Timestamp
+            {
+                Seconds = (long)(eto.EndTime.ToUniversalTime() - UnixEpoch).TotalSeconds
+            });
     }
     
     public async Task HandleEventAsync(ProjectCanceledEto eto)
@@ -44,7 +49,7 @@ public class EwellContractEventHandler : IDistributedEventHandler<ProjectRegiste
     private async Task AddUnlockJobAsync(string chainName, string projectId, int totalPeriod, long periodDuration,
         Timestamp endTime)
     {
-        _logger.LogInformation("AddProjectCancelJobAsync Id={chainName} ChainName={projectId}, TotalPeriod={totalPeriod}, PeriodDuration={periodDuration}, EndTime={endTime}",
+        _logger.LogInformation("AddUnlockJobAsync Id={chainName} ChainName={projectId}, TotalPeriod={totalPeriod}, PeriodDuration={periodDuration}, EndTime={endTime}",
             chainName, projectId, totalPeriod, periodDuration, endTime);
         var jobStartTime = endTime.ToDateTimeOffset();
         await _jobEnqueueService.AddJobAtFirstTimeAsync(chainName, projectId, jobStartTime, 0, totalPeriod,

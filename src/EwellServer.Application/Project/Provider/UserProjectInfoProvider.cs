@@ -23,6 +23,7 @@ public interface IUserProjectInfoProvider
     Task<List<CrowdfundingProjectIndex>> GetProjectListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount);
     
     Task<List<UserRecordIndex>> GetUserRecordListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount);
+    Task<List<Whitelist>> GetWhitelistListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount);
 }
 
 public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDependency
@@ -129,5 +130,26 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
             }
         });
         return CollectionUtilities.IsNullOrEmpty(response.Data) ? new List<UserRecordIndex>() : response.Data;
+    }
+
+    public async Task<List<Whitelist>> GetWhitelistListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount)
+    {
+        var response =  await _graphQlHelper.QueryAsync<WhitelistPageResult>(new GraphQLRequest
+        {
+            Query = @"
+			    query ($chainId:String,$startBlockHeight:Long!,$maxResultCount:Int,$skipCount:Int) {
+                    getWhitelistList(dto: {$chainId:$chainId,$startBlockHeight:$startBlockHeight,$maxResultCount:$maxResultCount,$skipCount:$skipCount}){
+                        data{
+                                id,chainId,blockHeight,isAvailable
+                            }
+                        ,totalCount
+                    }
+                }",
+            Variables = new
+            {
+                startBlockHeight, chainId, maxResultCount, skipCount
+            }
+        });
+        return CollectionUtilities.IsNullOrEmpty(response.Data) ? new List<Whitelist>() : response.Data;
     }
 }

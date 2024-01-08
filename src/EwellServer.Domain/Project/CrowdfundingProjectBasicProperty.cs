@@ -23,7 +23,6 @@ public class CrowdfundingProjectBasicProperty : CrowdfundingProjectBase
     public long CurrentRaisedAmount { get; set; }
     public long CurrentCrowdFundingIssueAmount { get; set; }
     public long ParticipantCount { get; set; }
-    public Guid ChainId { get; set; }
     public int CurrentPeriod { get; set; }
     public long PeriodDuration { get; set; }
     public bool IsBurnRestToken { get; set; }
