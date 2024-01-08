@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using AElf.Indexing.Elasticsearch;
 using EwellServer.Common.GraphQL;
+using EwellServer.Dtos;
 using EwellServer.Entities;
 using EwellServer.Project.Index;
 using GraphQL;
+using Microsoft.IdentityModel.Tokens;
 using Nest;
 using Volo.Abp.DependencyInjection;
 
@@ -17,6 +19,10 @@ public interface IUserProjectInfoProvider
     Task<Dictionary<string, UserProjectInfoIndex>> GetUserProjectInfosAsync(string user);
 
     Task<List<UserProjectInfoIndex>> GetSyncUserProjectInfosAsync(int skipCount, string chainId, long startBlockHeight, long endBlockHeight);
+    
+    Task<List<CrowdfundingProjectIndex>> GetProjectListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount);
+    
+    Task<List<UserRecordIndex>> GetUserRecordListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount);
 }
 
 public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDependency
@@ -44,7 +50,6 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
         QueryContainer Filter(QueryContainerDescriptor<UserProjectInfoIndex> f) =>
             f.Bool(b => b.Must(mustQuery));
 
-        //sortExp base Sort , like "floorPrice", "itemTotal"
         var tuple = await _userProjectInfoIndexRepository.GetListAsync(Filter);
 
         return !tuple.Item2.IsNullOrEmpty() 
@@ -73,5 +78,56 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
             }
         });
         return graphQlResponse.Data.DataList.IsNullOrEmpty() ? new List<UserProjectInfoIndex>() : graphQlResponse.Data.DataList;
+    }
+    
+    public async Task<List<CrowdfundingProjectIndex>> GetProjectListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount)
+    {
+        var response =  await _graphQlHelper.QueryAsync<CrowdfundingProjectPageResult>(new GraphQLRequest
+        {
+            Query = @"
+			    query ($chainId:String,$startBlockHeight:Long!,$maxResultCount:Int,$skipCount:Int) {
+                    getProjectList(dto: {$chainId:$chainId,$startBlockHeight:$startBlockHeight,$maxResultCount:$maxResultCount,$skipCount:$skipCount}){
+                        data{
+                                id,chainId,blockHeight,creator,behaviorType,crowdFundingType,startTime,endTime,tokenReleaseTime,
+                                toRaisedAmount,crowdFundingIssueAmount,preSalePrice,publicSalePrice,minSubscription,maxSubscription,listMarketInfo,
+                                liquidityLockProportion,unlockTime,firstDistributeProportion,restDistributeProportion,totalPeriod,additionalInfo,isCanceled
+                                wsEnableWhitelist,whitelistId,currentRaisedAmount,currentCrowdFundingIssueAmount,participantCount,chainId,currentPeriod
+                                periodDuration,isBurnRestToken,receivableLiquidatedDamageAmount,lastModificationTime
+                                toRaiseToken{symbol},
+                                crowdFundingIssueToken{symbol}
+                            }
+                        ,totalCount
+                    }
+                }",
+            Variables = new
+            {
+                startBlockHeight, chainId, maxResultCount, skipCount
+            }
+        });
+        return CollectionUtilities.IsNullOrEmpty(response.Data) ? new List<CrowdfundingProjectIndex>() : response.Data;
+    }
+    
+    public async Task<List<UserRecordIndex>> GetUserRecordListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount)
+    {
+        var response =  await _graphQlHelper.QueryAsync<UserRecordPageResult>(new GraphQLRequest
+        {
+            Query = @"
+			    query ($chainId:String,$startBlockHeight:Long!,$maxResultCount:Int,$skipCount:Int) {
+                    getUserRecordList(dto: {$chainId:$chainId,$startBlockHeight:$startBlockHeight,$maxResultCount:$maxResultCount,$skipCount:$skipCount}){
+                        data{
+                                id,chainId,user,behaviorType,toRaiseTokenAmount,crowdFundingIssueAmount,dateTime,blockHeight
+                                crowdfundingProjectBase{chainId,blockHeight,id,creator,crowdFundingType,startTime,endTime,tokenReleaseTime},
+                                toRaiseToken{symbol},
+                                crowdFundingIssueToken{symbol}
+                            }
+                        ,totalCount
+                    }
+                }",
+            Variables = new
+            {
+                startBlockHeight, chainId, maxResultCount, skipCount
+            }
+        });
+        return CollectionUtilities.IsNullOrEmpty(response.Data) ? new List<UserRecordIndex>() : response.Data;
     }
 }

@@ -24,9 +24,7 @@ public class JobEnqueueService : IJobEnqueueService, ITransientDependency
     }
 
     public async Task AddJobAtFirstTimeAsync(string chainName, string projectId, DateTimeOffset startTime,
-        int currentPeriod,
-        int totalPeriod,
-        long periodDuration)
+        int currentPeriod, int totalPeriod, long periodDuration)
     {
         var delay = startTime.ToUnixTimeSeconds() - DateTimeOffset.Now.ToUnixTimeSeconds();
         if (delay < 0)
