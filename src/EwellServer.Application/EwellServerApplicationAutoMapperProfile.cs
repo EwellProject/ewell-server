@@ -1,5 +1,6 @@
 using AutoMapper;
 using EwellServer.Entities;
+using EwellServer.Etos;
 using EwellServer.Samples.Users;
 using EwellServer.Samples.Users.Dto;
 using EwellServer.Samples.Users.Eto;
@@ -14,5 +15,7 @@ public class EwellServerApplicationAutoMapperProfile : Profile
         CreateMap<UserGrainDto, UserDto>().ReverseMap();
         CreateMap<UserGrainDto, UserInformationEto>().ReverseMap();
         CreateMap<UserIndex, UserDto>().ReverseMap();
+        CreateMap<CrowdfundingProjectIndex, ProjectRegisteredEto>();
+        CreateMap<CrowdfundingProjectIndex, ProjectCanceledEto>();
     }
 }

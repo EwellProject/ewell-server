@@ -6,27 +6,27 @@ using EwellServer.Chains;
 using EwellServer.Common;
 using EwellServer.Common.GraphQL;
 using EwellServer.Entities;
-using EwellServer.User.Provider;
+using EwellServer.Project.Provider;
 using Microsoft.Extensions.Logging;
 
-namespace EwellServer.User;
+namespace EwellServer.Project;
 
 public class UserRecordSyncDataService : ScheduleSyncDataService
 {
     private readonly ILogger<ScheduleSyncDataService> _logger;
-    private readonly IUserRecordGraphQLProvider _userRecordGraphQlProvider;
+    private readonly IUserProjectInfoProvider _userProjectInfoGraphQlProvider;
     private readonly INESTRepository<UserRecordIndex, string> _userRecordRepository;
     private readonly IChainAppService _chainAppService;
 
     public UserRecordSyncDataService(ILogger<UserRecordSyncDataService> logger,
         IGraphQLProvider graphQlProvider,
-        IUserRecordGraphQLProvider userRecordProvider,
+        IUserProjectInfoProvider userProjectInfoGraphQlProvider,
         IChainAppService chainAppService, 
         INESTRepository<UserRecordIndex, string> userRecordRepository)
         : base(logger, graphQlProvider)
     {
         _logger = logger;
-        _userRecordGraphQlProvider = userRecordProvider;
+        _userProjectInfoGraphQlProvider = userProjectInfoGraphQlProvider;
         _chainAppService = chainAppService;
         _userRecordRepository = userRecordRepository;
     }
@@ -38,8 +38,10 @@ public class UserRecordSyncDataService : ScheduleSyncDataService
         List<UserRecordIndex> userRecords;
         do
         {
-            userRecords = await _userRecordGraphQlProvider.GetUserRecordListAsync(lastEndHeight, chainId, maxResultCount, skipCount);
-            if (!userRecords.IsNullOrEmpty())
+            userRecords = await _userProjectInfoGraphQlProvider.GetUserRecordListAsync(lastEndHeight, chainId, maxResultCount, skipCount);
+            _logger.LogInformation("SyncUserRecordInfos GetUserRecordListAsync startBlockHeight: {lastEndHeight} skipCount: {skipCount} count: {count}", 
+                lastEndHeight, skipCount, userRecords.Count);
+            if (userRecords.IsNullOrEmpty())
             {
                 break;
             }
