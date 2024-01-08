@@ -1,45 +1,77 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using AElf.Indexing.Elasticsearch;
 using EwellServer.Common.GraphQL;
 using EwellServer.Dtos;
 using EwellServer.Entities;
 using EwellServer.Project.Index;
 using GraphQL;
 using Microsoft.IdentityModel.Tokens;
+using Nest;
 using Volo.Abp.DependencyInjection;
 
 namespace EwellServer.Project.Provider;
 
 public interface IUserProjectInfoProvider
 {
-    Task<List<UserProjectInfoIndex>> GetSyncUserProjectInfosAsync(string chainId, long startBlockHeight, long endBlockHeight);
+    Task<Dictionary<string, UserProjectInfoIndex>> GetUserProjectInfosAsync(string user);
+
+    Task<List<UserProjectInfoIndex>> GetSyncUserProjectInfosAsync(int skipCount, string chainId, long startBlockHeight, long endBlockHeight);
+    
     Task<List<CrowdfundingProjectIndex>> GetProjectListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount);
+    
     Task<List<UserRecordIndex>> GetUserRecordListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount);
 }
 
 public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDependency
 {
     private readonly IGraphQlHelper _graphQlHelper;
-
-    public UserProjectInfoProvider(IGraphQlHelper graphQlHelper)
+    private readonly INESTRepository<UserProjectInfoIndex, string> _userProjectInfoIndexRepository;
+    
+    public UserProjectInfoProvider(IGraphQlHelper graphQlHelper, 
+        INESTRepository<UserProjectInfoIndex, string> userProjectInfoIndexRepository)
     {
         _graphQlHelper = graphQlHelper;
+        _userProjectInfoIndexRepository = userProjectInfoIndexRepository;
     }
 
-    public async Task<List<UserProjectInfoIndex>> GetSyncUserProjectInfosAsync(string chainId, long startBlockHeight, long endBlockHeight)
+    public async Task<Dictionary<string, UserProjectInfoIndex>> GetUserProjectInfosAsync(string user)
+    {
+        var mustQuery = new List<Func<QueryContainerDescriptor<UserProjectInfoIndex>, QueryContainer>>();
+
+        if (!user.IsNullOrEmpty())
+        {
+            mustQuery.Add(q => q.Term(i =>
+                i.Field(f => f.User).Value(user)));
+        }
+
+        QueryContainer Filter(QueryContainerDescriptor<UserProjectInfoIndex> f) =>
+            f.Bool(b => b.Must(mustQuery));
+
+        var tuple = await _userProjectInfoIndexRepository.GetListAsync(Filter);
+
+        return !tuple.Item2.IsNullOrEmpty() 
+            ? tuple.Item2.ToDictionary(item => item.CrowdfundingProjectId, item => item) 
+            : new Dictionary<string, UserProjectInfoIndex>();
+    }
+
+    public async Task<List<UserProjectInfoIndex>> GetSyncUserProjectInfosAsync(int skipCount, string chainId, long startBlockHeight, long endBlockHeight)
     {
         var graphQlResponse = await _graphQlHelper.QueryAsync<IndexerUserProjectInfoSync>(new GraphQLRequest
         {
             Query =
-                @"query($chainId:String,$startBlockHeight:Long!,$endBlockHeight:Long!){
-            dataList:getSyncUserProjectInfos(dto: {chainId:$chainId,startBlockHeight:$startBlockHeight,endBlockHeight:$endBlockHeight})
+                @"query($skipCount:Int!,$chainId:String,$startBlockHeight:Long!,$endBlockHeight:Long!){
+            dataList:getSyncUserProjectInfos(dto: {skipCount:$skipCount,chainId:$chainId,startBlockHeight:$startBlockHeight,endBlockHeight:$endBlockHeight})
             {
-                id,chainId,blockHeight
+                id,chainId,blockHeight,createTime
                 user,crowdfundingProjectId,investAmount,toClaimAmount,actualClaimAmount,
                 crowdfundingProject{id,chainId,blockHeight,creator,crowdFundingType,startTime,endTime,tokenReleaseTime}
             }}",
             Variables = new
             {
+                skipCount,
                 chainId,
                 startBlockHeight,
                 endBlockHeight
@@ -56,7 +88,7 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
 			    query ($chainId:String,$startBlockHeight:Long!,$maxResultCount:Int,$skipCount:Int) {
                     getProjectList(dto: {$chainId:$chainId,$startBlockHeight:$startBlockHeight,$maxResultCount:$maxResultCount,$skipCount:$skipCount}){
                         data{
-                                id,chainId,blockHeight,creator,behaviorType,crowdFundingType,startTime,endTime,tokenReleaseTime,
+                                id,chainId,blockHeight,creator,behaviorType,crowdFundingType,startTime,endTime,tokenReleaseTime,createTime,cancelTime,
                                 toRaisedAmount,crowdFundingIssueAmount,preSalePrice,publicSalePrice,minSubscription,maxSubscription,listMarketInfo,
                                 liquidityLockProportion,unlockTime,firstDistributeProportion,restDistributeProportion,totalPeriod,additionalInfo,isCanceled
                                 wsEnableWhitelist,whitelistId,currentRaisedAmount,currentCrowdFundingIssueAmount,participantCount,chainId,currentPeriod

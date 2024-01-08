@@ -16,4 +16,5 @@ public class CrowdfundingProjectBase : AbstractEntity<string>
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public DateTime TokenReleaseTime { get; set; }
+    public DateTime CreateTime { get; set; }
 }

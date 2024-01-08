@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace CAServer.Commons;
+namespace EwellServer.Common;
 
 public static class TimeHelper
 {
