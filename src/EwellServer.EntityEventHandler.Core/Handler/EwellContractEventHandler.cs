@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AElf.Indexing.Elasticsearch;
+using EwellServer.Common;
 using EwellServer.Entities;
 using EwellServer.EntityEventHandler.Core.Background.BackgroundJobs.BackgroundJobDescriptions;
 using EwellServer.EntityEventHandler.Core.Background.Services;
@@ -20,8 +21,7 @@ public class EwellContractEventHandler : IDistributedEventHandler<ProjectRegiste
     private readonly IJobEnqueueService _jobEnqueueService;
     private readonly INESTRepository<UserProjectInfoIndex, string> _userProjectInfoIndexRepository;
     private readonly ILogger<EwellContractEventHandler> _logger;
-    private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
+    
     public EwellContractEventHandler(IJobEnqueueService jobEnqueueService, 
         INESTRepository<UserProjectInfoIndex, string> userProjectInfoIndexRepository, 
         ILogger<EwellContractEventHandler> logger)
@@ -37,7 +37,7 @@ public class EwellContractEventHandler : IDistributedEventHandler<ProjectRegiste
             eto.PeriodDuration,
             new Timestamp
             {
-                Seconds = (long)(eto.EndTime.ToUniversalTime() - UnixEpoch).TotalSeconds
+                Seconds = TimeHelper.GetTimeStampFromDateTime(eto.EndTime)
             });
     }
     
