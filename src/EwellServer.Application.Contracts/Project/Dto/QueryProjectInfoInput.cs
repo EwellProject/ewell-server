@@ -12,9 +12,9 @@ public class QueryProjectInfoInput : PagedResultRequestDto, IValidatableObject
 
     public string ProjectId { get; set; }
 
-    public static ProjectStatus Status { get; set; }
+    public ProjectStatus Status { get; set; }
 
-    [Required] public static List<ProjectType> Types { get; set; }
+    [Required] public List<ProjectType> Types { get; set; }
 
     public static string Sorting { get; set; }
 

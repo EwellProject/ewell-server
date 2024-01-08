@@ -1,20 +1,60 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using AElf.CSharp.Core;
+using EwellServer.Entities;
 using EwellServer.Token;
 
 namespace EwellServer.Project.Dto;
 
 public class QueryProjectResultDto
 {
-    private long TotalCount { get; set; } = 0;
+    public long TotalCount { get; set; } = 0;
 
-    private List<QueryProjectResultBase> ActiveItems { get; set; } = new List<QueryProjectResultBase>();
+    public List<QueryProjectResultBase> ActiveItems { get; set; } = new List<QueryProjectResultBase>();
     
-    private List<QueryProjectResultBase> ClosedItems { get; set; } = new List<QueryProjectResultBase>();
+    public List<QueryProjectResultBase> ClosedItems { get; set; } = new List<QueryProjectResultBase>();
     
-    private List<QueryProjectResultBase> CreatedItems { get; set; } = new List<QueryProjectResultBase>();
+    public List<QueryProjectResultBase> CreatedItems { get; set; } = new List<QueryProjectResultBase>();
     
-    private List<QueryProjectResultBase> ParticipateItems { get; set; } = new List<QueryProjectResultBase>();
+    public List<QueryProjectResultBase> ParticipateItems { get; set; } = new List<QueryProjectResultBase>();
+
+
+    public void OfResultDto(string user, Dictionary<string, UserProjectInfoIndex> userProjectDict, QueryProjectResultBase resultBase)
+    {
+        if (resultBase.Creator.Equals(user))
+        {
+            CreatedItems.Add(resultBase);
+        }
+            
+        if (userProjectDict.TryGetValue(resultBase.Id, out var value))
+        {
+            ParticipateItems.Add(resultBase);
+        }
+
+        if (resultBase.Status is ProjectStatus.AboutToStart or ProjectStatus.Fundraising
+            or ProjectStatus.WaitingUnlocked)
+        {
+            ActiveItems.Add(resultBase);
+        }
+
+        if (resultBase.IsCanceled || resultBase.Status == ProjectStatus.Ended)
+        {
+            ClosedItems.Add(resultBase);
+        }
+    }
+
+    public void AddSorting()
+    {
+        ActiveItems = ActiveItems.OrderByDescending(item => item.CurrentRaisedAmount).ToList();
+        ClosedItems = ClosedItems.OrderByDescending(item => item.RealEndTime)
+            .ThenByDescending(item => item.CancelTime)
+            .ToList();
+        CreatedItems = CreatedItems.OrderByDescending(item => item.CreateTime).ToList();
+        ParticipateItems = ParticipateItems
+            .OrderBy(item => item.Status)
+            .ThenByDescending(item => item.InvestCreateTime).ToList();
+    }
 }
 
 public class QueryProjectResultBase
@@ -56,4 +96,45 @@ public class QueryProjectResultBase
     public string User { get; set; }
     public long InvestAmount { get; set; }
     public long ToClaimAmount { get; set; }
+    public DateTime InvestCreateTime { get; set; }
+    public DateTime CreateTime { get; set; }
+    public DateTime? CancelTime { get; set; }
+
+    public ProjectStatus Status  { get; set; }
+    public DateTime RealEndTime  { get; set; }
+    
+    public void OfResultBase(string userAddress, DateTime current, Dictionary<string, UserProjectInfoIndex> userProjectDict)
+    {
+        //convert RealEndTime
+        RealEndTime = TokenReleaseTime.AddSeconds(PeriodDuration.Mul(TotalPeriod));
+
+        //convert status
+        if (IsCanceled)
+        {
+            Status = ProjectStatus.Canceled;
+        }
+        else if (current < StartTime)
+        {
+            Status = ProjectStatus.AboutToStart;
+        }
+        else if (current < EndTime)
+        {
+            Status = ProjectStatus.Fundraising;
+        }
+        else if (current < RealEndTime)
+        {
+            Status = ProjectStatus.WaitingUnlocked;
+        }
+        else
+        {
+            Status = ProjectStatus.Ended;
+        }
+        
+        if (!userAddress.IsNullOrEmpty() && userProjectDict.TryGetValue(Id, out var userProject))
+        {
+            InvestAmount = userProject.InvestAmount;
+            ToClaimAmount = userProject.ToClaimAmount;
+            InvestCreateTime = userProject.CreateTime;
+        }
+    }
 }
