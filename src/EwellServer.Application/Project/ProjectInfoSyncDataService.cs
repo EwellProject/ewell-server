@@ -10,7 +10,6 @@ using EwellServer.Entities;
 using EwellServer.Etos;
 using EwellServer.Project.Provider;
 using Microsoft.Extensions.Logging;
-using Nest;
 using Volo.Abp.EventBus.Distributed;
 using Volo.Abp.ObjectMapping;
 
@@ -69,29 +68,8 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
                 lastEndHeight = maxCurrentBlockHeight;
             }
 
-
-            var projectIds = projects.Select(x => x.Id).ToList();
-            var registerProjectIds = new List<string>();
-            foreach (var projectId in projectIds)
-            {
-                var projectIdExisted = await _graphQlProvider.GetProjectIdAsync(chainId, projectId);
-                if (projectIdExisted == CommonConstant.LongError)
-                {
-                    registerProjectIds.Add(projectId);
-                }
-            }
-            var registerProjects = projects.Where(project => registerProjectIds.Contains(project.Id) && !project.IsCanceled).ToList();
-            var cancelProjects = projects.Where(project => project.IsCanceled).ToList();
-            foreach (var registerProject in registerProjects)
-            {
-                await _graphQlProvider.SetProjectIdAsync(chainId, registerProject.Id, CommonConstant.LongCommon);
-                await _distributedEventBus.PublishAsync(_objectMapper.Map<CrowdfundingProjectIndex, ProjectRegisteredEto>(registerProject));
-            }
-            foreach (var cancelProject in cancelProjects)
-            {
-                await _distributedEventBus.PublishAsync(_objectMapper.Map<CrowdfundingProjectIndex, ProjectCanceledEto>(cancelProject));
-            }
-            
+            await ProcessRegisterProject(projects, chainId);
+            await ProcessCancelProject(projects);
             await _crowdfundingProjectIndexRepository.BulkAddOrUpdateAsync(projects);
         } while (!projects.IsNullOrEmpty());
 
@@ -107,5 +85,33 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
     public override WorkerBusinessType GetBusinessType()
     {
         return WorkerBusinessType.UserProjectInfoSync;
+    }
+
+    private async Task ProcessRegisterProject(List<CrowdfundingProjectIndex> projects, string chainId)
+    {
+        var registerProjects = new List<CrowdfundingProjectIndex>();
+        foreach (var project in projects)
+        {
+            var projectIdExisted = await _graphQlProvider.GetProjectIdAsync(chainId, project.Id);
+            if (projectIdExisted == CommonConstant.LongError)
+            {
+                registerProjects.Add(project);
+            }
+        }
+        
+        foreach (var registerProject in registerProjects)
+        {
+            await _graphQlProvider.SetProjectIdAsync(chainId, registerProject.Id, CommonConstant.LongCommon);
+            await _distributedEventBus.PublishAsync(_objectMapper.Map<CrowdfundingProjectIndex, ProjectRegisteredEto>(registerProject));
+        }
+    }
+
+    private async Task ProcessCancelProject(List<CrowdfundingProjectIndex> projects)
+    {
+        var cancelProjects = projects.Where(project => project.IsCanceled).ToList();
+        foreach (var cancelProject in cancelProjects)
+        {
+            await _distributedEventBus.PublishAsync(_objectMapper.Map<CrowdfundingProjectIndex, ProjectCanceledEto>(cancelProject));
+        }
     }
 }
