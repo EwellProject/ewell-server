@@ -8,8 +8,10 @@ using EwellServer.Common;
 using EwellServer.Common.GraphQL;
 using EwellServer.Entities;
 using EwellServer.Project.Provider;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver.Linq;
 using Nest;
 
 namespace EwellServer.Project;
@@ -60,18 +62,21 @@ public class WhitelistSyncDataService : ScheduleSyncDataService
                 lastEndHeight = maxCurrentBlockHeight;
             }
 
-            var shouldQuery = whitelists.Select(whitelist => (Func<QueryContainerDescriptor<CrowdfundingProjectIndex>, QueryContainer>)(
-                    q => q.Term(
-                        i => i.Field(f => f.WhitelistId).Value(whitelist.Id))))
-                .ToList();
+            var whitelistIds = whitelists.Select(x => x.Id).Distinct().ToList();
+            var mustQuery = new List<Func<QueryContainerDescriptor<CrowdfundingProjectIndex>, QueryContainer>>
+            {
+                q => q.Terms(i => i.Field(f => f.WhitelistId).Terms(whitelistIds)),
+                q => q.Term(i => i.Field(f => f.ChainId).Value(chainId))
+            };
             var projects = (await _crowdfundingProjectIndexRepository.GetListAsync(
-                    f => f.Bool(
-                        b => b.Must(shouldQuery)))).Item2.ToList();
+                    f => f.Bool(b => b.Must(mustQuery))))
+                .Item2.ToList();
             if (!projects.IsNullOrEmpty())
             {
                 foreach (var crowdfundingProjectIndex in projects)
                 {
-                    crowdfundingProjectIndex.IsEnableWhitelist = whitelists.First(whitelist => crowdfundingProjectIndex.WhitelistId == whitelist.Id).IsAvailable;
+                    var latest = whitelists.Where(whitelist => crowdfundingProjectIndex.WhitelistId == whitelist.Id).OrderBy(whitelist => whitelist.BlockHeight).Last();
+                    crowdfundingProjectIndex.IsEnableWhitelist = latest.IsAvailable;
                 }    
                 await _crowdfundingProjectIndexRepository.BulkAddOrUpdateAsync(projects);
             }
@@ -88,6 +93,6 @@ public class WhitelistSyncDataService : ScheduleSyncDataService
 
     public override WorkerBusinessType GetBusinessType()
     {
-        return WorkerBusinessType.UserRecordSync;
+        return WorkerBusinessType.WhitelistSync;
     }
 }
