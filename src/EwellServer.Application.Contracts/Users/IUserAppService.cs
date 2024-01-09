@@ -1,8 +1,9 @@
 using System.Threading.Tasks;
 using EwellServer.Common.Dtos;
 using EwellServer.Samples.Users.Dto;
+using EwellServer.Users.Dto;
 
-namespace EwellServer.Samples.Users;
+namespace EwellServer.Users;
 
 public interface IUserAppService
 {

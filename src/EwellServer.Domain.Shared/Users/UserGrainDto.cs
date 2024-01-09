@@ -1,7 +1,6 @@
 using System;
-using System.Collections.Generic;
 
-namespace EwellServer.Samples.Users;
+namespace EwellServer.Users;
 
 public class UserGrainDto
 {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace EwellServer.Samples.GraphQL;
+namespace EwellServer.Dtos;
 
 public class IndexerSymbols
 {

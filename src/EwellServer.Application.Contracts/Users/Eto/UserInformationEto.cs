@@ -1,3 +1,4 @@
+using EwellServer.Users;
 using EwellServer.Users.Eto;
 using Volo.Abp.EventBus;
 

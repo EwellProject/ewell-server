@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using EwellServer.EntityEventHandler.Core;
-using EwellServer.EntityEventHandler.Core.Samples.User;
+using EwellServer.EntityEventHandler.Core.User;
 using EwellServer.Grains;
 using EwellServer.Samples;
 using Volo.Abp.AuditLogging;

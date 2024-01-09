@@ -1,17 +1,17 @@
 using System;
 using System.Threading.Tasks;
 using AElf.Indexing.Elasticsearch;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using EwellServer.Common;
 using EwellServer.Entities;
-using EwellServer.Samples.Users;
 using EwellServer.Samples.Users.Eto;
+using EwellServer.Users;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.EventBus.Distributed;
 using Volo.Abp.ObjectMapping;
 
-namespace EwellServer.EntityEventHandler.Core.Samples.User;
+namespace EwellServer.EntityEventHandler.Core.User;
 
 public class UserUpdateHandler : IDistributedEventHandler<UserInformationEto>, ITransientDependency
 {

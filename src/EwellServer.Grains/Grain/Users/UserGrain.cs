@@ -2,6 +2,7 @@ using EwellServer.Common;
 using Orleans;
 using EwellServer.Grains.State.Users;
 using EwellServer.Samples.Users;
+using EwellServer.Users;
 using Volo.Abp.ObjectMapping;
 
 namespace EwellServer.Grains.Grain.Users;

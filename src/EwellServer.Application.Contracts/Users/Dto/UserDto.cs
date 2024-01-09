@@ -1,6 +1,6 @@
 using System;
 
-namespace EwellServer.Samples.Users.Dto;
+namespace EwellServer.Users.Dto;
 
 public class UserDto
 {

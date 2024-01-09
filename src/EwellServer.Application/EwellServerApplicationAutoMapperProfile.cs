@@ -1,9 +1,10 @@
 using AutoMapper;
 using EwellServer.Entities;
 using EwellServer.Etos;
-using EwellServer.Samples.Users;
 using EwellServer.Samples.Users.Dto;
 using EwellServer.Samples.Users.Eto;
+using EwellServer.Users;
+using EwellServer.Users.Dto;
 
 namespace EwellServer;
 

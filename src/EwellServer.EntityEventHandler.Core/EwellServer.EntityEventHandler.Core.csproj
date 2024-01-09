@@ -16,10 +16,6 @@
         <ProjectReference Include="..\EwellServer.Domain\EwellServer.Domain.csproj" />
         <ProjectReference Include="..\EwellServer.Application.Contracts\EwellServer.Application.Contracts.csproj" />
     </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="Samples\" />
-    </ItemGroup>
 
    
 

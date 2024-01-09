@@ -1,4 +1,4 @@
-using EwellServer.Samples.Users;
+using EwellServer.Users;
 
 namespace EwellServer.Grains.State.Users;
 
