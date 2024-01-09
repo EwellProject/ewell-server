@@ -18,6 +18,9 @@ public class ProjectService : EwellServerAppService, IProjectService
     private readonly IUserProjectInfoProvider _userProjectInfoProvider;
     private readonly IObjectMapper _objectMapper;
     private readonly IClusterClient _clusterClient;
+
+    private const string chainId = "tDVV";
+    
     public ProjectService(IProjectInfoProvider projectInfoProvider, 
         IUserProjectInfoProvider userProjectInfoProvider, IObjectMapper objectMapper, IClusterClient clusterClient)
     {
@@ -35,8 +38,8 @@ public class ProjectService : EwellServerAppService, IProjectService
         if (userId != Guid.Empty)
         {
             var userGrain = _clusterClient.GetGrain<IUserGrain>(userId);
-            var user = await userGrain.GetUserAsync();
-            userAddress = user.Data?.AelfAddress;
+            var user = await userGrain.GetUser();
+            userAddress = user.Data?.AddressInfos?.FirstOrDefault(addr => addr.ChainId == chainId)?.Address;;
             userProjectDict = await _userProjectInfoProvider.GetUserProjectInfosAsync(userAddress);
         }
         var currentTime = DateTime.UtcNow;

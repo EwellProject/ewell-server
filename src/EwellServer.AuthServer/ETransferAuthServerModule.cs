@@ -49,7 +49,7 @@ namespace EwellServer.Auth;
     typeof(AbpEventBusRabbitMqModule),
     typeof(EwellServerGrainsModule)
 )]
-public class ETransferAuthServerModule : AbpModule
+public class EwellAuthServerModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {

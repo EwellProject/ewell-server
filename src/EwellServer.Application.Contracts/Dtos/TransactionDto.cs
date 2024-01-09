@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace EwellServer.Samples.Http;
+namespace EwellServer.Dtos;
 
 public class TransactionResultDto
 {

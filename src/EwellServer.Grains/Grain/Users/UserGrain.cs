@@ -1,28 +1,28 @@
-using EwellServer.Common;
 using Orleans;
 using EwellServer.Grains.State.Users;
-using EwellServer.Samples.Users;
-using EwellServer.Users;
+using EwellServer.User;
+using EwellServer.User.Dtos;
 using Volo.Abp.ObjectMapping;
 
 namespace EwellServer.Grains.Grain.Users;
 
 public interface IUserGrain : IGrainWithGuidKey
 {
-    Task<GrainResultDto<UserGrainDto>> UpdateUserAsync(UserGrainDto input);
-
-    Task<GrainResultDto<UserGrainDto>> GetUserAsync();
+    Task<GrainResultDto<UserGrainDto>> CreateUser(UserGrainDto input);
+    Task<GrainResultDto<UserGrainDto>> GetUser();
 }
 
 public class UserGrain : Grain<UserState>, IUserGrain
 {
     private readonly IObjectMapper _objectMapper;
+    private readonly IUserAppService _userAppService;
 
-    public UserGrain(IObjectMapper objectMapper)
+    public UserGrain(IObjectMapper objectMapper, IUserAppService userAppService)
     {
         _objectMapper = objectMapper;
+        _userAppService = userAppService;
     }
-    
+
     public override async Task OnActivateAsync()
     {
         await ReadStateAsync();
@@ -34,21 +34,20 @@ public class UserGrain : Grain<UserState>, IUserGrain
         await WriteStateAsync();
         await base.OnDeactivateAsync();
     }
-    
-    public async Task<GrainResultDto<UserGrainDto>> UpdateUserAsync(UserGrainDto input)
-    {
-        State = _objectMapper.Map<UserGrainDto, UserState>(input);
-        if (State.Id == Guid.Empty)
-        {
-            State.Id = this.GetPrimaryKey();
-        }
 
-        var now = DateTime.UtcNow.ToUtcMilliSeconds();
-        State.CreateTime = State.CreateTime == 0 ? now : State.CreateTime;
-        State.UpdateTime = now;
-        
+    public async Task<GrainResultDto<UserGrainDto>> CreateUser(UserGrainDto input)
+    {
+        State.Id = this.GetPrimaryKey();
+        State.UserId = this.GetPrimaryKey();
+        State.AddressInfos = input.AddressInfos;
+        State.AppId = input.AppId;
+        State.CaHash = input.CaHash;
+        State.CreateTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+        State.ModificationTime = State.CreateTime;
+
         await WriteStateAsync();
 
+        await _userAppService.CreateUserAsync(_objectMapper.Map<UserState, UserDto>(State));
         return new GrainResultDto<UserGrainDto>()
         {
             Success = true,
@@ -56,8 +55,17 @@ public class UserGrain : Grain<UserState>, IUserGrain
         };
     }
 
-    public Task<GrainResultDto<UserGrainDto>> GetUserAsync()
+    public Task<GrainResultDto<UserGrainDto>> GetUser()
     {
+        if (State.Id == Guid.Empty)
+        {
+            return Task.FromResult(new GrainResultDto<UserGrainDto>()
+            {
+                Success = false,
+                Message = "User not exists."
+            });
+        }
+        
         return Task.FromResult(new GrainResultDto<UserGrainDto>()
         {
             Success = true,

@@ -22,7 +22,9 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\EwellServer.Application\EwellServer.Application.csproj" />
         <ProjectReference Include="..\EwellServer.Grains\EwellServer.Grains.csproj" />
+        <ProjectReference Include="..\EwellServer.MongoDB\EwellServer.MongoDB.csproj" />
     </ItemGroup>
 
     

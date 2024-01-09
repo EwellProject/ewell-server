@@ -33,7 +33,7 @@ public class Program
             builder.Host.AddAppSettingsSecretsJson()
                 .UseAutofac()
                 .UseSerilog();
-            await builder.AddApplicationAsync<ETransferAuthServerModule>();
+            await builder.AddApplicationAsync<EwellAuthServerModule>();
             var app = builder.Build();
             await app.InitializeApplicationAsync();
             await app.RunAsync();
@@ -41,7 +41,7 @@ public class Program
         }
         catch (Exception ex)
         {
-            Log.Fatal(ex, "ETransferAuthServer.AuthServer terminated unexpectedly!");
+            Log.Fatal(ex, "EwellAuthServer.AuthServer terminated unexpectedly!");
             return 1;
         }
         finally

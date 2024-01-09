@@ -56,7 +56,7 @@ public class TokenGrain : Grain<TokenState>, ITokenGrain
         {
             RawTransaction = txWithSignGetToken.ToByteArray().ToHex()
         });
-        var token = AElf.Contracts.MultiToken.TokenInfo.Parser.ParseFrom(
+        var token = TokenInfo.Parser.ParseFrom(
             ByteArrayHelper.HexStringToByteArray(transactionGetTokenResult));
         State.Id = IdGenerateHelper.GetTokenInfoId(State.ChainId, State.Symbol);
         State.Address = address;

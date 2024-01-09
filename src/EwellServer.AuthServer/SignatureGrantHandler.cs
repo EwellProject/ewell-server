@@ -15,7 +15,7 @@ using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using Orleans;
-// using Portkey.Contracts.CA;
+using Portkey.Contracts.CA;
 using EwellServer.Auth.Dtos;
 using EwellServer.Auth.Options;
 using EwellServer.Grains.Grain.Users;
@@ -207,13 +207,13 @@ public class SignatureGrantHandler : ITokenExtensionGrant
                 var grain = _clusterClient.GetGrain<IUserGrain>(userId);
 
                 var addressInfos = await GetAddressInfosAsync(caHash);
-                // await grain.CreateUser(new UserGrainDto()
-                // {
-                //     UserId = userId,
-                //     CaHash = caHash,
-                //     AppId = AuthConstant.PortKeyAppId,
-                //     AddressInfos = addressInfos
-                // });
+                await grain.CreateUser(new UserGrainDto()
+                {
+                    UserId = userId,
+                    CaHash = caHash,
+                    AppId = AuthConstant.PortKeyAppId,
+                    AddressInfos = addressInfos
+                });
                 _logger.LogInformation("create user success, userId:{userId}", userId.ToString());
             }
 
@@ -262,20 +262,20 @@ public class SignatureGrantHandler : ITokenExtensionGrant
 
     private async Task<AddressInfo> GetAddressInfoAsync(string chainId, string caHash)
     {
-        // var param = new GetHolderInfoInput
-        // {
-        //     CaHash = Hash.LoadFromHex(caHash),
-        //     LoginGuardianIdentifierHash = Hash.Empty
-        // };
-        //
-        // var output =
-        //     await CallTransactionAsync<GetHolderInfoOutput>(chainId, AuthConstant.GetHolderInfo, param, false,
-        //         _chainOptions);
+        var param = new GetHolderInfoInput
+        {
+            CaHash = Hash.LoadFromHex(caHash),
+            LoginGuardianIdentifierHash = Hash.Empty
+        };
+
+        var output =
+            await CallTransactionAsync<GetHolderInfoOutput>(chainId, AuthConstant.GetHolderInfo, param, false,
+                _chainOptions);
 
         return new AddressInfo()
         {
-            // Address = output.CaAddress.ToBase58(),
-            // ChainId = chainId
+            Address = output.CaAddress.ToBase58(),
+            ChainId = chainId
         };
     }
 
@@ -323,18 +323,17 @@ public class SignatureGrantHandler : ITokenExtensionGrant
     private async Task<bool?> CheckAddressFromContractAsync(string chainId, string caHash, string manager,
         ChainOptions chainOptions)
     {
-        // var param = new GetHolderInfoInput
-        // {
-        //     CaHash = Hash.LoadFromHex(caHash),
-        //     LoginGuardianIdentifierHash = Hash.Empty
-        // };
+        var param = new GetHolderInfoInput
+        {
+            CaHash = Hash.LoadFromHex(caHash),
+            LoginGuardianIdentifierHash = Hash.Empty
+        };
 
-        // var output =
-        //     await CallTransactionAsync<GetHolderInfoOutput>(chainId, AuthConstant.GetHolderInfo, param, false,
-        //         chainOptions);
+        var output =
+            await CallTransactionAsync<GetHolderInfoOutput>(chainId, AuthConstant.GetHolderInfo, param, false,
+                chainOptions);
 
-        // return output?.ManagerInfos?.Any(t => t.Address.ToBase58() == manager);
-        return true;
+        return output?.ManagerInfos?.Any(t => t.Address.ToBase58() == manager);
     }
 
     private async Task<T> CallTransactionAsync<T>(string chainId, string methodName, IMessage param,
@@ -381,7 +380,7 @@ public class SignatureGrantHandler : ITokenExtensionGrant
         }
     }
 
-    private async Task<CAHolderManagerInfo> GetManagerListAsync(string url, string caHash)
+    private async Task<CAHolderManagerInfo> GetManagerList(string url, string caHash)
     {
         using var graphQlClient = new GraphQLHttpClient(url, new NewtonsoftJsonSerializer());
 

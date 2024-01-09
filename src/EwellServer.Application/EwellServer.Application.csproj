@@ -33,8 +33,4 @@
     <PackageReference Include="GraphQL.Client" Version="5.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="GraphQL\" />
-  </ItemGroup>
-
 </Project>

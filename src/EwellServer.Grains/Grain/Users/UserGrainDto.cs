@@ -1,10 +1,9 @@
 using EwellServer.User.Dtos;
 
-namespace EwellServer.Grains.State.Users;
+namespace EwellServer.Grains.Grain.Users;
 
-public class UserState
+public class UserGrainDto
 {
-    public Guid Id { get; set; }
     public string AppId { get; set; }
     public Guid UserId { get; set; }
     public string CaHash { get; set; }
