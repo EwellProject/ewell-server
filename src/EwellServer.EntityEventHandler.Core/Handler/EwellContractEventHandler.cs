@@ -33,7 +33,7 @@ public class EwellContractEventHandler : IDistributedEventHandler<ProjectRegiste
 
     public async Task HandleEventAsync(ProjectRegisteredEto eto)
     {
-        await AddUnlockJobAsync(eto.ChainId, eto.ProjectId, eto.TotalPeriod,
+        await AddUnlockJobAsync(eto.ChainId, eto.Id, eto.TotalPeriod,
             eto.PeriodDuration,
             new Timestamp
             {
@@ -43,7 +43,7 @@ public class EwellContractEventHandler : IDistributedEventHandler<ProjectRegiste
     
     public async Task HandleEventAsync(ProjectCanceledEto eto)
     {
-        await AddProjectCancelJobAsync(eto.CrowdfundingProjectId, eto.ChainId);
+        await AddProjectCancelJobAsync(eto.Id, eto.ChainId);
     }
     
     private async Task AddUnlockJobAsync(string chainName, string projectId, int totalPeriod, long periodDuration,

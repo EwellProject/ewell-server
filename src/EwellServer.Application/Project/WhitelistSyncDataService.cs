@@ -62,7 +62,7 @@ public class WhitelistSyncDataService : ScheduleSyncDataService
                 lastEndHeight = maxCurrentBlockHeight;
             }
 
-            var whitelistIds = whitelists.Select(x => x.Id).Distinct().ToList();
+            var whitelistIds = whitelists.Select(x => x.Id).ToList();
             var mustQuery = new List<Func<QueryContainerDescriptor<CrowdfundingProjectIndex>, QueryContainer>>
             {
                 q => q.Terms(i => i.Field(f => f.WhitelistId).Terms(whitelistIds)),
@@ -75,7 +75,7 @@ public class WhitelistSyncDataService : ScheduleSyncDataService
             {
                 foreach (var crowdfundingProjectIndex in projects)
                 {
-                    var latest = whitelists.Where(whitelist => crowdfundingProjectIndex.WhitelistId == whitelist.Id).OrderBy(whitelist => whitelist.BlockHeight).Last();
+                    var latest = whitelists.First(whitelist => crowdfundingProjectIndex.WhitelistId == whitelist.Id);
                     crowdfundingProjectIndex.IsEnableWhitelist = latest.IsAvailable;
                 }    
                 await _crowdfundingProjectIndexRepository.BulkAddOrUpdateAsync(projects);
