@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EwellServer.Entities;
-using EwellServer.Grains.Grain.Users;
 using EwellServer.Project.Dto;
 using EwellServer.Project.Provider;
-using Orleans;
+using EwellServer.User;
 using Volo.Abp.ObjectMapping;
-using Volo.Abp.Users;
 
 namespace EwellServer.Project;
 
@@ -17,31 +15,25 @@ public class ProjectService : EwellServerAppService, IProjectService
     private readonly IProjectInfoProvider _projectInfoProvider;
     private readonly IUserProjectInfoProvider _userProjectInfoProvider;
     private readonly IObjectMapper _objectMapper;
-    private readonly IClusterClient _clusterClient;
-
-    private const string chainId = "tDVV";
-    
+    private readonly IUserService _userService;
     public ProjectService(IProjectInfoProvider projectInfoProvider, 
-        IUserProjectInfoProvider userProjectInfoProvider, IObjectMapper objectMapper, IClusterClient clusterClient)
+        IUserProjectInfoProvider userProjectInfoProvider, IObjectMapper objectMapper, IUserService userService)
     {
         _projectInfoProvider = projectInfoProvider;
         _userProjectInfoProvider = userProjectInfoProvider;
         _objectMapper = objectMapper;
-        _clusterClient = clusterClient;
+        _userService = userService;
     }
 
     public async Task<QueryProjectResultDto> QueryProjectAsync(QueryProjectInfoInput input)
     {
-        var userId = CurrentUser.GetId();
-        Dictionary<string, UserProjectInfoIndex> userProjectDict = new Dictionary<string, UserProjectInfoIndex>();
-        string userAddress = null;
-        if (userId != Guid.Empty)
+        Dictionary<string, UserProjectInfoIndex> userProjectDict = new ();
+        var userAddress = await _userService.GetCurrentUserAddressAsync(input.ChainId);
+        if (!userAddress.IsNullOrEmpty())
         {
-            var userGrain = _clusterClient.GetGrain<IUserGrain>(userId);
-            var user = await userGrain.GetUser();
-            userAddress = user.Data?.AddressInfos?.FirstOrDefault(addr => addr.ChainId == chainId)?.Address;;
             userProjectDict = await _userProjectInfoProvider.GetUserProjectInfosAsync(userAddress);
         }
+
         var currentTime = DateTime.UtcNow;
         var tuple = await _projectInfoProvider.GetProjectInfosAsync(input, currentTime, userAddress,
             userProjectDict.Keys.ToList());
@@ -51,14 +43,17 @@ public class ProjectService : EwellServerAppService, IProjectService
             return new QueryProjectResultDto();
         }
 
-        QueryProjectResultDto resultDto = new QueryProjectResultDto();
+        var resultDto = new QueryProjectResultDto
+        {
+            TotalCount = tuple.Item1
+        };
         foreach (var info in tuple.Item2)
         {
             var resultBase = _objectMapper.Map<CrowdfundingProjectIndex, QueryProjectResultBaseDto>(info);
 
             resultBase.OfResultBase(userAddress, currentTime, userProjectDict);
 
-            resultDto.OfResultDto(userAddress, resultBase, userProjectDict);
+            resultDto.OfResultDto(userAddress, input.Types, resultBase, userProjectDict);
         }
 
         //sorting

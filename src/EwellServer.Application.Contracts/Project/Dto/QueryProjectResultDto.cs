@@ -20,27 +20,42 @@ public class QueryProjectResultDto
     public List<QueryProjectResultBaseDto> ParticipateItems { get; set; } = new();
 
 
-    public void OfResultDto(string user, QueryProjectResultBaseDto resultBase, Dictionary<string, UserProjectInfoIndex> userProjectDict)
+    public void OfResultDto(string user, List<ProjectType> types, 
+        QueryProjectResultBaseDto resultBase, Dictionary<string, UserProjectInfoIndex> userProjectDict)
     {
-        if (resultBase.Creator.Equals(user))
-        {
-            CreatedItems.Add(resultBase);
-        }
-            
-        if (userProjectDict.TryGetValue(resultBase.Id, out var value))
-        {
-            ParticipateItems.Add(resultBase);
-        }
+        bool processAllTypes = types.IsNullOrEmpty();
 
-        if (resultBase.Status is ProjectStatus.AboutToStart or ProjectStatus.Fundraising
-            or ProjectStatus.WaitingUnlocked)
+        if (processAllTypes || types.Contains(ProjectType.Created))
         {
-            ActiveItems.Add(resultBase);
+            if (resultBase.Creator.Equals(user))
+            {
+                CreatedItems.Add(resultBase);
+            }
         }
-
-        if (resultBase.IsCanceled || resultBase.Status == ProjectStatus.Ended)
+    
+        if (processAllTypes || types.Contains(ProjectType.Participate))
         {
-            ClosedItems.Add(resultBase);
+            if (userProjectDict.TryGetValue(resultBase.Id, out var _))
+            {
+                ParticipateItems.Add(resultBase);
+            }
+        }
+    
+        if (processAllTypes || types.Contains(ProjectType.Active))
+        {
+            if (resultBase.Status is ProjectStatus.AboutToStart or ProjectStatus.Fundraising
+                or ProjectStatus.WaitingUnlocked)
+            {
+                ActiveItems.Add(resultBase);
+            }
+        }
+    
+        if (processAllTypes || types.Contains(ProjectType.Closed))
+        {
+            if (resultBase.IsCanceled || resultBase.Status == ProjectStatus.Ended)
+            {
+                ClosedItems.Add(resultBase);
+            }
         }
     }
 

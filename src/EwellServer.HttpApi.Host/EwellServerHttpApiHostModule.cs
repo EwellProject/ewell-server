@@ -22,12 +22,12 @@ using EwellServer.Grains;
 using EwellServer.Middleware;
 using EwellServer.MongoDB;
 using EwellServer.Options;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.Mvc.UI.MultiTenancy;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
-using Volo.Abp.BlobStoring;
 using Volo.Abp.BlobStoring.Aliyun;
 using Volo.Abp.Caching;
 using Volo.Abp.Caching.StackExchangeRedis;
@@ -61,7 +61,7 @@ namespace EwellServer
             Configure<ChainOption>(configuration.GetSection("ChainOption"));
 
             ConfigureConventionalControllers();
-            // ConfigureAuthentication(context, configuration);
+            ConfigureAuthentication(context, configuration);
             ConfigureLocalization();
             ConfigureCache(configuration);
             ConfigureVirtualFileSystem(context);
@@ -287,6 +287,17 @@ namespace EwellServer
         {
             var client = serviceProvider.GetRequiredService<IClusterClient>();
             AsyncHelper.RunSync(client.Close);
+        }
+        
+        private void ConfigureAuthentication(ServiceConfigurationContext context, IConfiguration configuration)
+        {
+            context.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = configuration["AuthServer:Authority"];
+                    options.RequireHttpsMetadata = Convert.ToBoolean(configuration["AuthServer:RequireHttpsMetadata"]);
+                    options.Audience = "EwellServer";
+                });
         }
     }
 }
