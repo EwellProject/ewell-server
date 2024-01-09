@@ -31,7 +31,6 @@ public class ProjectService : EwellServerAppService, IProjectService
     {
         var userId = CurrentUser.GetId();
         Dictionary<string, UserProjectInfoIndex> userProjectDict = new Dictionary<string, UserProjectInfoIndex>();
-
         string userAddress = null;
         if (userId != Guid.Empty)
         {
@@ -52,7 +51,7 @@ public class ProjectService : EwellServerAppService, IProjectService
         QueryProjectResultDto resultDto = new QueryProjectResultDto();
         foreach (var info in tuple.Item2)
         {
-            var resultBase = _objectMapper.Map<CrowdfundingProjectIndex, QueryProjectResultBase>(info);
+            var resultBase = _objectMapper.Map<CrowdfundingProjectIndex, QueryProjectResultBaseDto>(info);
 
             resultBase.OfResultBase(userAddress, currentTime, userProjectDict);
 

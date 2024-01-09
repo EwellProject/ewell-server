@@ -11,16 +11,16 @@ public class QueryProjectResultDto
 {
     public long TotalCount { get; set; } = 0;
 
-    public List<QueryProjectResultBase> ActiveItems { get; set; } = new List<QueryProjectResultBase>();
+    public List<QueryProjectResultBaseDto> ActiveItems { get; set; } = new();
     
-    public List<QueryProjectResultBase> ClosedItems { get; set; } = new List<QueryProjectResultBase>();
+    public List<QueryProjectResultBaseDto> ClosedItems { get; set; } = new();
     
-    public List<QueryProjectResultBase> CreatedItems { get; set; } = new List<QueryProjectResultBase>();
+    public List<QueryProjectResultBaseDto> CreatedItems { get; set; } = new();
     
-    public List<QueryProjectResultBase> ParticipateItems { get; set; } = new List<QueryProjectResultBase>();
+    public List<QueryProjectResultBaseDto> ParticipateItems { get; set; } = new();
 
 
-    public void OfResultDto(string user, QueryProjectResultBase resultBase, Dictionary<string, UserProjectInfoIndex> userProjectDict)
+    public void OfResultDto(string user, QueryProjectResultBaseDto resultBase, Dictionary<string, UserProjectInfoIndex> userProjectDict)
     {
         if (resultBase.Creator.Equals(user))
         {
@@ -57,7 +57,7 @@ public class QueryProjectResultDto
     }
 }
 
-public class QueryProjectResultBase
+public class QueryProjectResultBaseDto
 {
     public string ChainId { get; set; }
     public long BlockHeight { get; set; }

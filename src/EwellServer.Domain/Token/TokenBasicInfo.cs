@@ -4,7 +4,7 @@ using Nest;
 
 namespace EwellServer.Token;
 
-public class TokenBasicInfo : AbstractEntity<Guid>, IToken
+public class TokenBasicInfo : AbstractEntity<string>, IToken
 {
     [Keyword] public string Symbol { get; set; }
     [Keyword] public string Name { get; set; }
