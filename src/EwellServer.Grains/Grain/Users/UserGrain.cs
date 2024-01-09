@@ -8,11 +8,9 @@ namespace EwellServer.Grains.Grain.Users;
 
 public interface IUserGrain : IGrainWithGuidKey
 {
-
     Task<GrainResultDto<UserGrainDto>> UpdateUserAsync(UserGrainDto input);
 
     Task<GrainResultDto<UserGrainDto>> GetUserAsync();
-
 }
 
 public class UserGrain : Grain<UserState>, IUserGrain

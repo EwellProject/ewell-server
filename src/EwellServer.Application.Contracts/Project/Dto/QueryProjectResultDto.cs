@@ -20,7 +20,7 @@ public class QueryProjectResultDto
     public List<QueryProjectResultBase> ParticipateItems { get; set; } = new List<QueryProjectResultBase>();
 
 
-    public void OfResultDto(string user, Dictionary<string, UserProjectInfoIndex> userProjectDict, QueryProjectResultBase resultBase)
+    public void OfResultDto(string user, QueryProjectResultBase resultBase, Dictionary<string, UserProjectInfoIndex> userProjectDict)
     {
         if (resultBase.Creator.Equals(user))
         {
