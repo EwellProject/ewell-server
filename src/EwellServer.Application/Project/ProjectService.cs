@@ -53,7 +53,7 @@ public class ProjectService : EwellServerAppService, IProjectService
 
             resultBase.OfResultBase(userAddress, currentTime, userProjectDict);
 
-            resultDto.OfResultDto(userAddress, input.Types, resultBase, userProjectDict);
+            resultDto.OfResultDto(userAddress, input.ProjectId, input.Types, resultBase, userProjectDict);
         }
 
         //sorting

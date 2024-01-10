@@ -14,7 +14,7 @@ public class QueryProjectInfoInput : PagedResultRequestDto, IValidatableObject
 
     public ProjectStatus Status { get; set; }
 
-    [Required] public List<ProjectType> Types { get; set; }
+    public List<ProjectType> Types { get; set; }
 
     public static string Sorting { get; set; }
 

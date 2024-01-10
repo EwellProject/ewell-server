@@ -10,7 +10,9 @@ namespace EwellServer.Project.Dto;
 public class QueryProjectResultDto
 {
     public long TotalCount { get; set; } = 0;
-
+    
+    public QueryProjectResultBaseDto Detail { get; set; }
+    
     public List<QueryProjectResultBaseDto> ActiveItems { get; set; } = new();
     
     public List<QueryProjectResultBaseDto> ClosedItems { get; set; } = new();
@@ -20,12 +22,17 @@ public class QueryProjectResultDto
     public List<QueryProjectResultBaseDto> ParticipateItems { get; set; } = new();
 
 
-    public void OfResultDto(string user, List<ProjectType> types, 
+    public void OfResultDto(string user, string projectId, List<ProjectType> types, 
         QueryProjectResultBaseDto resultBase, Dictionary<string, UserProjectInfoIndex> userProjectDict)
     {
-        bool processAllTypes = types.IsNullOrEmpty();
+        //only set 
+        if (!projectId.IsNullOrEmpty() && types.IsNullOrEmpty())
+        {
+            Detail = resultBase;
+            return;
+        }
 
-        if (processAllTypes || types.Contains(ProjectType.Created))
+        if (types.Contains(ProjectType.Created))
         {
             if (resultBase.Creator.Equals(user))
             {
@@ -33,7 +40,7 @@ public class QueryProjectResultDto
             }
         }
     
-        if (processAllTypes || types.Contains(ProjectType.Participate))
+        if (types.Contains(ProjectType.Participate))
         {
             if (userProjectDict.TryGetValue(resultBase.Id, out var _))
             {
@@ -41,7 +48,7 @@ public class QueryProjectResultDto
             }
         }
     
-        if (processAllTypes || types.Contains(ProjectType.Active))
+        if (types.Contains(ProjectType.Active))
         {
             if (resultBase.Status is ProjectStatus.AboutToStart or ProjectStatus.Fundraising
                 or ProjectStatus.WaitingUnlocked)
@@ -50,7 +57,7 @@ public class QueryProjectResultDto
             }
         }
     
-        if (processAllTypes || types.Contains(ProjectType.Closed))
+        if (types.Contains(ProjectType.Closed))
         {
             if (resultBase.IsCanceled || resultBase.Status == ProjectStatus.Ended)
             {
