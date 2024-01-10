@@ -44,7 +44,8 @@ public class UserService : EwellServerAppService, IUserService
         var userGrain = _clusterClient.GetGrain<IUserGrain>(userId);
         var grainResultDto = await userGrain.GetUser();
             
-        AssertHelper.IsTrue(grainResultDto.Success, "Get user fail, chainId  {chainId}", chainId);
+        AssertHelper.IsTrue(grainResultDto.Success, "Get user fail, chainId  {chainId} userId {userId}", 
+            chainId, userId);
              
         var addressInfos = grainResultDto.Data.AddressInfos;
         
