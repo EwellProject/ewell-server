@@ -84,7 +84,7 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
 
     public override WorkerBusinessType GetBusinessType()
     {
-        return WorkerBusinessType.UserProjectInfoSync;
+        return WorkerBusinessType.ProjectInfoSync;
     }
 
     private async Task ProcessRegisterProject(List<CrowdfundingProjectIndex> projects, string chainId)

@@ -21,7 +21,7 @@ namespace EwellServer.Common.Chains
         public async Task<string[]> GetListAsync()
         {
             var configuration = _context.Services.GetConfiguration();
-            var items =configuration["Ewell:Chains"];
+            var items = configuration["Ewell:Chains"];
             if (items == null)
             {
                 return Array.Empty<string>();

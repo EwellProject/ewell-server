@@ -8,9 +8,9 @@ using Volo.Abp.Threading;
 
 namespace EwellServer.Worker;
 
-public class ProjectInfoWorker : EwellServerWorkBase
+public class UserRecordSyncWorker : EwellServerWorkBase
 {
-    public ProjectInfoWorker(ILogger<ScheduleSyncDataContext> logger,
+    public UserRecordSyncWorker(ILogger<ScheduleSyncDataContext> logger,
         AbpAsyncTimer timer, IServiceScopeFactory serviceScopeFactory,
         IScheduleSyncDataContext scheduleSyncDataContext,
         IOptionsMonitor<WorkerOptions> optionsMonitor) :
@@ -24,5 +24,5 @@ public class ProjectInfoWorker : EwellServerWorkBase
         await _scheduleSyncDataContext.DealAsync(BusinessType);
     }
 
-    protected override WorkerBusinessType BusinessType => WorkerBusinessType.ProjectInfoSync;
+    protected override WorkerBusinessType BusinessType => WorkerBusinessType.UserRecordSync;
 }

@@ -66,7 +66,7 @@ public class GraphQLProvider : IGraphQLProvider, ISingletonDependency
         {
             Query =
                 @"query($chainId:String,$filterType:BlockFilterType!) {
-                    syncState(dto: {chainId:$chainId,filterType:$filterType}){
+                    syncState(input: {chainId:$chainId,filterType:$filterType}){
                         confirmedBlockHeight}
                     }",
             Variables = new

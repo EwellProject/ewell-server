@@ -8,9 +8,9 @@ using Volo.Abp.Threading;
 
 namespace EwellServer.Worker;
 
-public class WhitelistWorker : EwellServerWorkBase
+public class WhitelistSyncWorker : EwellServerWorkBase
 {
-    public WhitelistWorker(ILogger<ScheduleSyncDataContext> logger,
+    public WhitelistSyncWorker(ILogger<ScheduleSyncDataContext> logger,
         AbpAsyncTimer timer, IServiceScopeFactory serviceScopeFactory,
         IScheduleSyncDataContext scheduleSyncDataContext,
         IOptionsMonitor<WorkerOptions> optionsMonitor) :

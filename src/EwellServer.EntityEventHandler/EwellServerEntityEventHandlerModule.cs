@@ -3,6 +3,7 @@ using EwellServer.EntityEventHandler.Core;
 using EwellServer.EntityEventHandler.Core.Background.Options;
 using EwellServer.Grains;
 using EwellServer.MongoDB;
+using EwellServer.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Orleans;
@@ -27,8 +28,9 @@ namespace EwellServer.EntityEventHandler;
     typeof(AbpAspNetCoreSerilogModule),
     typeof(EwellServerEntityEventHandlerCoreModule),
     typeof(AbpAspNetCoreSerilogModule),
-    typeof(AbpEventBusRabbitMqModule)
-    )]
+    typeof(AbpEventBusRabbitMqModule),
+    typeof(EwellServerWorkerModule)
+)]
 public class EwellServerEntityEventHandlerModule : AbpModule
 {
   public override void ConfigureServices(ServiceConfigurationContext context)

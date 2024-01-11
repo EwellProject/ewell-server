@@ -14,7 +14,10 @@ namespace EwellServer.Worker
         public override void OnApplicationInitialization(ApplicationInitializationContext context)
         {
             var backgroundWorkerManger = context.ServiceProvider.GetRequiredService<IBackgroundWorkerManager>();
+            backgroundWorkerManger.AddAsync(context.ServiceProvider.GetService<ProjectInfoSyncWorker>());
             backgroundWorkerManger.AddAsync(context.ServiceProvider.GetService<UserProjectInfoSyncWorker>());
+            backgroundWorkerManger.AddAsync(context.ServiceProvider.GetService<UserRecordSyncWorker>());
+            backgroundWorkerManger.AddAsync(context.ServiceProvider.GetService<WhitelistSyncWorker>());
         }
     }
 }
