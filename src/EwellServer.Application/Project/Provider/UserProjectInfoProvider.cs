@@ -89,10 +89,10 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
 			    query ($chainId:String!,$startBlockHeight:Long!,$endBlockHeight:Long!,$maxResultCount:Int!,$skipCount:Int!) {
                     getProjectList(input: {chainId:$chainId,startBlockHeight:$startBlockHeight,endBlockHeight:$endBlockHeight,maxResultCount:$maxResultCount,skipCount:$skipCount}){
                         data{
-                                id,chainId,blockHeight,creator,behaviorType,crowdFundingType,startTime,endTime,tokenReleaseTime,createTime,cancelTime,
+                                id,chainId,blockHeight,creator,crowdFundingType,startTime,endTime,tokenReleaseTime,createTime,cancelTime,
                                 toRaisedAmount,crowdFundingIssueAmount,preSalePrice,publicSalePrice,minSubscription,maxSubscription,listMarketInfo,
                                 liquidityLockProportion,unlockTime,firstDistributeProportion,restDistributeProportion,totalPeriod,additionalInfo,isCanceled
-                                wsEnableWhitelist,whitelistId,currentRaisedAmount,currentCrowdFundingIssueAmount,participantCount,chainId,currentPeriod
+                                isEnableWhitelist,whitelistId,currentRaisedAmount,currentCrowdFundingIssueAmount,participantCount,chainId,currentPeriod
                                 periodDuration,isBurnRestToken,receivableLiquidatedDamageAmount,lastModificationTime
                                 toRaiseToken{symbol},
                                 crowdFundingIssueToken{symbol}
@@ -117,7 +117,7 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
                     getUserRecordList(input: {chainId:$chainId,startBlockHeight:$startBlockHeight,endBlockHeight:$endBlockHeight,maxResultCount:$maxResultCount,skipCount:$skipCount}){
                         data{
                                 id,chainId,user,behaviorType,toRaiseTokenAmount,crowdFundingIssueAmount,dateTime,blockHeight
-                                crowdfundingProjectBase{chainId,blockHeight,id,creator,crowdFundingType,startTime,endTime,tokenReleaseTime},
+                                crowdfundingProject{chainId,blockHeight,id,creator,crowdFundingType,startTime,endTime,tokenReleaseTime},
                                 toRaiseToken{symbol},
                                 crowdFundingIssueToken{symbol}
                             }
