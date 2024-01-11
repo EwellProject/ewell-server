@@ -86,8 +86,8 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
         var response =  await _graphQlHelper.QueryAsync<CrowdfundingProjectPageResult>(new GraphQLRequest
         {
             Query = @"
-			    query ($chainId:String,$startBlockHeight:Long!,$endBlockHeight:Long!,$maxResultCount:Int,$skipCount:Int) {
-                    getProjectList(input: {$chainId:$chainId,$startBlockHeight:$startBlockHeight,$endBlockHeight:$endBlockHeight,$maxResultCount:$maxResultCount,$skipCount:$skipCount}){
+			    query ($chainId:String!,$startBlockHeight:Long!,$endBlockHeight:Long!,$maxResultCount:Int!,$skipCount:Int!) {
+                    getProjectList(input: {chainId:$chainId,startBlockHeight:$startBlockHeight,endBlockHeight:$endBlockHeight,maxResultCount:$maxResultCount,skipCount:$skipCount}){
                         data{
                                 id,chainId,blockHeight,creator,behaviorType,crowdFundingType,startTime,endTime,tokenReleaseTime,createTime,cancelTime,
                                 toRaisedAmount,crowdFundingIssueAmount,preSalePrice,publicSalePrice,minSubscription,maxSubscription,listMarketInfo,
@@ -113,8 +113,8 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
         var response =  await _graphQlHelper.QueryAsync<UserRecordPageResult>(new GraphQLRequest
         {
             Query = @"
-			    query ($chainId:String,$startBlockHeight:Long!,$endBlockHeight:Long!,$maxResultCount:Int,$skipCount:Int) {
-                    getUserRecordList(input: {$chainId:$chainId,$startBlockHeight:$startBlockHeight,$endBlockHeight:$endBlockHeight,$maxResultCount:$maxResultCount,$skipCount:$skipCount}){
+			    query ($chainId:String!,$startBlockHeight:Long!,$endBlockHeight:Long!,$maxResultCount:Int!,$skipCount:Int!) {
+                    getUserRecordList(input: {chainId:$chainId,startBlockHeight:$startBlockHeight,endBlockHeight:$endBlockHeight,maxResultCount:$maxResultCount,skipCount:$skipCount}){
                         data{
                                 id,chainId,user,behaviorType,toRaiseTokenAmount,crowdFundingIssueAmount,dateTime,blockHeight
                                 crowdfundingProjectBase{chainId,blockHeight,id,creator,crowdFundingType,startTime,endTime,tokenReleaseTime},
@@ -137,8 +137,8 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
         var response =  await _graphQlHelper.QueryAsync<WhitelistPageResult>(new GraphQLRequest
         {
             Query = @"
-			    query ($chainId:String,$startBlockHeight:Long!,$endBlockHeight:Long!,$maxResultCount:Int,$skipCount:Int) {
-                    getWhitelistList(input: {$chainId:$chainId,$startBlockHeight:$startBlockHeight,$endBlockHeight:$endBlockHeight,$maxResultCount:$maxResultCount,$skipCount:$skipCount}){
+			    query ($chainId:String!,$startBlockHeight:Long!,$endBlockHeight:Long!,$maxResultCount:Int!,$skipCount:Int!) {
+                    getWhitelistList(input: {chainId:$chainId,startBlockHeight:$startBlockHeight,endBlockHeight:$endBlockHeight,maxResultCount:$maxResultCount,skipCount:$skipCount}){
                         data{
                                 id,chainId,blockHeight,isAvailable
                             }
