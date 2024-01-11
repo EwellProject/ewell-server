@@ -49,7 +49,7 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
         List<CrowdfundingProjectIndex> projects;
         do
         {
-            projects = await _userProjectInfoGraphQlProvider.GetProjectListAsync(lastEndHeight, chainId, maxResultCount, skipCount);
+            projects = await _userProjectInfoGraphQlProvider.GetProjectListAsync(lastEndHeight, 0, chainId, maxResultCount, skipCount);
             _logger.LogInformation("SyncProjectInfos GetProjectListAsync startBlockHeight: {lastEndHeight} skipCount: {skipCount} count: {count}", 
                 lastEndHeight, skipCount, projects.Count);
             if (projects.IsNullOrEmpty())

@@ -38,7 +38,7 @@ public class UserRecordSyncDataService : ScheduleSyncDataService
         List<UserRecordIndex> userRecords;
         do
         {
-            userRecords = await _userProjectInfoGraphQlProvider.GetUserRecordListAsync(lastEndHeight, chainId, maxResultCount, skipCount);
+            userRecords = await _userProjectInfoGraphQlProvider.GetUserRecordListAsync(lastEndHeight, 0, chainId, maxResultCount, skipCount);
             _logger.LogInformation("SyncUserRecordInfos GetUserRecordListAsync startBlockHeight: {lastEndHeight} skipCount: {skipCount} count: {count}", 
                 lastEndHeight, skipCount, userRecords.Count);
             if (userRecords.IsNullOrEmpty())

@@ -43,7 +43,7 @@ public class WhitelistSyncDataService : ScheduleSyncDataService
         List<Whitelist> whitelists;
         do
         {
-            whitelists = await _userProjectInfoGraphQlProvider.GetWhitelistListAsync(lastEndHeight, chainId, maxResultCount, skipCount);
+            whitelists = await _userProjectInfoGraphQlProvider.GetWhitelistListAsync(lastEndHeight, 0, chainId, maxResultCount, skipCount);
             _logger.LogInformation("SyncWhitelistInfos GetWhitelistListAsync startBlockHeight: {lastEndHeight} skipCount: {skipCount} count: {count}", 
                 lastEndHeight, skipCount, whitelists.Count);
             if (whitelists.IsNullOrEmpty())

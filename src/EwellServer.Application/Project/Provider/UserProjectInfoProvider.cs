@@ -20,10 +20,10 @@ public interface IUserProjectInfoProvider
 
     Task<List<UserProjectInfoIndex>> GetSyncUserProjectInfosAsync(int skipCount, string chainId, long startBlockHeight, long endBlockHeight);
     
-    Task<List<CrowdfundingProjectIndex>> GetProjectListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount);
+    Task<List<CrowdfundingProjectIndex>> GetProjectListAsync(long startBlockHeight, long endBlockHeight, string chainId, int maxResultCount, int skipCount);
     
-    Task<List<UserRecordIndex>> GetUserRecordListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount);
-    Task<List<Whitelist>> GetWhitelistListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount);
+    Task<List<UserRecordIndex>> GetUserRecordListAsync(long startBlockHeight, long endBlockHeight, string chainId, int maxResultCount, int skipCount);
+    Task<List<Whitelist>> GetWhitelistListAsync(long startBlockHeight, long endBlockHeight, string chainId, int maxResultCount, int skipCount);
 }
 
 public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDependency
@@ -81,13 +81,13 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
         return graphQlResponse.Data.DataList.IsNullOrEmpty() ? new List<UserProjectInfoIndex>() : graphQlResponse.Data.DataList;
     }
     
-    public async Task<List<CrowdfundingProjectIndex>> GetProjectListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount)
+    public async Task<List<CrowdfundingProjectIndex>> GetProjectListAsync(long startBlockHeight, long endBlockHeight, string chainId, int maxResultCount, int skipCount)
     {
         var response =  await _graphQlHelper.QueryAsync<CrowdfundingProjectPageResult>(new GraphQLRequest
         {
             Query = @"
-			    query ($chainId:String,$startBlockHeight:Long!,$maxResultCount:Int,$skipCount:Int) {
-                    getProjectList(dto: {$chainId:$chainId,$startBlockHeight:$startBlockHeight,$maxResultCount:$maxResultCount,$skipCount:$skipCount}){
+			    query ($chainId:String,$startBlockHeight:Long!,$endBlockHeight:Long!,$maxResultCount:Int,$skipCount:Int) {
+                    getProjectList(input: {$chainId:$chainId,$startBlockHeight:$startBlockHeight,$endBlockHeight:$endBlockHeight,$maxResultCount:$maxResultCount,$skipCount:$skipCount}){
                         data{
                                 id,chainId,blockHeight,creator,behaviorType,crowdFundingType,startTime,endTime,tokenReleaseTime,createTime,cancelTime,
                                 toRaisedAmount,crowdFundingIssueAmount,preSalePrice,publicSalePrice,minSubscription,maxSubscription,listMarketInfo,
@@ -102,19 +102,19 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
                 }",
             Variables = new
             {
-                startBlockHeight, chainId, maxResultCount, skipCount
+                chainId, startBlockHeight, endBlockHeight, maxResultCount, skipCount
             }
         });
         return CollectionUtilities.IsNullOrEmpty(response.Data) ? new List<CrowdfundingProjectIndex>() : response.Data;
     }
     
-    public async Task<List<UserRecordIndex>> GetUserRecordListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount)
+    public async Task<List<UserRecordIndex>> GetUserRecordListAsync(long startBlockHeight, long endBlockHeight, string chainId, int maxResultCount, int skipCount)
     {
         var response =  await _graphQlHelper.QueryAsync<UserRecordPageResult>(new GraphQLRequest
         {
             Query = @"
-			    query ($chainId:String,$startBlockHeight:Long!,$maxResultCount:Int,$skipCount:Int) {
-                    getUserRecordList(dto: {$chainId:$chainId,$startBlockHeight:$startBlockHeight,$maxResultCount:$maxResultCount,$skipCount:$skipCount}){
+			    query ($chainId:String,$startBlockHeight:Long!,$endBlockHeight:Long!,$maxResultCount:Int,$skipCount:Int) {
+                    getUserRecordList(input: {$chainId:$chainId,$startBlockHeight:$startBlockHeight,$endBlockHeight:$endBlockHeight,$maxResultCount:$maxResultCount,$skipCount:$skipCount}){
                         data{
                                 id,chainId,user,behaviorType,toRaiseTokenAmount,crowdFundingIssueAmount,dateTime,blockHeight
                                 crowdfundingProjectBase{chainId,blockHeight,id,creator,crowdFundingType,startTime,endTime,tokenReleaseTime},
@@ -126,19 +126,19 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
                 }",
             Variables = new
             {
-                startBlockHeight, chainId, maxResultCount, skipCount
+                chainId, startBlockHeight, endBlockHeight, maxResultCount, skipCount
             }
         });
         return CollectionUtilities.IsNullOrEmpty(response.Data) ? new List<UserRecordIndex>() : response.Data;
     }
 
-    public async Task<List<Whitelist>> GetWhitelistListAsync(long startBlockHeight, string chainId, int maxResultCount, int skipCount)
+    public async Task<List<Whitelist>> GetWhitelistListAsync(long startBlockHeight, long endBlockHeight, string chainId, int maxResultCount, int skipCount)
     {
         var response =  await _graphQlHelper.QueryAsync<WhitelistPageResult>(new GraphQLRequest
         {
             Query = @"
-			    query ($chainId:String,$startBlockHeight:Long!,$maxResultCount:Int,$skipCount:Int) {
-                    getWhitelistList(dto: {$chainId:$chainId,$startBlockHeight:$startBlockHeight,$maxResultCount:$maxResultCount,$skipCount:$skipCount}){
+			    query ($chainId:String,$startBlockHeight:Long!,$endBlockHeight:Long!,$maxResultCount:Int,$skipCount:Int) {
+                    getWhitelistList(input: {$chainId:$chainId,$startBlockHeight:$startBlockHeight,$endBlockHeight:$endBlockHeight,$maxResultCount:$maxResultCount,$skipCount:$skipCount}){
                         data{
                                 id,chainId,blockHeight,isAvailable
                             }
@@ -147,7 +147,7 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
                 }",
             Variables = new
             {
-                startBlockHeight, chainId, maxResultCount, skipCount
+                chainId, startBlockHeight, endBlockHeight, maxResultCount, skipCount
             }
         });
         return CollectionUtilities.IsNullOrEmpty(response.Data) ? new List<Whitelist>() : response.Data;
