@@ -6,11 +6,6 @@ using Orleans;
 
 namespace EwellServer.Token;
 
-public interface ITokenService
-{
-    Task<TokenGrainDto> GetTokenAsync(string chainId, string symbol);
-}
-
 public class TokenService : EwellServerAppService, ITokenService
 {
     private readonly IClusterClient _clusterClient;

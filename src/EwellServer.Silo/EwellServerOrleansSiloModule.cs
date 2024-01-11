@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using EwellServer.Grains;
+using EwellServer.Grains.Grain.ApplicationHandler;
 using EwellServer.MongoDB;
 using EwellServer.User;
 using Volo.Abp.AspNetCore.Serilog;
@@ -17,6 +18,8 @@ public class EwellServerOrleansSiloModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
+        var configuration = context.Services.GetConfiguration();
+        Configure<ChainOptions>(configuration.GetSection("Chains"));
         context.Services.AddHostedService<EwellServerHostedService>();
         context.Services.AddTransient<IUserAppService, UserAppService>();
     }
