@@ -24,15 +24,10 @@ public class QueryProjectInfoInput : PagedResultRequestDto, IValidatableObject
         {
             yield return new ValidationResult($"ChainId invalid.");
         }
-
-        /*if (SymbolLengthMin > SymbolLengthMax)
+        
+        if (ProjectId.IsNullOrEmpty() && Types.IsNullOrEmpty())
         {
-            yield return new ValidationResult($"SymbolLengthMin must be less than SymbolLengthMax.");
+            yield return new ValidationResult($"You must specify the projectId or types.");
         }
-
-        if (PriceMin > PriceMax)
-        {
-            yield return new ValidationResult($"PriceMin must be less than PriceMax.");
-        }*/
     }
 }

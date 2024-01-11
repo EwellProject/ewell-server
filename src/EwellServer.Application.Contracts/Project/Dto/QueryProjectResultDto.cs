@@ -25,13 +25,18 @@ public class QueryProjectResultDto
     public void OfResultDto(string user, string projectId, List<ProjectType> types, 
         QueryProjectResultBaseDto resultBase, Dictionary<string, UserProjectInfoIndex> userProjectDict)
     {
-        //only set 
+        //only set Detail
         if (!projectId.IsNullOrEmpty() && types.IsNullOrEmpty())
         {
             Detail = resultBase;
             return;
         }
+        TypesHandle(user, types, resultBase, userProjectDict);
+    }
 
+    private void TypesHandle(string user, List<ProjectType> types, QueryProjectResultBaseDto resultBase, 
+        Dictionary<string, UserProjectInfoIndex> userProjectDict)
+    {
         if (types.Contains(ProjectType.Created))
         {
             if (resultBase.Creator.Equals(user))
@@ -64,6 +69,7 @@ public class QueryProjectResultDto
                 ClosedItems.Add(resultBase);
             }
         }
+        
     }
 
     public void AddSorting()
