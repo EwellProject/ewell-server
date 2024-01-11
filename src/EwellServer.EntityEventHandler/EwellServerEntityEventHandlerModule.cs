@@ -3,6 +3,7 @@ using EwellServer.EntityEventHandler.Core;
 using EwellServer.EntityEventHandler.Core.Background.Options;
 using EwellServer.Grains;
 using EwellServer.MongoDB;
+using EwellServer.Work;
 using EwellServer.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -37,6 +38,7 @@ public class EwellServerEntityEventHandlerModule : AbpModule
     {
         ConfigureTokenCleanupService();
         var configuration = context.Services.GetConfiguration();
+        Configure<WorkerOptions>(configuration);
         Configure<ApiOptions>(configuration.GetSection("Api"));
         Configure<EwellOption>(configuration.GetSection("EwellOption"));
         context.Services.AddHostedService<EwellServerHostedService>();

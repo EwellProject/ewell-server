@@ -64,7 +64,7 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
         {
             Query =
                 @"query($skipCount:Int!,$chainId:String,$startBlockHeight:Long!,$endBlockHeight:Long!){
-            dataList:getSyncUserProjectInfos(dto: {skipCount:$skipCount,chainId:$chainId,startBlockHeight:$startBlockHeight,endBlockHeight:$endBlockHeight})
+            dataList:getSyncUserProjectInfos(input: {skipCount:$skipCount,chainId:$chainId,startBlockHeight:$startBlockHeight,endBlockHeight:$endBlockHeight})
             {
                 id,chainId,blockHeight,createTime
                 user,crowdfundingProjectId,investAmount,toClaimAmount,actualClaimAmount,
@@ -78,7 +78,7 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
                 endBlockHeight
             }
         });
-        return graphQlResponse.Data.DataList.IsNullOrEmpty() ? new List<UserProjectInfoIndex>() : graphQlResponse.Data.DataList;
+        return graphQlResponse.Data?.DataList ?? new List<UserProjectInfoIndex>();
     }
     
     public async Task<List<CrowdfundingProjectIndex>> GetProjectListAsync(long startBlockHeight, long endBlockHeight, string chainId, int maxResultCount, int skipCount)
