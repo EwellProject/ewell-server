@@ -94,8 +94,8 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
                                 liquidityLockProportion,unlockTime,firstDistributeProportion,restDistributeProportion,totalPeriod,additionalInfo,isCanceled,
                                 isEnableWhitelist,whitelistId,currentRaisedAmount,currentCrowdFundingIssueAmount,participantCount,chainId,currentPeriod,
                                 periodDuration,isBurnRestToken,receivableLiquidatedDamageAmount,lastModificationTime,
-                                toRaiseToken{symbol},
-                                crowdFundingIssueToken{symbol}
+                                toRaiseToken{chainId,symbol},
+                                crowdFundingIssueToken{chainId,symbol}
                             }
                         ,totalCount
                     }
