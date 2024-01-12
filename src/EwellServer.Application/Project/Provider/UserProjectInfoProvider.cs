@@ -83,17 +83,17 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
     
     public async Task<List<CrowdfundingProjectIndex>> GetProjectListAsync(long startBlockHeight, long endBlockHeight, string chainId, int maxResultCount, int skipCount)
     {
-        var response =  await _graphQlHelper.QueryAsync<CrowdfundingProjectPageResult>(new GraphQLRequest
+        var response =  await _graphQlHelper.QueryAsync<Temp>(new GraphQLRequest
         {
             Query = @"
 			    query ($chainId:String!,$startBlockHeight:Long!,$endBlockHeight:Long!,$maxResultCount:Int!,$skipCount:Int!) {
-                    getProjectList(input: {chainId:$chainId,startBlockHeight:$startBlockHeight,endBlockHeight:$endBlockHeight,maxResultCount:$maxResultCount,skipCount:$skipCount}){
+                    data:getProjectList(input: {chainId:$chainId,startBlockHeight:$startBlockHeight,endBlockHeight:$endBlockHeight,maxResultCount:$maxResultCount,skipCount:$skipCount}){
                         data{
                                 id,chainId,blockHeight,creator,crowdFundingType,startTime,endTime,tokenReleaseTime,createTime,cancelTime,
                                 toRaisedAmount,crowdFundingIssueAmount,preSalePrice,publicSalePrice,minSubscription,maxSubscription,listMarketInfo,
-                                liquidityLockProportion,unlockTime,firstDistributeProportion,restDistributeProportion,totalPeriod,additionalInfo,isCanceled
-                                isEnableWhitelist,whitelistId,currentRaisedAmount,currentCrowdFundingIssueAmount,participantCount,chainId,currentPeriod
-                                periodDuration,isBurnRestToken,receivableLiquidatedDamageAmount,lastModificationTime
+                                liquidityLockProportion,unlockTime,firstDistributeProportion,restDistributeProportion,totalPeriod,additionalInfo,isCanceled,
+                                isEnableWhitelist,whitelistId,currentRaisedAmount,currentCrowdFundingIssueAmount,participantCount,chainId,currentPeriod,
+                                periodDuration,isBurnRestToken,receivableLiquidatedDamageAmount,lastModificationTime,
                                 toRaiseToken{symbol},
                                 crowdFundingIssueToken{symbol}
                             }
@@ -105,7 +105,7 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
                 chainId, startBlockHeight, endBlockHeight, maxResultCount, skipCount
             }
         });
-        return CollectionUtilities.IsNullOrEmpty(response.Data) ? new List<CrowdfundingProjectIndex>() : response.Data;
+        return CollectionUtilities.IsNullOrEmpty(response.data.Data) ? new List<CrowdfundingProjectIndex>() : response.data.Data;
     }
     
     public async Task<List<UserRecordIndex>> GetUserRecordListAsync(long startBlockHeight, long endBlockHeight, string chainId, int maxResultCount, int skipCount)
