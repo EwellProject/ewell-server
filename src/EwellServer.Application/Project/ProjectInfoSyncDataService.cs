@@ -93,8 +93,9 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
         foreach (var project in projects)
         {
             var projectIdExisted = await _graphQlProvider.GetProjectIdAsync(chainId, project.Id);
-            if (projectIdExisted == CommonConstant.LongError)
+            if (projectIdExisted <= 0)
             {
+                _logger.LogInformation("ProcessRegisterProject chainId: {chainId} projectId: {projectId}", chainId, project.Id);
                 registerProjects.Add(project);
             }
         }

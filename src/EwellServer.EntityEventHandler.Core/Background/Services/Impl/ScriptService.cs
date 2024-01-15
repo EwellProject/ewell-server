@@ -5,6 +5,7 @@ using AElf.Contracts.Ewell;
 using AElf.Types;
 using EwellServer.EntityEventHandler.Core.Background.BackgroundJobs.BackgroundJobDescriptions;
 using EwellServer.EntityEventHandler.Core.Background.Options;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Volo.Abp.DependencyInjection;
 
@@ -15,12 +16,14 @@ public class ScriptService : IScriptService, ITransientDependency
     private readonly IJobEnqueueService _jobEnqueueService;
     private readonly ITransactionService _transactionService;
     private readonly List<EwellInfo> _ewellInfoList;
+    private readonly ILogger<ScriptService> _logger;
 
     public ScriptService(IJobEnqueueService jobEnqueueService, ITransactionService transactionService,
-        IOptionsSnapshot<EwellOption> ewellOptionsSnapshot)
+        IOptionsSnapshot<EwellOption> ewellOptionsSnapshot, ILogger<ScriptService> logger)
     {
         _jobEnqueueService = jobEnqueueService;
         _transactionService = transactionService;
+        _logger = logger;
         _ewellInfoList = ewellOptionsSnapshot.Value.EwellInfoList.ToList();
     }
 
@@ -29,6 +32,7 @@ public class ScriptService : IScriptService, ITransientDependency
         var chainName = releaseProjectTokenJobDescription.ChainName;
         var projectId = releaseProjectTokenJobDescription.Id;
         var currentPeriod = releaseProjectTokenJobDescription.CurrentPeriod;
+        _logger.LogInformation("ProcessReleaseTokenAsync Id={projectId} ChainName={chainName}", chainName, projectId);
         if (releaseProjectTokenJobDescription.IsNeedUnlockLiquidity)
         {
             // await LockLiquidityAsync(chainName, projectId, currentPeriod);
