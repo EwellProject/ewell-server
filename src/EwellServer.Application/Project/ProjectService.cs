@@ -27,12 +27,16 @@ public class ProjectService : EwellServerAppService, IProjectService
 
     public async Task<QueryProjectResultDto> QueryProjectAsync(QueryProjectInfoInput input)
     {
-        Dictionary<string, UserProjectInfoIndex> userProjectDict = new ();
         var userAddress = await _userService.GetCurrentUserAddressAsync(input.ChainId);
-        if (!userAddress.IsNullOrEmpty())
+
+        if (input.QuerySelf() && userAddress.IsNullOrEmpty())
         {
-            userProjectDict = await _userProjectInfoProvider.GetUserProjectInfosAsync(userAddress);
+            return new QueryProjectResultDto();
         }
+
+        var userProjectDict = userAddress.IsNullOrEmpty()
+            ? new Dictionary<string, UserProjectInfoIndex>()
+            : await _userProjectInfoProvider.GetUserProjectInfosAsync(userAddress);
 
         var currentTime = DateTime.UtcNow;
         var tuple = await _projectInfoProvider.GetProjectInfosAsync(input, currentTime, userAddress,
