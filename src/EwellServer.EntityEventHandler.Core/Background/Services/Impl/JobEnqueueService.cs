@@ -87,7 +87,7 @@ public class JobEnqueueService : IJobEnqueueService, ITransientDependency
     private void LogWarning(string chainName, string projectId, int currentPeriod, int totalPeriod, long delay)
     {
         _logger.LogWarning(
-            $"Invalid job delay: {delay}. chain name: {chainName} project ID: {projectId}, current period: {currentPeriod}, total period: {totalPeriod}");
+            $"InvalidJob delay: {delay}. chain name: {chainName} project ID: {projectId}, current period: {currentPeriod}, total period: {totalPeriod}");
     }
 
     private void LogNewJob(ReleaseProjectTokenJobDescription jobDescription, long delay)

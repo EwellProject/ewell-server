@@ -115,6 +115,7 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
             var projectIdExisted = await _projectGrainService.GetProjectExistAsync(chainId, project.Id);
             if (projectIdExisted)
             {
+                _logger.LogInformation("ProcessUpdateProject chainId: {chainId} projectId: {projectId}", chainId, project.Id);
                 continue;
             }
 
