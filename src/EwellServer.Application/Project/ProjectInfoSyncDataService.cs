@@ -9,6 +9,7 @@ using EwellServer.Common.GraphQL;
 using EwellServer.Entities;
 using EwellServer.Etos;
 using EwellServer.Project.Provider;
+using EwellServer.Token;
 using Microsoft.Extensions.Logging;
 using Volo.Abp.EventBus.Distributed;
 using Volo.Abp.ObjectMapping;
@@ -24,13 +25,14 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
     private readonly IDistributedEventBus _distributedEventBus;
     private readonly IObjectMapper _objectMapper;
     private readonly IGraphQLProvider _graphQlProvider;
+    private readonly ITokenService _tokenService;
 
     public ProjectInfoSyncDataService(ILogger<ProjectInfoSyncDataService> logger,
         IGraphQLProvider graphQlProvider,
         IUserProjectInfoProvider userProjectInfoGraphQlProvider,
         IChainAppService chainAppService, 
         INESTRepository<CrowdfundingProjectIndex, string> crowdfundingProjectIndexRepository,
-        IDistributedEventBus distributedEventBus, IObjectMapper objectMapper)
+        IDistributedEventBus distributedEventBus, IObjectMapper objectMapper, ITokenService tokenService)
         : base(logger, graphQlProvider)
     {
         _logger = logger;
@@ -40,6 +42,7 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
         _crowdfundingProjectIndexRepository = crowdfundingProjectIndexRepository;
         _distributedEventBus = distributedEventBus;
         _objectMapper = objectMapper;
+        _tokenService = tokenService;
     }
 
     public override async Task<long> SyncIndexerRecordsAsync(string chainId, long lastEndHeight, long newIndexHeight)
@@ -67,13 +70,27 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
                 skipCount = projects.Select(x => x.BlockHeight == maxCurrentBlockHeight).Count();
                 lastEndHeight = maxCurrentBlockHeight;
             }
-
+            //set token info
+            await ProcessTokenInfo(projects);
             await ProcessRegisterProject(projects, chainId);
             await ProcessCancelProject(projects);
             await _crowdfundingProjectIndexRepository.BulkAddOrUpdateAsync(projects);
         } while (!projects.IsNullOrEmpty());
 
         return lastEndHeight;
+    }
+
+    private async Task ProcessTokenInfo(List<CrowdfundingProjectIndex> projects)
+    {
+        foreach (var p in projects)
+        {
+            var toRaiseToken = await _tokenService
+                .GetTokenAsync(p.ToRaiseToken.ChainId, p.ToRaiseToken.Symbol);
+            var crowdFundingIssueToken = await _tokenService
+                .GetTokenAsync(p.CrowdFundingIssueToken.ChainId, p.CrowdFundingIssueToken.Symbol);
+            p.ToRaiseToken = _objectMapper.Map<TokenGrainDto, TokenBasicInfo>(toRaiseToken);
+            p.CrowdFundingIssueToken = _objectMapper.Map<TokenGrainDto, TokenBasicInfo>(crowdFundingIssueToken);
+        }
     }
 
     public override async Task<List<string>> GetChainIdsAsync()
