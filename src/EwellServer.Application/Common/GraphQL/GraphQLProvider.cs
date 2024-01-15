@@ -14,8 +14,6 @@ public interface IGraphQLProvider
     public Task<long> GetLastEndHeightAsync(string chainId, WorkerBusinessType queryChainType);
     public Task SetLastEndHeightAsync(string chainId, WorkerBusinessType queryChainType, long height);
     public Task<long> GetIndexBlockHeightAsync(string chainId);
-    public Task<long> GetProjectIdAsync(string chainId, string projectId);
-    public Task SetProjectIdAsync(string chainId, string projectId, long projectIdValue);
 }
 
 public class GraphQLProvider : IGraphQLProvider, ISingletonDependency
@@ -90,19 +88,6 @@ public class GraphQLProvider : IGraphQLProvider, ISingletonDependency
         {
             _logger.LogError(e, "GetProjectIdAsync on chain-projectId {id}-{projectId} error", chainId, projectId);
             return CommonConstant.LongError;
-        }
-    }
-
-    public async Task SetProjectIdAsync(string chainId, string projectId, long projectIdValue)
-    {
-        try
-        {
-            var grain = _clusterClient.GetGrain<IContractServiceGraphQLGrain>(projectId + chainId);
-            await grain.SetStateAsync(projectIdValue);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "SetProjectIdAsync on chain-projectId {id}-{projectId} error ", chainId, projectId);
         }
     }
 }
