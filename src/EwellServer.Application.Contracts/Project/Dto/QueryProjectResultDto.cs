@@ -133,9 +133,6 @@ public class QueryProjectResultBaseDto
     
     public void OfResultBase(string userAddress, DateTime current, Dictionary<string, UserProjectInfoIndex> userProjectDict)
     {
-        //convert RealEndTime
-        RealEndTime = TokenReleaseTime.AddSeconds(PeriodDuration.Mul(TotalPeriod));
-
         //convert status
         if (IsCanceled)
         {

@@ -29,4 +29,6 @@ public class CrowdfundingProjectBasicProperty : CrowdfundingProjectBase
     public long ReceivableLiquidatedDamageAmount { get; set; }
     public DateTime? LastModificationTime { get; set; }
     public DateTime? CancelTime { get; set; }
+    //TokenReleaseTime.AddSeconds(PeriodDuration.Mul(TotalPeriod)）
+    public DateTime RealEndTime { get; set; }
 }

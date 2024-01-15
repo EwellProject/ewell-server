@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AElf.CSharp.Core;
 using AElf.Indexing.Elasticsearch;
 using EwellServer.Chains;
 using EwellServer.Common;
@@ -73,8 +73,7 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
                 skipCount = projects.Select(x => x.BlockHeight == maxCurrentBlockHeight).Count();
                 lastEndHeight = maxCurrentBlockHeight;
             }
-            //set token info
-            await ProcessTokenInfo(projects);
+            await FillProjectInfo(projects);
             await ProcessRegisterProject(projects, chainId);
             await ProcessCancelProject(projects);
             await _crowdfundingProjectIndexRepository.BulkAddOrUpdateAsync(projects);
@@ -83,10 +82,13 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
         return lastEndHeight;
     }
 
-    private async Task ProcessTokenInfo(List<CrowdfundingProjectIndex> projects)
+    private async Task FillProjectInfo(List<CrowdfundingProjectIndex> projects)
     {
         foreach (var p in projects)
         {
+            //fill real end time
+            p.RealEndTime = p.TokenReleaseTime.AddSeconds(p.PeriodDuration.Mul(p.TotalPeriod));
+            //fill token info
             var toRaiseToken = await _tokenService
                 .GetTokenAsync(p.ToRaiseToken.ChainId, p.ToRaiseToken.Symbol);
             var crowdFundingIssueToken = await _tokenService
