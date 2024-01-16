@@ -40,21 +40,22 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
 
     public async Task<Dictionary<string, UserProjectInfoIndex>> GetUserProjectInfosAsync(string user)
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<UserProjectInfoIndex>, QueryContainer>>();
-
-        if (!user.IsNullOrEmpty())
+        if (user.IsNullOrWhiteSpace())
         {
-            mustQuery.Add(q => q.Term(i =>
-                i.Field(f => f.User).Value(user)));
+            return new Dictionary<string, UserProjectInfoIndex>();
         }
+
+        var mustQuery = new List<Func<QueryContainerDescriptor<UserProjectInfoIndex>, QueryContainer>>();
+        mustQuery.Add(q => q.Term(i =>
+            i.Field(f => f.User).Value(user)));
 
         QueryContainer Filter(QueryContainerDescriptor<UserProjectInfoIndex> f) =>
             f.Bool(b => b.Must(mustQuery));
 
         var tuple = await _userProjectInfoIndexRepository.GetListAsync(Filter);
 
-        return !tuple.Item2.IsNullOrEmpty() 
-            ? tuple.Item2.ToDictionary(item => item.CrowdfundingProjectId, item => item) 
+        return !tuple.Item2.IsNullOrEmpty()
+            ? tuple.Item2.ToDictionary(item => item.CrowdfundingProjectId, item => item)
             : new Dictionary<string, UserProjectInfoIndex>();
     }
 

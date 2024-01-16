@@ -67,13 +67,14 @@ public class ProjectInfoProvider : IProjectInfoProvider, ISingletonDependency
             f.Bool(b => b.Must(mustQuery));
 
         //add sorting
-        return await _crowdfundingProjectIndexRepository.GetListAsync(Filter, skip: input.SkipCount,
-            limit: input.MaxResultCount,
-            sortType: SortOrder.Descending,
-            sortExp: p => p.StartTime);
+        var sortDescriptor = GetQuerySortDescriptor(input);
+
+        return await _crowdfundingProjectIndexRepository.GetSortListAsync(Filter, sortFunc: sortDescriptor,
+            skip: input.SkipCount,
+            limit: input.MaxResultCount);
     }
 
-    private static void AssemblyStatusQuery(ProjectStatus status, 
+    public static void AssemblyStatusQuery(ProjectStatus status, 
         List<Func<QueryContainerDescriptor<CrowdfundingProjectIndex>, QueryContainer>> mustQuery,  DateTime current)
     {
         string currentStr = current.ToString("O");
@@ -99,9 +100,7 @@ public class ProjectInfoProvider : IProjectInfoProvider, ISingletonDependency
                     => i.Field(index => index.EndTime.ToUtcMilliSeconds())
                         .LessThanOrEquals(currentStr)));
                 mustQuery.Add(q => q.TermRange(i
-                    => i.Field(index =>
-                            index.TokenReleaseTime.AddSeconds(index.PeriodDuration.Mul(index.TotalPeriod))
-                                .ToUtcMilliSeconds())
+                    => i.Field(index => index.RealEndTime.ToUtcMilliSeconds())
                         .GreaterThan(currentStr)));
                 break;
             case ProjectStatus.Canceled:
@@ -114,15 +113,14 @@ public class ProjectInfoProvider : IProjectInfoProvider, ISingletonDependency
                 shouldQuery.Add(q => q.Term(i =>
                     i.Field(f => f.IsCanceled).Value(true)));
                 shouldQuery.Add(q => q.TermRange(i
-                    => i.Field(index => index.TokenReleaseTime.AddSeconds(index.PeriodDuration.Mul(index.TotalPeriod))
-                            .ToUtcMilliSeconds())
+                    => i.Field(index => index.RealEndTime.ToUtcMilliSeconds())
                         .LessThanOrEquals(currentStr)));
                 mustQuery.Add(m => m.Bool(mb => mb.Should(shouldQuery)));
                 break;
         }
     }
 
-    private static void AssemblyProjectTypesQuery(List<ProjectType> types,
+    public static void AssemblyProjectTypesQuery(List<ProjectType> types,
         List<Func<QueryContainerDescriptor<CrowdfundingProjectIndex>, QueryContainer>> shouldQuery, 
         DateTime current, string userAddress, List<string> userProjectIds)
     {
@@ -175,6 +173,31 @@ public class ProjectInfoProvider : IProjectInfoProvider, ISingletonDependency
                     break;
             }
         }
+    }
+
+    private static Func<SortDescriptor<CrowdfundingProjectIndex>, IPromise<IList<ISort>>> GetQuerySortDescriptor(
+        QueryProjectInfoInput input)
+    {
+        //use default
+        var sortDescriptor = new SortDescriptor<CrowdfundingProjectIndex>();
+
+        if (input.Types.IsNullOrEmpty())
+        {
+            sortDescriptor.Descending(a => a.CreateTime);
+        }
+        else if (input.QuerySelf() || input.Types.Contains(ProjectType.Active))
+        {
+            sortDescriptor.Descending(a => a.CurrentRaisedAmount);
+        }
+        else if (input.Types.Contains(ProjectType.Closed))
+        {
+            sortDescriptor.Descending(a => a.RealEndTime);
+        }
+        else
+        {
+            sortDescriptor.Descending(a => a.CreateTime);
+        }
+        return s => sortDescriptor;
     }
 
     public async Task<List<CrowdfundingProjectIndex>> GetProjectListAsync(long startBlockHeight, string chainId,
