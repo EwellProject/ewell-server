@@ -4,22 +4,23 @@ using AElf;
 using AElf.Client.Dto;
 using AElf.Client.Service;
 using AElf.Types;
-using Google.Protobuf;
 using GraphQL;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using Orleans;
-using Portkey.Contracts.CA;
 using EwellServer.Auth.Dtos;
 using EwellServer.Auth.Options;
 using EwellServer.Grains.Grain.Users;
+using EwellServer.User;
 using EwellServer.User.Dtos;
+using Google.Protobuf;
+using Microsoft.AspNetCore.Identity;
+using Portkey.Contracts.CA;
 using Volo.Abp.DistributedLocking;
 using Volo.Abp.Identity;
 using Volo.Abp.OpenIddict;
@@ -37,9 +38,105 @@ public class SignatureGrantHandler : ITokenExtensionGrant
     private IClusterClient _clusterClient;
     private GraphQlOption _graphQlOptions;
     private ChainOptions _chainOptions;
+    private readonly IUserAppService _userAppService;
     private readonly string _lockKeyPrefix = "EwellServer:Auth:SignatureGrantHandler:";
+    private readonly string _source_portkey = "portkey";
 
     public async Task<IActionResult> HandleAsync(ExtensionGrantContext context)
+    {
+        var publicKeyVal = context.Request.GetParameter("pubkey").ToString();
+        var signatureVal = context.Request.GetParameter("signature").ToString();
+        var plainText = context.Request.GetParameter("plain_text").ToString();
+        var accountInfo = context.Request.GetParameter("accountInfo").ToString();
+        var source = context.Request.GetParameter("source").ToString();
+        var signTip = context.Request.GetParameter("signTip").ToString();
+        var caHash = context.Request.GetParameter("ca_hash").ToString();
+        if (!string.IsNullOrWhiteSpace(caHash))
+        {
+            var result = await HandleAsyncPortKey(context);
+            return result;
+        }
+
+        var rawText = Encoding.UTF8.GetString(ByteArrayHelper.HexStringToByteArray(plainText));
+        var nonce = rawText.TrimEnd().Substring(plainText.IndexOf("Nonce:") + 7);
+        
+        var invalidParamResult = CheckParams(publicKeyVal, signatureVal, nonce, accountInfo, source);
+        if (invalidParamResult != null)
+        {
+            return invalidParamResult;
+        }
+        
+        var publicKey = ByteArrayHelper.HexStringToByteArray(publicKeyVal);
+        var signature = ByteArrayHelper.HexStringToByteArray(signatureVal);
+        var timestamp = long.Parse(nonce);
+        var address = string.Empty;
+        if (!string.IsNullOrWhiteSpace(publicKeyVal))
+        {
+            address = Address.FromPublicKey(publicKey).ToBase58();
+        }
+        caHash = string.Empty;
+        
+        var time = DateTime.UnixEpoch.AddMilliseconds(timestamp);
+        var timeRangeConfig = context.HttpContext.RequestServices.GetRequiredService<IOptionsSnapshot<TimeRangeOption>>()
+            .Value;
+
+        if (time < DateTime.UtcNow.AddMinutes(-timeRangeConfig.TimeRange) ||
+            time > DateTime.UtcNow.AddMinutes(timeRangeConfig.TimeRange))
+        {
+            return GetForbidResult(OpenIddictConstants.Errors.InvalidRequest,
+                $"The time should be {timeRangeConfig.TimeRange} minutes before and after the current time.");
+        }
+        _logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<SignatureGrantHandler>>();
+        _distributedLock = context.HttpContext.RequestServices.GetRequiredService<IAbpDistributedLock>();
+        _clusterClient = context.HttpContext.RequestServices.GetRequiredService<IClusterClient>();
+        var userManager = context.HttpContext.RequestServices.GetRequiredService<IdentityUserManager>();
+
+        var userName = address;
+        if (!string.IsNullOrWhiteSpace(caHash))
+        {
+            userName = caHash;
+        }
+
+        var user = await userManager.FindByNameAsync(userName);
+        if (user == null)
+        {
+            var userId = Guid.NewGuid();
+
+            var createUserResult = await CreateUserAsync(userManager, userId, address, caHash);
+            if (!createUserResult)
+            {
+                return GetForbidResult(OpenIddictConstants.Errors.ServerError, "Create user failed.");
+            }
+
+            user = await userManager.GetByIdAsync(userId);
+        }
+        else
+        {
+            var grain = _clusterClient.GetGrain<IUserGrain>(user.Id);
+            await grain.CreateUser(new UserGrainDto
+            {
+                UserId = user.Id,
+                CaHash = caHash,
+                AppId = AuthConstant.PortKeyAppId,
+            });
+        }
+
+        var userClaimsPrincipalFactory = context.HttpContext.RequestServices
+            .GetRequiredService<Microsoft.AspNetCore.Identity.IUserClaimsPrincipalFactory<IdentityUser>>();
+        var signInManager = context.HttpContext.RequestServices.GetRequiredService<Microsoft.AspNetCore.Identity.SignInManager<IdentityUser>>();
+        var principal = await signInManager.CreateUserPrincipalAsync(user);
+        var claimsPrincipal = await userClaimsPrincipalFactory.CreateAsync(user);
+        claimsPrincipal.SetScopes("EwellServer");
+        claimsPrincipal.SetResources(await GetResourcesAsync(context, principal.GetScopes()));
+        claimsPrincipal.SetAudiences("EwellServer");
+
+        await context.HttpContext.RequestServices.GetRequiredService<AbpOpenIddictClaimDestinationsManager>()
+            .SetAsync(principal);
+
+        return new SignInResult(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme, claimsPrincipal);
+    }
+    
+    public async Task<IActionResult> HandleAsyncPortKey(ExtensionGrantContext context)
     {
         var publicKeyVal = context.Request.GetParameter("pubkey").ToString();
         var signatureVal = context.Request.GetParameter("signature").ToString();
@@ -133,6 +230,45 @@ public class SignatureGrantHandler : ITokenExtensionGrant
         return new SignInResult(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme, claimsPrincipal);
     }
 
+    private ForbidResult CheckParams(string publicKeyVal, string signatureVal, string timestampVal, string accoutInfo,
+        string source)
+    {
+        var errors = new List<string>();
+
+        if (source != _source_portkey && string.IsNullOrWhiteSpace(publicKeyVal))
+        {
+            errors.Add("invalid parameter pubkey.");
+        }
+
+        if (string.IsNullOrWhiteSpace(signatureVal))
+        {
+            errors.Add("invalid parameter signature.");
+        }
+
+        if (source != _source_portkey && string.IsNullOrWhiteSpace(timestampVal) || !long.TryParse(timestampVal, out var time) || time <= 0)
+        {
+            errors.Add("invalid parameter timestamp.");
+        }
+
+        if (source == _source_portkey && string.IsNullOrWhiteSpace(accoutInfo))
+        {
+            errors.Add("invalid parameter account_info.");
+        }
+
+        if (errors.Count > 0)
+        {
+            return new ForbidResult(
+                new[] { OpenIddictServerAspNetCoreDefaults.AuthenticationScheme },
+                properties: new AuthenticationProperties(new Dictionary<string, string>
+                {
+                    [OpenIddictServerAspNetCoreConstants.Properties.Error] = OpenIddictConstants.Errors.InvalidRequest,
+                    [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = GetErrorMessage(errors)
+                }));
+        }
+
+        return null;
+    }
+    
     private ForbidResult CheckParams(string publicKeyVal, string signatureVal, string plainText, string caHash,
         string chainId, string scope)
     {
@@ -180,16 +316,44 @@ public class SignatureGrantHandler : ITokenExtensionGrant
 
         return null;
     }
-
-    private string GetErrorMessage(List<string> errors)
+    
+    private async Task<bool?> CheckAddressAsync(string chainId, string graphQlUrl, string caHash, string manager,
+        ChainOptions chainOptions)
     {
-        var message = string.Empty;
+        var graphQlResult = await CheckAddressFromGraphQlAsync(graphQlUrl, caHash, manager);
+        if (!graphQlResult.HasValue || !graphQlResult.Value)
+        {
+            _logger.LogDebug("graphql is invalid.");
+            return await CheckAddressFromContractAsync(chainId, caHash, manager, chainOptions);
+        }
 
-        errors?.ForEach(t => message += $"{t}, ");
-
-        return message.Contains(',') ? message.TrimEnd().TrimEnd(',') : message;
+        return true;
     }
+    
+    private async Task<bool?> CheckAddressFromContractAsync(string chainId, string caHash, string manager,
+        ChainOptions chainOptions)
+    {
+        var param = new GetHolderInfoInput
+        {
+            CaHash = Hash.LoadFromHex(caHash),
+            LoginGuardianIdentifierHash = Hash.Empty
+        };
 
+        var output =
+            await CallTransactionAsync<GetHolderInfoOutput>(chainId, AuthConstant.GetHolderInfo, param, false,
+                chainOptions);
+
+        return output?.ManagerInfos?.Any(t => t.Address.ToBase58() == manager);
+    }
+    
+    private async Task<bool?> CheckAddressFromGraphQlAsync(string url, string caHash,
+        string managerAddress)
+    {
+        var cHolderInfos = await GetHolderInfosAsync(url, caHash);
+        var caHolder = cHolderInfos?.CaHolderInfo?.SelectMany(t=>t.ManagerInfos);
+        return caHolder?.Any(t => t.Address == managerAddress);
+    }
+    
     private async Task<bool> CreateUserAsync(IdentityUserManager userManager, Guid userId, string caHash)
     {
         var result = false;
@@ -227,6 +391,81 @@ public class SignatureGrantHandler : ITokenExtensionGrant
         return result;
     }
 
+    private string GetErrorMessage(List<string> errors)
+    {
+        var message = string.Empty;
+
+        errors?.ForEach(t => message += $"{t}, ");
+
+        return message.Contains(',') ? message.TrimEnd().TrimEnd(',') : message;
+    }
+
+    private async Task<bool> CreateUserAsync(IdentityUserManager userManager, Guid userId, string address, string caHash)
+    {
+        var result = false;
+        await using var handle =
+            await _distributedLock.TryAcquireAsync(name: _lockKeyPrefix + caHash);
+        //get shared lock
+        if (handle != null)
+        {
+            string userName = string.IsNullOrEmpty(caHash) ? address : caHash;
+            var user = new IdentityUser(userId, userName: userName, email: Guid.NewGuid().ToString("N") + "@ewell.io");
+            var identityResult = await userManager.CreateAsync(user);
+
+            if (identityResult.Succeeded)
+            {
+                _logger.LogDebug("Save user extend info...");
+                var addressInfos = await GetAddressInfosAsync(caHash);
+                var grain = _clusterClient.GetGrain<IUserGrain>(userId);
+                await grain.CreateUser(new UserGrainDto
+                {
+                    UserId = userId,
+                    CaHash = caHash,
+                    AppId = AuthConstant.PortKeyAppId,
+                    AddressInfos = addressInfos
+                });
+                _logger.LogInformation("create user success, userId:{userId}", userId.ToString());
+            }
+
+            result = identityResult.Succeeded;
+        }
+        else
+        {
+            _logger.LogError($"do not get lock, keys already exits. userId: {userId.ToString()}");
+        }
+
+        return result;
+    }
+
+    private ForbidResult GetForbidResult(string errorType, string errorDescription)
+    {
+        return new ForbidResult(
+            new[] { OpenIddictServerAspNetCoreDefaults.AuthenticationScheme },
+            properties: new AuthenticationProperties(new Dictionary<string, string>
+            {
+                [OpenIddictServerAspNetCoreConstants.Properties.Error] = errorType,
+                [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = errorDescription
+            }!));
+    }
+
+    private async Task<IEnumerable<string>> GetResourcesAsync(ExtensionGrantContext context,
+        ImmutableArray<string> scopes)
+    {
+        var resources = new List<string>();
+        if (!scopes.Any())
+        {
+            return resources;
+        }
+
+        await foreach (var resource in context.HttpContext.RequestServices.GetRequiredService<IOpenIddictScopeManager>()
+                           .ListResourcesAsync(scopes))
+        {
+            resources.Add(resource);
+        }
+
+        return resources;
+    }
+    
     private async Task<List<AddressInfo>> GetAddressInfosAsync(string caHash)
     {
         var addressInfos = new List<AddressInfo>();
@@ -259,7 +498,7 @@ public class SignatureGrantHandler : ITokenExtensionGrant
 
         return addressInfos;
     }
-
+    
     private async Task<AddressInfo> GetAddressInfoAsync(string chainId, string caHash)
     {
         var param = new GetHolderInfoInput
@@ -278,64 +517,7 @@ public class SignatureGrantHandler : ITokenExtensionGrant
             ChainId = chainId
         };
     }
-
-    private async Task<HolderInfoIndexerDto> GetHolderInfosAsync(string url, string caHash)
-    {
-        using var graphQlClient = new GraphQLHttpClient(url, new NewtonsoftJsonSerializer());
-        var request = new GraphQLRequest
-        {
-            Query = @"
-			    query($caHash:String,$skipCount:Int!,$maxResultCount:Int!) {
-                    caHolderInfo(dto: {caHash:$caHash,skipCount:$skipCount,maxResultCount:$maxResultCount}){
-                            id,chainId,caHash,caAddress,originChainId,managerInfos{address,extraData}}
-                }",
-            Variables = new
-            {
-                caHash, skipCount = 0, maxResultCount = 10
-            }
-        };
-
-        var graphQlResponse = await graphQlClient.SendQueryAsync<HolderInfoIndexerDto>(request);
-        return graphQlResponse.Data;
-    }
-
-    private async Task<bool?> CheckAddressAsync(string chainId, string graphQlUrl, string caHash, string manager,
-        ChainOptions chainOptions)
-    {
-        var graphQlResult = await CheckAddressFromGraphQlAsync(graphQlUrl, caHash, manager);
-        if (!graphQlResult.HasValue || !graphQlResult.Value)
-        {
-            _logger.LogDebug("graphql is invalid.");
-            return await CheckAddressFromContractAsync(chainId, caHash, manager, chainOptions);
-        }
-
-        return true;
-    }
-
-    private async Task<bool?> CheckAddressFromGraphQlAsync(string url, string caHash,
-        string managerAddress)
-    {
-        var cHolderInfos = await GetHolderInfosAsync(url, caHash);
-        var caHolder = cHolderInfos?.CaHolderInfo?.SelectMany(t=>t.ManagerInfos);
-        return caHolder?.Any(t => t.Address == managerAddress);
-    }
-
-    private async Task<bool?> CheckAddressFromContractAsync(string chainId, string caHash, string manager,
-        ChainOptions chainOptions)
-    {
-        var param = new GetHolderInfoInput
-        {
-            CaHash = Hash.LoadFromHex(caHash),
-            LoginGuardianIdentifierHash = Hash.Empty
-        };
-
-        var output =
-            await CallTransactionAsync<GetHolderInfoOutput>(chainId, AuthConstant.GetHolderInfo, param, false,
-                chainOptions);
-
-        return output?.ManagerInfos?.Any(t => t.Address.ToBase58() == manager);
-    }
-
+    
     private async Task<T> CallTransactionAsync<T>(string chainId, string methodName, IMessage param,
         bool isCrossChain, ChainOptions chainOptions) where T : class, IMessage<T>, new()
     {
@@ -379,49 +561,25 @@ public class SignatureGrantHandler : ITokenExtensionGrant
             return null;
         }
     }
-
-    private async Task<CAHolderManagerInfo> GetManagerList(string url, string caHash)
+    
+    private async Task<HolderInfoIndexerDto> GetHolderInfosAsync(string url, string caHash)
     {
         using var graphQlClient = new GraphQLHttpClient(url, new NewtonsoftJsonSerializer());
-
         var request = new GraphQLRequest
         {
-            Query =
-                "query{caHolderManagerInfo(dto: {skipCount:0,maxResultCount:10,caHash:\"" + caHash +
-                "\"}){chainId,caHash,caAddress,managerInfos{address,extraData}}}"
+            Query = @"
+			    query($caHash:String,$skipCount:Int!,$maxResultCount:Int!) {
+                    caHolderInfo(dto: {caHash:$caHash,skipCount:$skipCount,maxResultCount:$maxResultCount}){
+                            id,chainId,caHash,caAddress,originChainId,managerInfos{address,extraData}}
+                }",
+            Variables = new
+            {
+                caHash, skipCount = 0, maxResultCount = 10
+            }
         };
 
-        var graphQlResponse = await graphQlClient.SendQueryAsync<CAHolderManagerInfo>(request);
+        var graphQlResponse = await graphQlClient.SendQueryAsync<HolderInfoIndexerDto>(request);
         return graphQlResponse.Data;
-    }
-
-    private ForbidResult GetForbidResult(string errorType, string errorDescription)
-    {
-        return new ForbidResult(
-            new[] { OpenIddictServerAspNetCoreDefaults.AuthenticationScheme },
-            properties: new AuthenticationProperties(new Dictionary<string, string>
-            {
-                [OpenIddictServerAspNetCoreConstants.Properties.Error] = errorType,
-                [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = errorDescription
-            }!));
-    }
-
-    private async Task<IEnumerable<string>> GetResourcesAsync(ExtensionGrantContext context,
-        ImmutableArray<string> scopes)
-    {
-        var resources = new List<string>();
-        if (!scopes.Any())
-        {
-            return resources;
-        }
-
-        await foreach (var resource in context.HttpContext.RequestServices.GetRequiredService<IOpenIddictScopeManager>()
-                           .ListResourcesAsync(scopes))
-        {
-            resources.Add(resource);
-        }
-
-        return resources;
     }
 
     public string Name { get; } = "signature";
