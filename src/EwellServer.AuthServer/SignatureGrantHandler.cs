@@ -89,6 +89,10 @@ public class SignatureGrantHandler : ITokenExtensionGrant
         _logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<SignatureGrantHandler>>();
         _distributedLock = context.HttpContext.RequestServices.GetRequiredService<IAbpDistributedLock>();
         _clusterClient = context.HttpContext.RequestServices.GetRequiredService<IClusterClient>();
+        _graphQlOptions = context.HttpContext.RequestServices.GetRequiredService<IOptionsSnapshot<GraphQlOption>>()
+            .Value;
+        _chainOptions = context.HttpContext.RequestServices.GetRequiredService<IOptionsSnapshot<ChainOptions>>()
+            .Value;
         var userManager = context.HttpContext.RequestServices.GetRequiredService<IdentityUserManager>();
 
         var userName = address;
@@ -409,7 +413,7 @@ public class SignatureGrantHandler : ITokenExtensionGrant
         if (handle != null)
         {
             string userName = string.IsNullOrEmpty(caHash) ? address : caHash;
-            var user = new IdentityUser(userId, userName: userName, email: Guid.NewGuid().ToString("N") + "@ewell.io");
+            var user = new IdentityUser(userId, userName: userId + "", email: Guid.NewGuid().ToString("N") + "@ewell.io");
             var identityResult = await userManager.CreateAsync(user);
 
             if (identityResult.Succeeded)
