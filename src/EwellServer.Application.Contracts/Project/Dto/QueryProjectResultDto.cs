@@ -78,10 +78,17 @@ public class QueryProjectResultDto
         ClosedItems = ClosedItems.OrderByDescending(item => item.RealEndTime)
             .ThenByDescending(item => item.CancelTime)
             .ToList();
-        CreatedItems = CreatedItems.OrderByDescending(item => item.CreateTime).ToList();
-        ParticipateItems = ParticipateItems
-            .OrderBy(item => item.Status)
-            .ThenByDescending(item => item.InvestCreateTime).ToList();
+        CreatedItems = SortingMyItems(CreatedItems);
+        ParticipateItems = SortingMyItems(ParticipateItems);
+    }
+    
+    private List<QueryProjectResultBaseDto> SortingMyItems(List<QueryProjectResultBaseDto> myItems)
+    {
+        return myItems
+            .OrderByDescending(item => item.CurrentRaisedAmount)   
+            .ThenByDescending(item => item.InvestCreateTime)
+            .ThenBy(item => item.Status)
+            .ToList();
     }
 }
 
@@ -121,7 +128,6 @@ public class QueryProjectResultBaseDto
     public DateTime? LastModificationTime { get; set; }
     public TokenBasicInfo ToRaiseToken { get; set; }
     public TokenBasicInfo CrowdFundingIssueToken { get; set; }
-    public string User { get; set; }
     public long InvestAmount { get; set; }
     public long ToClaimAmount { get; set; }
     public DateTime InvestCreateTime { get; set; }

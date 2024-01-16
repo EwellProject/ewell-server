@@ -67,10 +67,11 @@ public class ProjectInfoProvider : IProjectInfoProvider, ISingletonDependency
             f.Bool(b => b.Must(mustQuery));
 
         //add sorting
-        return await _crowdfundingProjectIndexRepository.GetListAsync(Filter, skip: input.SkipCount,
-            limit: input.MaxResultCount,
-            sortType: SortOrder.Descending,
-            sortExp: p => p.CreateTime);
+        var sortDescriptor = GetQuerySortDescriptor(input);
+
+        return await _crowdfundingProjectIndexRepository.GetSortListAsync(Filter, sortFunc: sortDescriptor,
+            skip: input.SkipCount,
+            limit: input.MaxResultCount);
     }
 
     public static void AssemblyStatusQuery(ProjectStatus status, 
@@ -172,6 +173,31 @@ public class ProjectInfoProvider : IProjectInfoProvider, ISingletonDependency
                     break;
             }
         }
+    }
+
+    private static Func<SortDescriptor<CrowdfundingProjectIndex>, IPromise<IList<ISort>>> GetQuerySortDescriptor(
+        QueryProjectInfoInput input)
+    {
+        //use default
+        var sortDescriptor = new SortDescriptor<CrowdfundingProjectIndex>();
+
+        if (input.Types.IsNullOrEmpty())
+        {
+            sortDescriptor.Descending(a => a.CreateTime);
+        }
+        else if (input.QuerySelf() || input.Types.Contains(ProjectType.Active))
+        {
+            sortDescriptor.Descending(a => a.CurrentRaisedAmount);
+        }
+        else if (input.Types.Contains(ProjectType.Closed))
+        {
+            sortDescriptor.Descending(a => a.RealEndTime);
+        }
+        else
+        {
+            sortDescriptor.Descending(a => a.CreateTime);
+        }
+        return s => sortDescriptor;
     }
 
     public async Task<List<CrowdfundingProjectIndex>> GetProjectListAsync(long startBlockHeight, string chainId,

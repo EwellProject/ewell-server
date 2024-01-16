@@ -34,9 +34,7 @@ public class ProjectService : EwellServerAppService, IProjectService
             return new QueryProjectResultDto();
         }
 
-        var userProjectDict = userAddress.IsNullOrEmpty()
-            ? new Dictionary<string, UserProjectInfoIndex>()
-            : await _userProjectInfoProvider.GetUserProjectInfosAsync(userAddress);
+        var userProjectDict = await _userProjectInfoProvider.GetUserProjectInfosAsync(userAddress);
 
         var currentTime = DateTime.UtcNow;
         var tuple = await _projectInfoProvider.GetProjectInfosAsync(input, currentTime, userAddress,
