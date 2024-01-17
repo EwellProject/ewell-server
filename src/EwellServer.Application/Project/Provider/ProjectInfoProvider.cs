@@ -1,12 +1,8 @@
-using EwellServer.Common.GraphQL;
-using EwellServer.Dtos;
-using GraphQL;
 using Volo.Abp.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AElf.CSharp.Core;
 using AElf.Indexing.Elasticsearch;
 using EwellServer.Common;
 using EwellServer.Entities;
@@ -19,21 +15,16 @@ public interface IProjectInfoProvider
 {
     public Task<Tuple<long, List<CrowdfundingProjectIndex>>> GetProjectInfosAsync(QueryProjectInfoInput input,
         DateTime currentTime, string userAddress, List<string> userProjectIds);
-
-    Task<List<CrowdfundingProjectIndex>> GetProjectListAsync(long startBlockHeight, string chainId, int maxResultCount,
-        int skipCount);
+    public Task<CrowdfundingProjectIndex> GetProjectInfosAsync(string chainId, string projectId);
 }
 
 public class ProjectInfoProvider : IProjectInfoProvider, ISingletonDependency
 {
-    private readonly IGraphQlHelper _graphQlHelper;
     private readonly INESTRepository<CrowdfundingProjectIndex, string> _crowdfundingProjectIndexRepository;
 
-    public ProjectInfoProvider(INESTRepository<CrowdfundingProjectIndex, string> crowdfundingProjectIndexRepository,
-        IGraphQlHelper graphQlHelper)
+    public ProjectInfoProvider(INESTRepository<CrowdfundingProjectIndex, string> crowdfundingProjectIndexRepository)
     {
         _crowdfundingProjectIndexRepository = crowdfundingProjectIndexRepository;
-        _graphQlHelper = graphQlHelper;
     }
 
     public async Task<Tuple<long, List<CrowdfundingProjectIndex>>> GetProjectInfosAsync(QueryProjectInfoInput input,
@@ -72,6 +63,20 @@ public class ProjectInfoProvider : IProjectInfoProvider, ISingletonDependency
         return await _crowdfundingProjectIndexRepository.GetSortListAsync(Filter, sortFunc: sortDescriptor,
             skip: input.SkipCount,
             limit: input.MaxResultCount);
+    }
+
+    public async Task<CrowdfundingProjectIndex> GetProjectInfosAsync(string chainId, string projectId)
+    {
+        var mustQuery = new List<Func<QueryContainerDescriptor<CrowdfundingProjectIndex>, QueryContainer>>()
+        {
+            q => q.Term(i =>
+                i.Field(f => f.ChainId).Value(chainId)),
+            q => q.Term(i =>
+                i.Field(f => f.Id).Value(projectId))
+        };
+        QueryContainer Filter(QueryContainerDescriptor<CrowdfundingProjectIndex> f) =>
+            f.Bool(b => b.Must(mustQuery));
+        return await _crowdfundingProjectIndexRepository.GetAsync(Filter);
     }
 
     public static void AssemblyStatusQuery(ProjectStatus status, 
@@ -198,33 +203,5 @@ public class ProjectInfoProvider : IProjectInfoProvider, ISingletonDependency
             sortDescriptor.Descending(a => a.CreateTime);
         }
         return s => sortDescriptor;
-    }
-
-    public async Task<List<CrowdfundingProjectIndex>> GetProjectListAsync(long startBlockHeight, string chainId,
-        int maxResultCount, int skipCount)
-    {
-        var response = await _graphQlHelper.QueryAsync<CrowdfundingProjectPageResult>(new GraphQLRequest
-        {
-            Query = @"
-			    query ($chainId:String,$startBlockHeight:Long!,$maxResultCount:Int,$skipCount:Int) {
-                    getProjectList(input: {$chainId:$chainId,$startBlockHeight:$startBlockHeight,$maxResultCount:$maxResultCount,$skipCount:$skipCount}){
-                        data{
-                                id,chainId,blockHeight,creator,behaviorType,crowdFundingType,startTime,endTime,tokenReleaseTime,
-                                toRaisedAmount,crowdFundingIssueAmount,preSalePrice,publicSalePrice,minSubscription,maxSubscription,listMarketInfo,
-                                liquidityLockProportion,unlockTime,firstDistributeProportion,restDistributeProportion,totalPeriod,additionalInfo,isCanceled
-                                wsEnableWhitelist,whitelistId,currentRaisedAmount,currentCrowdFundingIssueAmount,participantCount,chainId,currentPeriod
-                                periodDuration,isBurnRestToken,receivableLiquidatedDamageAmount,lastModificationTime
-                                toRaiseToken{symbol,name,address,decimals},
-                                crowdFundingIssueToken{symbol,name,address,decimals}
-                            }
-                        ,totalCount
-                    }
-                }",
-            Variables = new
-            {
-                startBlockHeight, chainId, maxResultCount, skipCount
-            }
-        });
-        return response.Data.IsNullOrEmpty() ? new List<CrowdfundingProjectIndex>() : response.Data;
     }
 }

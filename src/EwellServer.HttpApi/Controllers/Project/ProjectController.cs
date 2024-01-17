@@ -25,4 +25,11 @@ public class ProjectController
     {
         return await _projectService.QueryProjectAsync(input);
     }
+    
+    [HttpGet]
+    [Route("userList")]
+    public async Task<QueryProjectUserResultDto> QueryUserListAsync(QueryProjectUserInfoInput input)
+    {
+        return await _projectService.QueryProjectUserAsync(input);
+    }
 }

@@ -18,5 +18,8 @@ public class EwellServerApplicationAutoMapperProfile : Profile
         CreateMap<TokenGrainDto, TokenBasicInfo>()
             .ForMember(des => des.Name, opt
                 => opt.MapFrom(source => source.TokenName));
+        CreateMap<UserProjectInfoIndex, ProjectUserDto>()
+            .ForMember(des => des.Address, opt
+                => opt.MapFrom(source => source.User));
     }
 }

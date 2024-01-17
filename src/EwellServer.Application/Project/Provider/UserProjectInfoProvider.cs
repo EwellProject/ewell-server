@@ -24,6 +24,8 @@ public interface IUserProjectInfoProvider
     
     Task<List<UserRecordIndex>> GetUserRecordListAsync(long startBlockHeight, long endBlockHeight, string chainId, int maxResultCount, int skipCount);
     Task<List<Whitelist>> GetWhitelistListAsync(long startBlockHeight, long endBlockHeight, string chainId, int maxResultCount, int skipCount);
+
+    Task<Tuple<long, List<UserProjectInfoIndex>>> GetProjectUserListAsync(string projectId, string chainId, string address, int maxResultCount, int skipCount);
 }
 
 public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDependency
@@ -57,6 +59,23 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
         return !tuple.Item2.IsNullOrEmpty()
             ? tuple.Item2.ToDictionary(item => item.CrowdfundingProjectId, item => item)
             : new Dictionary<string, UserProjectInfoIndex>();
+    }
+    
+    public async Task<Tuple<long, List<UserProjectInfoIndex>>> GetProjectUserListAsync(string projectId, string chainId, string address, int maxResultCount, int skipCount)
+    {
+        var mustQuery = new List<Func<QueryContainerDescriptor<UserProjectInfoIndex>, QueryContainer>>
+        {
+            q => q.Term(i => i.Field(f => f.ChainId).Value(chainId)),
+            q => q.Term(i => i.Field(f => f.Id).Value(projectId))
+        };
+        if (!address.IsNullOrEmpty())
+        {
+            mustQuery.Add(q => q.Term(i => i.Field(f => f.User).Value(address)));
+        }
+        QueryContainer Filter(QueryContainerDescriptor<UserProjectInfoIndex> f) => f.Bool(b => b.Must(mustQuery));
+        
+        return await _userProjectInfoIndexRepository.GetSortListAsync(Filter, skip: skipCount, limit: maxResultCount, 
+            sortFunc: _ => new SortDescriptor<UserProjectInfoIndex>().Descending(index => index.InvestAmount));
     }
 
     public async Task<List<UserProjectInfoIndex>> GetSyncUserProjectInfosAsync(int skipCount, string chainId, long startBlockHeight, long endBlockHeight)

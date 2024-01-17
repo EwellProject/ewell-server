@@ -6,4 +6,5 @@ namespace EwellServer.Project;
 public interface IProjectService
 {
     Task<QueryProjectResultDto> QueryProjectAsync(QueryProjectInfoInput input);
+    Task<QueryProjectUserResultDto> QueryProjectUserAsync(QueryProjectUserInfoInput input);
 }
