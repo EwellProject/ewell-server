@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using EwellServer.Common;
 using EwellServer.Entities;
-using NFTMarketServer.NFT.Index;
 
 namespace EwellServer.Project.Index;
 

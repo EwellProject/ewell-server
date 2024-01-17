@@ -1,4 +1,4 @@
-namespace NFTMarketServer.NFT.Index;
+namespace EwellServer.Common;
 
 public class IndexerCommonResult<T>
 {
