@@ -151,6 +151,7 @@ public class SignatureGrantHandler : ITokenExtensionGrant
                     UserId = user.Id,
                     CaHash = caHash,
                     AppId = AuthConstant.PortKeyAppId,
+                    AddressInfos = new List<AddressInfo> {new(){ChainId = chainId, Address = address}}
                 });
             }
         }

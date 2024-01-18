@@ -12,6 +12,7 @@ public class EwellServerApplicationAutoMapperProfile : Profile
     public EwellServerApplicationAutoMapperProfile()
     {
         CreateMap<UserIndex, UserDto>().ReverseMap();
+        CreateMap<AddressInfo, UserAddressInfo>().ReverseMap();
         CreateMap<CrowdfundingProjectIndex, ProjectRegisteredEto>();
         CreateMap<CrowdfundingProjectIndex, ProjectCanceledEto>();
         CreateMap<CrowdfundingProjectIndex, QueryProjectResultBaseDto>();
