@@ -8,12 +8,6 @@ using Volo.Abp.Users;
 
 namespace EwellServer.User;
 
-
-public interface IUserService
-{
-    public Task<string> GetCurrentUserAddressAsync(string chainId);
-}
-
 public class UserService : EwellServerAppService, IUserService
 {
     private readonly IClusterClient _clusterClient;

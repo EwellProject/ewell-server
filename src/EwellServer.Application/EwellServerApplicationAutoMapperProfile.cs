@@ -3,6 +3,7 @@ using EwellServer.Entities;
 using EwellServer.Etos;
 using EwellServer.Project.Dto;
 using EwellServer.Token;
+using EwellServer.Token.Index;
 using EwellServer.User.Dtos;
 
 namespace EwellServer;
@@ -16,6 +17,7 @@ public class EwellServerApplicationAutoMapperProfile : Profile
         CreateMap<CrowdfundingProjectIndex, ProjectRegisteredEto>();
         CreateMap<CrowdfundingProjectIndex, ProjectCanceledEto>();
         CreateMap<CrowdfundingProjectIndex, QueryProjectResultBaseDto>();
+        CreateMap<IndexerUserToken, UserTokenDto>();
         CreateMap<TokenGrainDto, TokenBasicInfo>()
             .ForMember(des => des.Name, opt
                 => opt.MapFrom(source => source.TokenName));
