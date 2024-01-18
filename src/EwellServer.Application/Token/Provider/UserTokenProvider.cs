@@ -23,14 +23,12 @@ public class UserTokenProvider : IUserTokenProvider, ISingletonDependency
 
     public async Task<List<IndexerUserToken>> GetUserTokens(string chainId, string address)
     {
-        var response =  await _graphQlHelper.QueryAsync<List<IndexerUserToken>>(new GraphQLRequest
+        var response =  await _graphQlHelper.QueryAsync<IndexerUserTokens>(new GraphQLRequest
         {
             Query = @"
-			    query ($chainId:String!,$address:Long!) {
-                    data:getUserTokenInfos(input: {chainId:$chainId,address:$address}){
-                        data{
-                           chainId,symbol,tokenName,imageUrl,decimals,balance
-                        }
+			    query($chainId:String!,$address:String!) {
+                    userTokens:getUserTokenInfos(input: {chainId:$chainId,address:$address}){
+                        chainId,symbol,tokenName,imageUrl,decimals,balance
                     }
                 }",
             Variables = new
@@ -38,6 +36,6 @@ public class UserTokenProvider : IUserTokenProvider, ISingletonDependency
                 chainId, address
             }
         });
-        return response?? new List<IndexerUserToken>();
+        return response?.UserTokens ?? new List<IndexerUserToken>();
     }
 }

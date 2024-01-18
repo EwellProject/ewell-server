@@ -1,4 +1,12 @@
+using System.Collections.Generic;
+using EwellServer.Common;
+
 namespace EwellServer.Token.Index;
+
+public class IndexerUserTokens  : IndexerCommonResult<IndexerUserTokens>
+{
+    public List<IndexerUserToken> UserTokens { get; set; }
+}
 
 public class IndexerUserToken
 {
