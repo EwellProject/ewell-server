@@ -28,10 +28,10 @@ public class EwellServerApplicationModule : AbpModule
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         Configure<AbpAutoMapperOptions>(options => { options.AddMaps<EwellServerApplicationModule>(); });
-        // context.Services.AddTransient<IScheduleSyncDataService, ProjectInfoSyncDataService>();
-        // context.Services.AddTransient<IScheduleSyncDataService, UserProjectInfoSyncDataService>();
+        context.Services.AddTransient<IScheduleSyncDataService, ProjectInfoSyncDataService>();
+        context.Services.AddTransient<IScheduleSyncDataService, UserProjectInfoSyncDataService>();
         context.Services.AddTransient<IScheduleSyncDataService, UserRecordSyncDataService>();
-        // context.Services.AddTransient<IScheduleSyncDataService, WhitelistSyncDataService>();
+        context.Services.AddTransient<IScheduleSyncDataService, WhitelistSyncDataService>();
         context.Services.AddHttpClient();
     }
     
