@@ -98,7 +98,7 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
                 endBlockHeight
             }
         });
-        return graphQlResponse.Data?.DataList ?? new List<UserProjectInfoIndex>();
+        return graphQlResponse?.DataList ?? new List<UserProjectInfoIndex>();
     }
     
     public async Task<List<CrowdfundingProjectIndex>> GetProjectListAsync(long startBlockHeight, long endBlockHeight, string chainId, int maxResultCount, int skipCount)
