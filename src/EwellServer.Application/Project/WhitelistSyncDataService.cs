@@ -43,7 +43,7 @@ public class WhitelistSyncDataService : ScheduleSyncDataService
         List<Whitelist> whitelists;
         do
         {
-            whitelists = await _userProjectInfoGraphQlProvider.GetWhitelistListAsync(lastEndHeight, 0, chainId, maxResultCount, skipCount);
+            whitelists = await _userProjectInfoGraphQlProvider.GetWhitelistListAsync(29821843, 0, chainId, maxResultCount, skipCount);
             _logger.LogInformation("SyncWhitelistInfos GetWhitelistListAsync startBlockHeight: {lastEndHeight} skipCount: {skipCount} count: {count}", 
                 lastEndHeight, skipCount, whitelists.Count);
             if (whitelists.IsNullOrEmpty())
@@ -77,6 +77,7 @@ public class WhitelistSyncDataService : ScheduleSyncDataService
                 {
                     var latest = whitelists.First(whitelist => crowdfundingProjectIndex.WhitelistId == whitelist.Id);
                     crowdfundingProjectIndex.IsEnableWhitelist = latest.IsAvailable;
+                    crowdfundingProjectIndex.WhitelistAddressTime = latest.AddressTimeInfo;
                 }    
                 await _crowdfundingProjectIndexRepository.BulkAddOrUpdateAsync(projects);
             }

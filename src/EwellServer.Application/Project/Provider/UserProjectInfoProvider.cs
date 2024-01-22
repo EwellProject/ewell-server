@@ -8,7 +8,6 @@ using EwellServer.Dtos;
 using EwellServer.Entities;
 using EwellServer.Project.Index;
 using GraphQL;
-using Microsoft.IdentityModel.Tokens;
 using Nest;
 using Volo.Abp.DependencyInjection;
 
@@ -160,7 +159,7 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
 			    query ($chainId:String!,$startBlockHeight:Long!,$endBlockHeight:Long!,$maxResultCount:Int!,$skipCount:Int!) {
                     data:getWhitelistList(input: {chainId:$chainId,startBlockHeight:$startBlockHeight,endBlockHeight:$endBlockHeight,maxResultCount:$maxResultCount,skipCount:$skipCount}){
                         data{
-                                id,chainId,blockHeight,isAvailable
+                                id,chainId,blockHeight,isAvailable,addressTimeInfo
                             }
                         ,totalCount
                     }
