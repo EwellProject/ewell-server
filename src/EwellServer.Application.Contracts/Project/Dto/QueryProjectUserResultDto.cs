@@ -15,5 +15,7 @@ public class ProjectUserDto
 {
     public string Address { get; set; } 
     public long InvestAmount { get; set; } 
-    public DateTime CreateTime { get; set; } 
+    public DateTime CreateTime { get; set; }
+    public string Symbol { get; set; } = "ELF";
+    public int Decimals { get; set; } = 8;
 }
