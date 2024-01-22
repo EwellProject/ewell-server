@@ -1,5 +1,7 @@
+using System;
 using AElf.Indexing.Elasticsearch.Options;
 using EwellServer.EntityEventHandler.Core;
+using EwellServer.EntityEventHandler.Core.Background.BackgroundJobs;
 using EwellServer.EntityEventHandler.Core.Background.Options;
 using EwellServer.Grains;
 using EwellServer.MongoDB;
@@ -20,6 +22,7 @@ using GraphQL.Client.Abstractions;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
 using Microsoft.Extensions.Configuration;
+using Volo.Abp.BackgroundJobs;
 using Volo.Abp.OpenIddict.Tokens;
 
 namespace EwellServer.EntityEventHandler;
@@ -65,6 +68,7 @@ public class EwellServerEntityEventHandlerModule : AbpModule
         });
         ConfigureEsIndexCreation();
         ConfigureGraphQl(context, configuration);
+        ConfigureBackgroundJob(configuration);
     }
     public override void OnApplicationInitialization(ApplicationInitializationContext context)
     {
@@ -96,5 +100,28 @@ public class EwellServerEntityEventHandlerModule : AbpModule
         context.Services.AddSingleton(new GraphQLHttpClient(configuration["GraphQL:Configuration"],
             new NewtonsoftJsonSerializer()));
         context.Services.AddScoped<IGraphQLClient>(sp => sp.GetRequiredService<GraphQLHttpClient>());
+    }
+    
+    private void ConfigureBackgroundJob(IConfiguration configuration)
+    {
+        Configure<AbpBackgroundJobOptions>(options =>
+        {
+            options.IsJobExecutionEnabled = false;
+            var ewellConfiguration = configuration.GetSection("EwellOption");
+            var isReleaseAuto = ewellConfiguration.GetSection("IsReleaseAuto").Value;
+            if (isReleaseAuto.IsNullOrEmpty())
+            {
+                return;
+            }
+
+            if (!"true".Equals(isReleaseAuto, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            options.IsJobExecutionEnabled = true;
+            options.AddJob(typeof(ReleaseProjectTokenJob));
+            options.AddJob(typeof(CancelProjectJob));
+        });
     }
 }
