@@ -15,5 +15,6 @@ public class UserProjectInfoBase : AbstractEntity<string>
     public long InvestAmount { get; set; }
     public long ToClaimAmount { get; set; }
     public long ActualClaimAmount { get; set; }
+    public long LiquidatedDamageAmount { get; set; }
     public DateTime CreateTime { get; set; }
 }

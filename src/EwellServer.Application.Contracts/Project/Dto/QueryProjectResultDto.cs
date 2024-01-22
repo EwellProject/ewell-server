@@ -130,6 +130,7 @@ public class QueryProjectResultBaseDto
     public TokenBasicInfo CrowdFundingIssueToken { get; set; }
     public long InvestAmount { get; set; }
     public long ToClaimAmount { get; set; }
+    public long LiquidatedDamageAmount { get; set; }
     public DateTime InvestCreateTime { get; set; }
     public DateTime CreateTime { get; set; }
     public DateTime? CancelTime { get; set; }
@@ -166,6 +167,7 @@ public class QueryProjectResultBaseDto
             InvestAmount = userProject.InvestAmount;
             ToClaimAmount = userProject.ToClaimAmount;
             InvestCreateTime = userProject.CreateTime;
+            LiquidatedDamageAmount = userProject.LiquidatedDamageAmount;
         }
     }
 }
