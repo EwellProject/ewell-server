@@ -7,4 +7,5 @@ public interface IProjectService
 {
     Task<QueryProjectResultDto> QueryProjectAsync(QueryProjectInfoInput input);
     Task<QueryProjectUserResultDto> QueryProjectUserAsync(QueryProjectUserInfoInput input);
+    Task<TransactionFeeDto> GetTransactionFeeAsync();
 }

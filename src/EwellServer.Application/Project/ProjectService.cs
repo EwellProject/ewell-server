@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EwellServer.Entities;
+using EwellServer.Options;
 using EwellServer.Project.Dto;
 using EwellServer.Project.Provider;
 using EwellServer.User;
+using Microsoft.Extensions.Options;
 using Volo.Abp.ObjectMapping;
 
 namespace EwellServer.Project;
@@ -16,13 +18,17 @@ public class ProjectService : EwellServerAppService, IProjectService
     private readonly IUserProjectInfoProvider _userProjectInfoProvider;
     private readonly IObjectMapper _objectMapper;
     private readonly IUserService _userService;
+    private readonly IOptionsMonitor<TransactionFeeOptions> _optionsMonitor;
+
     public ProjectService(IProjectInfoProvider projectInfoProvider, 
-        IUserProjectInfoProvider userProjectInfoProvider, IObjectMapper objectMapper, IUserService userService)
+        IUserProjectInfoProvider userProjectInfoProvider, IObjectMapper objectMapper, 
+        IUserService userService, IOptionsMonitor<TransactionFeeOptions> optionsMonitor)
     {
         _projectInfoProvider = projectInfoProvider;
         _userProjectInfoProvider = userProjectInfoProvider;
         _objectMapper = objectMapper;
         _userService = userService;
+        _optionsMonitor = optionsMonitor;
     }
 
     public async Task<QueryProjectResultDto> QueryProjectAsync(QueryProjectInfoInput input)
@@ -76,5 +82,14 @@ public class ProjectService : EwellServerAppService, IProjectService
             TotalUser = projectIndex?.ParticipantCount ?? 0
         };
         return resultDto;
+    }
+
+    public Task<TransactionFeeDto> GetTransactionFeeAsync()
+    {
+        var transactionFeeOptions = _optionsMonitor.CurrentValue;
+        return Task.FromResult(new TransactionFeeDto
+        {
+            TransactionFee = transactionFeeOptions.TransactionFee
+        });    
     }
 }

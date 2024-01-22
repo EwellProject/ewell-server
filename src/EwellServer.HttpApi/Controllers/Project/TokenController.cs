@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using EwellServer.Token;
+using EwellServer.Token.Dto;
 using EwellServer.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,19 +18,28 @@ public class TokenController
 {
     private readonly IUserTokenService _userTokenService;
     private readonly IUserService _userService;
+    private readonly ITokenService _tokenService;
 
-    public TokenController(IUserTokenService userTokenService, IUserService userService)
+    public TokenController(IUserTokenService userTokenService, IUserService userService, ITokenService tokenService)
     {
         _userTokenService = userTokenService;
         _userService = userService;
+        _tokenService = tokenService;
     }
 
     [HttpGet]
     [Route("list")]
     [Authorize]
-    public async Task<List<UserTokenDto>> GetTokenAsync(string chainId)
+    public async Task<List<UserTokenDto>> GetTokenAsync(GetUserTokenInput input)
     {
-        var userAddress = await _userService.GetCurrentUserAddressAsync(chainId);
-        return await _userTokenService.GetUserTokensAsync(chainId, userAddress);
+        var userAddress = await _userService.GetCurrentUserAddressAsync(input.ChainId);
+        return await _userTokenService.GetUserTokensAsync(input.ChainId, userAddress);
+    }
+    
+    [HttpGet]
+    [Route("price")]
+    public async Task<TokenPriceDto> GetTokenPriceAsync(GetTokenPriceInput input)
+    {
+        return await _tokenService.GetTokenPriceAsync(input.BaseCoin, input.QuoteCoin);
     }
 }

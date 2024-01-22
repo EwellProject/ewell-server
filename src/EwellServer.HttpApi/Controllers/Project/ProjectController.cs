@@ -32,4 +32,11 @@ public class ProjectController
     {
         return await _projectService.QueryProjectUserAsync(input);
     }
+    
+    [HttpGet]
+    [Route("fee")]
+    public async Task<TransactionFeeDto> GetTransactionFeeAsync()
+    {
+        return await _projectService.GetTransactionFeeAsync();
+    }
 }
