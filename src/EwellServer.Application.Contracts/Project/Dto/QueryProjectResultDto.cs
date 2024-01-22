@@ -116,6 +116,9 @@ public class QueryProjectResultBaseDto
     public int TotalPeriod { get; set; }
     public string AdditionalInfo { get; set; }
     public bool IsCanceled { get; set; }
+    public bool IsWithdraw { get; set; }
+    public DateTime? CancelTime { get; set; }
+    public DateTime? WithdrawTime { get; set; }
     public bool IsEnableWhitelist { get; set; }
     public string WhitelistId { get; set; }
     public long CurrentRaisedAmount { get; set; }
@@ -131,10 +134,9 @@ public class QueryProjectResultBaseDto
     public long InvestAmount { get; set; }
     public long ToClaimAmount { get; set; }
     public long LiquidatedDamageAmount { get; set; }
+    public bool ClaimedLiquidatedDamage { get; set; }
     public DateTime InvestCreateTime { get; set; }
     public DateTime CreateTime { get; set; }
-    public DateTime? CancelTime { get; set; }
-
     public ProjectStatus Status  { get; set; }
     public DateTime RealEndTime  { get; set; }
     
@@ -168,6 +170,7 @@ public class QueryProjectResultBaseDto
             ToClaimAmount = userProject.ToClaimAmount;
             InvestCreateTime = userProject.CreateTime;
             LiquidatedDamageAmount = userProject.LiquidatedDamageAmount;
+            ClaimedLiquidatedDamage = userProject.ClaimedLiquidatedDamage;
         }
     }
 }
