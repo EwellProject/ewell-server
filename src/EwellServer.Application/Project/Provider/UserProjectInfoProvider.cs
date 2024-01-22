@@ -140,7 +140,7 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
 			    query ($chainId:String!,$startBlockHeight:Long!,$endBlockHeight:Long!,$maxResultCount:Int!,$skipCount:Int!) {
                     data:getUserRecordList(input: {chainId:$chainId,startBlockHeight:$startBlockHeight,endBlockHeight:$endBlockHeight,maxResultCount:$maxResultCount,skipCount:$skipCount}){
                         data{
-                                id,chainId,user,behaviorType,toRaiseTokenAmount,crowdFundingIssueAmount,dateTime,blockHeight
+                                id,chainId,user,toRaiseTokenAmount,crowdFundingIssueAmount,dateTime,blockHeight
                                 crowdfundingProject{chainId,blockHeight,id,creator,crowdFundingType,startTime,endTime,tokenReleaseTime},
                                 toRaiseToken{symbol},
                                 crowdFundingIssueToken{symbol}
