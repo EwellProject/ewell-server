@@ -23,6 +23,6 @@ public class EwellServerApplicationAutoMapperProfile : Profile
                 => opt.MapFrom(source => source.TokenName));
         CreateMap<UserProjectInfoIndex, ProjectUserDto>()
             .ForMember(des => des.Address, opt
-                => opt.MapFrom(source => source.User));
+                => opt.MapFrom(source => "ELF_" + source.User + "_" + source.ChainId));
     }
 }

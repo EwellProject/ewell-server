@@ -70,6 +70,10 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
         };
         if (!address.IsNullOrEmpty())
         {
+            if (address.Contains("_"))
+            {
+                address = address.Split("_")[1];
+            }
             mustQuery.Add(q => q.Term(i => i.Field(f => f.User).Value(address)));
         }
         QueryContainer Filter(QueryContainerDescriptor<UserProjectInfoIndex> f) => f.Bool(b => b.Must(mustQuery));
