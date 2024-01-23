@@ -4,6 +4,7 @@ using EwellServer.EntityEventHandler.Core.Handler;
 using EwellServer.Etos;
 using EwellServer.Project;
 using EwellServer.Project.Dto;
+using GraphQL;
 using Microsoft.AspNetCore.Mvc;
 using Volo.Abp;
 using Volo.Abp.EventBus.Distributed;
@@ -34,6 +35,7 @@ public class ProjectController
     
     [HttpGet]
     [Route("userList")]
+    [Authorize]
     public async Task<QueryProjectUserResultDto> QueryUserListAsync(QueryProjectUserInfoInput input)
     {
         return await _projectService.QueryProjectUserAsync(input);
