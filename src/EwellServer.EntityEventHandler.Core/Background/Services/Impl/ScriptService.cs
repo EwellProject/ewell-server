@@ -48,6 +48,7 @@ public class ScriptService : IScriptService, ITransientDependency
     {
         var chainName = cancelProjectJobDescription.ChainName;
         var projectId = cancelProjectJobDescription.Id;
+        _logger.LogInformation("ProcessCancelProjectAsync Id={projectId} ChainName={chainName}", chainName, projectId);
         if (cancelProjectJobDescription.Users.Any())
         { 
             await RefundAllAsync(chainName, projectId, cancelProjectJobDescription.Users);
