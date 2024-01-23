@@ -2,8 +2,6 @@ using System;
 using System.IO;
 using System.Linq;
 using AutoResponseWrapper;
-using EwellServer.EntityEventHandler.Core.Background.BackgroundJobs;
-using EwellServer.EntityEventHandler.Core.Background.Options;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
@@ -64,7 +62,7 @@ namespace EwellServer
             var hostingEnvironment = context.Services.GetHostingEnvironment();
             Configure<ChainOption>(configuration.GetSection("ChainOption"));
             Configure<TransactionFeeOptions>(configuration.GetSection("TransactionFeeOptions"));
-            Configure<EwellOption>(configuration.GetSection("EwellOption"));
+            // Configure<EwellOption>(configuration.GetSection("EwellOption"));
     
             ConfigureConventionalControllers();
             ConfigureAuthentication(context, configuration);
@@ -312,27 +310,27 @@ namespace EwellServer
                 });
         }
         
-        private void ConfigureBackgroundJob(IConfiguration configuration)
-        {
-            Configure<AbpBackgroundJobOptions>(options =>
-            {
-                options.IsJobExecutionEnabled = false;
-                var ewellConfiguration = configuration.GetSection("EwellOption");
-                var isReleaseAuto = ewellConfiguration.GetSection("IsReleaseAuto").Value;
-                if (isReleaseAuto.IsNullOrEmpty())
-                {
-                    return;
-                }
-
-                if (!"true".Equals(isReleaseAuto, StringComparison.OrdinalIgnoreCase))
-                {
-                    return;
-                }
-
-                options.IsJobExecutionEnabled = true;
-                options.AddJob(typeof(ReleaseProjectTokenJob));
-                options.AddJob(typeof(CancelProjectJob));
-            });
-        }
+        // private void ConfigureBackgroundJob(IConfiguration configuration)
+        // {
+        //     Configure<AbpBackgroundJobOptions>(options =>
+        //     {
+        //         options.IsJobExecutionEnabled = false;
+        //         var ewellConfiguration = configuration.GetSection("EwellOption");
+        //         var isReleaseAuto = ewellConfiguration.GetSection("IsReleaseAuto").Value;
+        //         if (isReleaseAuto.IsNullOrEmpty())
+        //         {
+        //             return;
+        //         }
+        //
+        //         if (!"true".Equals(isReleaseAuto, StringComparison.OrdinalIgnoreCase))
+        //         {
+        //             return;
+        //         }
+        //
+        //         options.IsJobExecutionEnabled = true;
+        //         options.AddJob(typeof(ReleaseProjectTokenJob));
+        //         options.AddJob(typeof(CancelProjectJob));
+        //     });
+        // }
     }
 }
