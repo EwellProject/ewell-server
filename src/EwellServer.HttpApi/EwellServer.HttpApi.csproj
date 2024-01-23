@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EwellServer.Application.Contracts\EwellServer.Application.Contracts.csproj" />
+    <ProjectReference Include="..\EwellServer.EntityEventHandler.Core\EwellServer.EntityEventHandler.Core.csproj" />
   </ItemGroup>
 
   
