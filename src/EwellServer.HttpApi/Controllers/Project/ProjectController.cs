@@ -6,6 +6,7 @@ using EwellServer.Project;
 using EwellServer.Project.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Volo.Abp;
+using Volo.Abp.EventBus.Distributed;
 
 namespace EwellServer.Controllers.Project;
 
@@ -16,12 +17,12 @@ namespace EwellServer.Controllers.Project;
 public class ProjectController
 {
     private readonly IProjectService _projectService;
-    private readonly EwellContractEventHandler _handler;
+    private readonly IDistributedEventBus _distributedEventBus;
 
-    public ProjectController(IProjectService projectService, EwellContractEventHandler handler)
+    public ProjectController(IProjectService projectService, IDistributedEventBus distributedEventBus)
     {
         _projectService = projectService;
-        _handler = handler;
+        _distributedEventBus = distributedEventBus;
     }
     
     [HttpGet]
@@ -49,7 +50,7 @@ public class ProjectController
     [Route("test")]
     public async Task Test()
     {
-        await _handler.HandleEventAsync(new ProjectRegisteredEto()
+        await _distributedEventBus.PublishAsync(new ProjectRegisteredEto()
         {
             ChainId = "tDVV",
             Id = "039b11da4acd3b35f001b014fc2a6cf24172bf172ef36b61852570756cfbce14",
