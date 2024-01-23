@@ -66,7 +66,8 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
         var mustQuery = new List<Func<QueryContainerDescriptor<UserProjectInfoIndex>, QueryContainer>>
         {
             q => q.Term(i => i.Field(f => f.ChainId).Value(chainId)),
-            q => q.Term(i => i.Field(f => f.Id).Value(projectId))
+            q => q.Term(i => i.Field(f => f.Id).Value(projectId)),
+            q => q.TermRange(i => i.Field(f => f.InvestAmount).GreaterThan("0"))
         };
         if (!address.IsNullOrEmpty())
         {
