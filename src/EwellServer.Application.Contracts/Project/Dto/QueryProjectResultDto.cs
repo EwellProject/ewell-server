@@ -75,7 +75,8 @@ public class QueryProjectResultDto
     public void AddSorting()
     {
         ActiveItems = ActiveItems.OrderByDescending(item => item.CurrentRaisedAmount).ToList();
-        ClosedItems = ClosedItems.OrderByDescending(item => item.RealEndTime)
+        //after TokenReleaseTime, project has ended.
+        ClosedItems = ClosedItems.OrderByDescending(item => item.TokenReleaseTime)
             .ThenByDescending(item => item.CancelTime)
             .ToList();
         CreatedItems = SortingMyItems(CreatedItems);
@@ -155,7 +156,7 @@ public class QueryProjectResultBaseDto
         {
             Status = ProjectStatus.Fundraising;
         }
-        else if (current < RealEndTime)
+        else if (current < TokenReleaseTime)
         {
             Status = ProjectStatus.WaitingUnlocked;
         }

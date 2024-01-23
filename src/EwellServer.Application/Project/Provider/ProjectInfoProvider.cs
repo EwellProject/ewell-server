@@ -105,7 +105,7 @@ public class ProjectInfoProvider : IProjectInfoProvider, ISingletonDependency
                     => i.Field(index => index.EndTime.ToUtcMilliSeconds())
                         .LessThanOrEquals(currentStr)));
                 mustQuery.Add(q => q.TermRange(i
-                    => i.Field(index => index.RealEndTime.ToUtcMilliSeconds())
+                    => i.Field(index => index.TokenReleaseTime.ToUtcMilliSeconds())
                         .GreaterThan(currentStr)));
                 break;
             case ProjectStatus.Canceled:
@@ -117,8 +117,9 @@ public class ProjectInfoProvider : IProjectInfoProvider, ISingletonDependency
                 //add or query
                 shouldQuery.Add(q => q.Term(i =>
                     i.Field(f => f.IsCanceled).Value(true)));
+                //after TokenReleaseTime, project has ended.
                 shouldQuery.Add(q => q.TermRange(i
-                    => i.Field(index => index.RealEndTime.ToUtcMilliSeconds())
+                    => i.Field(index => index.TokenReleaseTime.ToUtcMilliSeconds())
                         .LessThanOrEquals(currentStr)));
                 mustQuery.Add(m => m.Bool(mb => mb.Should(shouldQuery)));
                 break;
