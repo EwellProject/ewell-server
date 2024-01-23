@@ -3,6 +3,7 @@ using AElf;
 using AElf.Client.Dto;
 using EwellServer.EntityEventHandler.Core.Background.Providers;
 using Google.Protobuf;
+using Microsoft.Extensions.Logging;
 using Volo.Abp.DependencyInjection;
 
 namespace EwellServer.EntityEventHandler.Core.Background.Services.Impl;
@@ -10,15 +11,18 @@ namespace EwellServer.EntityEventHandler.Core.Background.Services.Impl;
 public class TransactionService : ITransactionService, ITransientDependency
 {
     private readonly IAElfClientProvider _clientProvider;
+    private readonly ILogger<TransactionService> _logger;
 
-    public TransactionService(IAElfClientProvider clientProvider)
+    public TransactionService(IAElfClientProvider clientProvider, ILogger<TransactionService> logger)
     {
         _clientProvider = clientProvider;
+        _logger = logger;
     }
 
     public async Task<string> SendTransactionAsync(string chainName, string privateKey, string toAddress,
         string methodName, IMessage txParam)
     {
+        _logger.LogInformation("SendTransactionAsync begin ToAddress={toAddress} ChainName={chainName} MethodName={methodName}", toAddress, chainName, methodName);
         var client = _clientProvider.GetClient(chainName);
         var ownerAddress = client.GetAddressFromPrivateKey(privateKey);
         var transaction = await client.GenerateTransactionAsync(ownerAddress, toAddress, methodName, txParam);
@@ -28,6 +32,7 @@ public class TransactionService : ITransactionService, ITransientDependency
         {
             RawTransaction = signedTransaction.ToByteArray().ToHex()
         });
+        _logger.LogInformation("SendTransactionAsync end ToAddress={toAddress} ChainName={chainName} MethodName={methodName}, TransactionId={transactionId}", toAddress, chainName, methodName, result.TransactionId);
         return result.TransactionId;
     }
 

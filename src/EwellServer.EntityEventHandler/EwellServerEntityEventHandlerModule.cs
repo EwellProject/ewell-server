@@ -124,6 +124,7 @@ public class EwellServerEntityEventHandlerModule : AbpModule
             options.IsJobExecutionEnabled = true;
             options.AddJob(typeof(ReleaseProjectTokenJob));
             options.AddJob(typeof(CancelProjectJob));
+            options.AddJob(typeof(QueryTransactionStatusJob));
         });
     }
 }
