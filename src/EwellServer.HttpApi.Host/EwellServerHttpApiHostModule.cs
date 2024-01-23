@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Linq;
 using AutoResponseWrapper;
+using EwellServer.EntityEventHandler.Core.Background.BackgroundJobs;
+using EwellServer.EntityEventHandler.Core.Background.Options;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
@@ -28,6 +30,7 @@ using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.Mvc.UI.MultiTenancy;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
+using Volo.Abp.BackgroundJobs;
 using Volo.Abp.BlobStoring.Aliyun;
 using Volo.Abp.Caching;
 using Volo.Abp.Caching.StackExchangeRedis;
@@ -61,6 +64,7 @@ namespace EwellServer
             var hostingEnvironment = context.Services.GetHostingEnvironment();
             Configure<ChainOption>(configuration.GetSection("ChainOption"));
             Configure<TransactionFeeOptions>(configuration.GetSection("TransactionFeeOptions"));
+            Configure<EwellOption>(configuration.GetSection("EwellOption"));
     
             ConfigureConventionalControllers();
             ConfigureAuthentication(context, configuration);
@@ -306,6 +310,29 @@ namespace EwellServer
                     options.RequireHttpsMetadata = Convert.ToBoolean(configuration["AuthServer:RequireHttpsMetadata"]);
                     options.Audience = "EwellServer";
                 });
+        }
+        
+        private void ConfigureBackgroundJob(IConfiguration configuration)
+        {
+            Configure<AbpBackgroundJobOptions>(options =>
+            {
+                options.IsJobExecutionEnabled = false;
+                var ewellConfiguration = configuration.GetSection("EwellOption");
+                var isReleaseAuto = ewellConfiguration.GetSection("IsReleaseAuto").Value;
+                if (isReleaseAuto.IsNullOrEmpty())
+                {
+                    return;
+                }
+
+                if (!"true".Equals(isReleaseAuto, StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+
+                options.IsJobExecutionEnabled = true;
+                options.AddJob(typeof(ReleaseProjectTokenJob));
+                options.AddJob(typeof(CancelProjectJob));
+            });
         }
     }
 }
