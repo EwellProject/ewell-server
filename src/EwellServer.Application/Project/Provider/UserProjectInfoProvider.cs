@@ -91,8 +91,8 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
                 @"query($skipCount:Int!,$chainId:String,$startBlockHeight:Long!,$endBlockHeight:Long!){
             dataList:getSyncUserProjectInfos(input: {skipCount:$skipCount,chainId:$chainId,startBlockHeight:$startBlockHeight,endBlockHeight:$endBlockHeight})
             {
-                id,chainId,blockHeight,createTime
-                user,crowdfundingProjectId,investAmount,toClaimAmount,actualClaimAmount,
+                id,chainId,blockHeight,createTime,user,crowdfundingProjectId,
+                investAmount,toClaimAmount,actualClaimAmount,liquidatedDamageAmount,claimedLiquidatedDamage,claimedLiquidatedDamageTime,
                 crowdfundingProject{id,chainId,blockHeight,creator,crowdFundingType,startTime,endTime,tokenReleaseTime}
             }}",
             Variables = new
@@ -116,7 +116,7 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
                         data{
                                 id,chainId,blockHeight,creator,crowdFundingType,startTime,endTime,tokenReleaseTime,createTime,cancelTime,
                                 toRaisedAmount,crowdFundingIssueAmount,preSalePrice,publicSalePrice,minSubscription,maxSubscription,listMarketInfo,
-                                liquidityLockProportion,unlockTime,firstDistributeProportion,restDistributeProportion,totalPeriod,additionalInfo,isCanceled,
+                                liquidityLockProportion,unlockTime,firstDistributeProportion,restDistributeProportion,totalPeriod,additionalInfo,isCanceled,isWithdraw,withdrawTime,
                                 isEnableWhitelist,whitelistId,currentRaisedAmount,currentCrowdFundingIssueAmount,participantCount,chainId,currentPeriod,
                                 periodDuration,isBurnRestToken,receivableLiquidatedDamageAmount,lastModificationTime,
                                 toRaiseToken{chainId,symbol},
