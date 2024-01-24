@@ -45,8 +45,7 @@ public class JobEnqueueService : IJobEnqueueService, ITransientDependency
         };
         LogNewJob(jobInfo, delay);
 
-        //todo
-        await _backgroundJobManager.EnqueueAsync(jobInfo, BackgroundJobPriority.Normal, TimeSpan.FromSeconds(1));
+        await _backgroundJobManager.EnqueueAsync(jobInfo, BackgroundJobPriority.Normal, TimeSpan.FromSeconds(delay));
     }
 
     public async Task AddJobAsync(ReleaseProjectTokenJobDescription releaseProjectTokenJobDescription)

@@ -1,12 +1,9 @@
-using System;
 using System.Threading.Tasks;
-using EwellServer.Etos;
 using EwellServer.Project;
 using EwellServer.Project.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Volo.Abp;
-using Volo.Abp.EventBus.Distributed;
 
 namespace EwellServer.Controllers.Project;
 
@@ -17,12 +14,10 @@ namespace EwellServer.Controllers.Project;
 public class ProjectController
 {
     private readonly IProjectService _projectService;
-    private readonly IDistributedEventBus _distributedEventBus;
 
-    public ProjectController(IProjectService projectService, IDistributedEventBus distributedEventBus)
+    public ProjectController(IProjectService projectService)
     {
         _projectService = projectService;
-        _distributedEventBus = distributedEventBus;
     }
     
     [HttpGet]
@@ -45,20 +40,5 @@ public class ProjectController
     public async Task<TransactionFeeDto> GetTransactionFeeAsync()
     {
         return await _projectService.GetTransactionFeeAsync();
-    }
-    
-    //todo
-    [HttpGet]
-    [Route("test")]
-    public async Task Test()
-    {
-        await _distributedEventBus.PublishAsync(new ProjectRegisteredEto()
-        {
-            ChainId = "tDVV",
-            Id = "039b11da4acd3b35f001b014fc2a6cf24172bf172ef36b61852570756cfbce14",
-            TotalPeriod = 1,
-            PeriodDuration = 0,
-            EndTime = new DateTime()
-        });
     }
 }
