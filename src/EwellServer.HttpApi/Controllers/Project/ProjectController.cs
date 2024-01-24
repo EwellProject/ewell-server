@@ -29,7 +29,7 @@ public class ProjectController
     
     [HttpGet]
     [Route("userList")]
-    [Authorize]
+    // [Authorize]
     public async Task<QueryProjectUserResultDto> QueryUserListAsync(QueryProjectUserInfoInput input)
     {
         return await _projectService.QueryProjectUserAsync(input);
