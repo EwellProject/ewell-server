@@ -79,7 +79,8 @@ public class ProjectService : EwellServerAppService, IProjectService
             TotalCount = userProjectIndex.Item1,
             Users = _objectMapper.Map<List<UserProjectInfoIndex>, List<ProjectUserDto>>(userProjectIndex.Item2),
             TotalAmount = projectIndex?.CurrentRaisedAmount ?? 0,
-            TotalUser = projectIndex?.ParticipantCount ?? 0
+            TotalUser = projectIndex?.ParticipantCount ?? 0,
+            VirtualAddress = projectIndex?.VirtualAddress
         };
         return resultDto;
     }

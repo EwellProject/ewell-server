@@ -9,6 +9,7 @@ public class QueryProjectUserResultDto
     public long TotalAmount { get; set; } = 0;
     public long TotalUser { get; set; } = 0;
     public List<ProjectUserDto> Users { get; set; } = new();
+    public string VirtualAddress { get; set; } = "";
 }
 
 public class ProjectUserDto

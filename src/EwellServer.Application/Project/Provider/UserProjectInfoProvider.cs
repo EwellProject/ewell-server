@@ -118,7 +118,7 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
                                 toRaisedAmount,crowdFundingIssueAmount,preSalePrice,publicSalePrice,minSubscription,maxSubscription,listMarketInfo,
                                 liquidityLockProportion,unlockTime,firstDistributeProportion,restDistributeProportion,totalPeriod,additionalInfo,isCanceled,isWithdraw,withdrawTime,
                                 isEnableWhitelist,whitelistId,currentRaisedAmount,currentCrowdFundingIssueAmount,participantCount,chainId,currentPeriod,
-                                periodDuration,isBurnRestToken,receivableLiquidatedDamageAmount,lastModificationTime,
+                                periodDuration,isBurnRestToken,receivableLiquidatedDamageAmount,lastModificationTime,virtualAddress
                                 toRaiseToken{chainId,symbol},
                                 crowdFundingIssueToken{chainId,symbol}
                             }

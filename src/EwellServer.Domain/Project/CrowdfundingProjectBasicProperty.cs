@@ -1,4 +1,5 @@
 using System;
+using Nest;
 
 namespace EwellServer.Project;
 
@@ -33,4 +34,5 @@ public class CrowdfundingProjectBasicProperty : CrowdfundingProjectBase
     public DateTime? LastModificationTime { get; set; }
     //TokenReleaseTime.AddSeconds(PeriodDuration.Mul(TotalPeriod)）
     public DateTime RealEndTime { get; set; }
+    [Keyword] public string VirtualAddress { get; set; }
 }
