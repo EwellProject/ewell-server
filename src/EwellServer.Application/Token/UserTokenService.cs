@@ -30,7 +30,7 @@ public class UserTokenService : EwellServerAppService, IUserTokenService
         }
 
         var list = await _userTokenProvider.GetUserTokens(chainId, address);
-        return list.Where(item => item != null)
+        return list.Where(item => item != null && item.Balance > 0)
             .Select(item =>
             {
                 var userTokenDto = _objectMapper.Map<IndexerUserToken, UserTokenDto>(item);
