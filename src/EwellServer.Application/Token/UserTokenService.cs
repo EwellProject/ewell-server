@@ -12,11 +12,14 @@ public class UserTokenService : EwellServerAppService, IUserTokenService
 {
     private readonly IUserTokenProvider _userTokenProvider;
     private readonly IObjectMapper _objectMapper;
+    private readonly ITokenProvider _tokenProvider;
     
-    public UserTokenService(IUserTokenProvider userTokenProvider, IObjectMapper objectMapper)
+    public UserTokenService(IUserTokenProvider userTokenProvider, IObjectMapper objectMapper, 
+        ITokenProvider tokenProvider)
     {
         _userTokenProvider = userTokenProvider;
         _objectMapper = objectMapper;
+        _tokenProvider = tokenProvider;
     }
 
     public async Task<List<UserTokenDto>> GetUserTokensAsync(string chainId, string address)
@@ -28,7 +31,16 @@ public class UserTokenService : EwellServerAppService, IUserTokenService
 
         var list = await _userTokenProvider.GetUserTokens(chainId, address);
         return list.Where(item => item != null)
-            .Select(item => _objectMapper.Map<IndexerUserToken, UserTokenDto>(item))
+            .Select(item =>
+            {
+                var userTokenDto = _objectMapper.Map<IndexerUserToken, UserTokenDto>(item);
+                if (userTokenDto.ImageUrl.IsNullOrWhiteSpace())
+                {
+                    userTokenDto.ImageUrl = _tokenProvider.BuildTokenImageUrl(userTokenDto.Symbol);
+                }
+
+                return userTokenDto;
+            })
             .ToList();
     }
 }

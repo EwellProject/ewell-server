@@ -61,6 +61,8 @@ namespace EwellServer
             var configuration = context.Services.GetConfiguration();
             var hostingEnvironment = context.Services.GetHostingEnvironment();
             Configure<ChainOption>(configuration.GetSection("ChainOption"));
+            Configure<TokenInfoOptions>(configuration.GetSection("TokenInfoOptions"));
+            Configure<AssetsInfoOptions>(configuration.GetSection("AssetsInfoOptions"));
             Configure<TransactionFeeOptions>(configuration.GetSection("TransactionFeeOptions"));
             // Configure<EwellOption>(configuration.GetSection("EwellOption"));
     
