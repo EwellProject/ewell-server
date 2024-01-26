@@ -66,7 +66,7 @@ public class HttpProvider : IHttpProvider
         .IgnoreNullValue()
         .Build();
 
-    private const int DefaultTimeout = 5000;
+    private const int DefaultTimeout = 10000;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<HttpProvider> _logger;
 

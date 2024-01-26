@@ -79,7 +79,7 @@ public class ProjectInfoProvider : IProjectInfoProvider, ISingletonDependency
         return await _crowdfundingProjectIndexRepository.GetAsync(Filter);
     }
 
-    public static void AssemblyStatusQuery(ProjectStatus status, 
+    private static void AssemblyStatusQuery(ProjectStatus status, 
         List<Func<QueryContainerDescriptor<CrowdfundingProjectIndex>, QueryContainer>> mustQuery,  DateTime current)
     {
         string currentStr = current.ToString("O");
@@ -126,7 +126,7 @@ public class ProjectInfoProvider : IProjectInfoProvider, ISingletonDependency
         }
     }
 
-    public static void AssemblyProjectTypesQuery(List<ProjectType> types,
+    private static void AssemblyProjectTypesQuery(List<ProjectType> types,
         List<Func<QueryContainerDescriptor<CrowdfundingProjectIndex>, QueryContainer>> shouldQuery, 
         DateTime current, string userAddress, List<string> userProjectIds)
     {

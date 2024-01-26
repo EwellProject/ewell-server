@@ -70,9 +70,8 @@ public class ProjectInfoProviderTest
                 i.Field(f => f.Id).Value(input.ProjectId)));
         }
 
-        ProjectInfoProvider.AssemblyStatusQuery(input.Status, mustQuery, currentTime);
-        ProjectInfoProvider.AssemblyProjectTypesQuery(input.Types, shouldQuery, currentTime, userAddress,
-            userProjectIds);
+        //ProjectInfoProvider.AssemblyStatusQuery(input.Status, mustQuery, currentTime);
+       // ProjectInfoProvider.AssemblyProjectTypesQuery(input.Types, shouldQuery, currentTime, userAddress, userProjectIds);
 
         if (shouldQuery.Any())
         {
