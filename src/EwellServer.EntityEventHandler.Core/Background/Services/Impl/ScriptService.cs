@@ -53,7 +53,7 @@ public class ScriptService : IScriptService, ITransientDependency
         { 
             await RefundAllAsync(chainName, projectId, cancelProjectJobDescription.Users);
         }
-        await ClaimLiquidatedDamageAllAsync(chainName, projectId);
+        // await ClaimLiquidatedDamageAllAsync(chainName, projectId);
     }
 
     private async Task LockLiquidityAsync(string chainName, string projectId, int period)
