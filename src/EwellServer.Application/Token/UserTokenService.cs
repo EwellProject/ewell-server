@@ -4,10 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using EwellServer.Token.Index;
 using EwellServer.Token.Provider;
+using Volo.Abp;
+using Volo.Abp.Auditing;
 using Volo.Abp.ObjectMapping;
 
 namespace EwellServer.Token;
 
+[RemoteService(IsEnabled = false)]
+[DisableAuditing]
 public class UserTokenService : EwellServerAppService, IUserTokenService
 {
     private readonly IUserTokenProvider _userTokenProvider;

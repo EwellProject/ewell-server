@@ -4,10 +4,14 @@ using System.Threading.Tasks;
 using EwellServer.Common;
 using EwellServer.Grains.Grain.Users;
 using Orleans;
+using Volo.Abp;
+using Volo.Abp.Auditing;
 using Volo.Abp.Users;
 
 namespace EwellServer.User;
 
+[RemoteService(IsEnabled = false)]
+[DisableAuditing]
 public class UserService : EwellServerAppService, IUserService
 {
     private readonly IClusterClient _clusterClient;

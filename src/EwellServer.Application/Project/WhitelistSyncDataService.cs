@@ -22,6 +22,7 @@ public class WhitelistSyncDataService : ScheduleSyncDataService
     private readonly IUserProjectInfoProvider _userProjectInfoGraphQlProvider;
     private readonly INESTRepository<CrowdfundingProjectIndex, string> _crowdfundingProjectIndexRepository;
     private readonly IChainAppService _chainAppService;
+    private const int MaxResultCount = 800;
 
     public WhitelistSyncDataService(ILogger<UserRecordSyncDataService> logger,
         IGraphQLProvider graphQlProvider,
@@ -39,11 +40,10 @@ public class WhitelistSyncDataService : ScheduleSyncDataService
     public override async Task<long> SyncIndexerRecordsAsync(string chainId, long lastEndHeight, long newIndexHeight)
     {
         var skipCount = 0;
-        const int maxResultCount = 800;
         List<Whitelist> whitelists;
         do
         {
-            whitelists = await _userProjectInfoGraphQlProvider.GetWhitelistListAsync(lastEndHeight, 0, chainId, maxResultCount, skipCount);
+            whitelists = await _userProjectInfoGraphQlProvider.GetWhitelistListAsync(lastEndHeight, 0, chainId, MaxResultCount, skipCount);
             _logger.LogInformation("SyncWhitelistInfos GetWhitelistListAsync startBlockHeight: {lastEndHeight} skipCount: {skipCount} count: {count}", 
                 lastEndHeight, skipCount, whitelists.Count);
             if (whitelists.IsNullOrEmpty())

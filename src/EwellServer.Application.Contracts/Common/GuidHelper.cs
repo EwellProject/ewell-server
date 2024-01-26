@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -25,5 +26,15 @@ public static class GuidHelper
     public static string GenerateId(params string[] paramArr)
     {
         return string.Join("_", paramArr);
+    }
+    
+    public static string GenerateGrainId(params object[] ids)
+    {
+        return ids.JoinAsString("-");
+    }
+
+    public static string GetTokenInfoId(string chainId, string symbol)
+    {
+        return GenerateGrainId(chainId, symbol);
     }
 }

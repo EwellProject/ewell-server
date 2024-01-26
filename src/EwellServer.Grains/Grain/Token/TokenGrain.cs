@@ -58,7 +58,7 @@ public class TokenGrain : Grain<TokenState>, ITokenGrain
         });
         var token = TokenInfo.Parser.ParseFrom(
             ByteArrayHelper.HexStringToByteArray(transactionGetTokenResult));
-        State.Id = IdGenerateHelper.GetTokenInfoId(State.ChainId, State.Symbol);
+        State.Id = GuidHelper.GetTokenInfoId(State.ChainId, State.Symbol);
         State.Address = address;
         State.Decimals = token.Decimals;
         State.TokenName = token.TokenName;

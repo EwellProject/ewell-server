@@ -2,16 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EwellServer.Common;
+using EwellServer.Common.GraphQL;
 using EwellServer.Entities;
+using EwellServer.Grains.Grain.Project;
 using EwellServer.Options;
 using EwellServer.Project.Dto;
 using EwellServer.Project.Provider;
 using EwellServer.User;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Orleans;
+using Volo.Abp;
+using Volo.Abp.Auditing;
 using Volo.Abp.ObjectMapping;
 
 namespace EwellServer.Project;
 
+[RemoteService(IsEnabled = false)]
+[DisableAuditing]
 public class ProjectService : EwellServerAppService, IProjectService
 {
     private readonly IProjectInfoProvider _projectInfoProvider;
@@ -19,16 +28,21 @@ public class ProjectService : EwellServerAppService, IProjectService
     private readonly IObjectMapper _objectMapper;
     private readonly IUserService _userService;
     private readonly IOptionsMonitor<TransactionFeeOptions> _optionsMonitor;
+    private readonly IClusterClient _clusterClient;
+    private readonly ILogger<GraphQLProvider> _logger;
 
     public ProjectService(IProjectInfoProvider projectInfoProvider, 
         IUserProjectInfoProvider userProjectInfoProvider, IObjectMapper objectMapper, 
-        IUserService userService, IOptionsMonitor<TransactionFeeOptions> optionsMonitor)
+        IUserService userService, IOptionsMonitor<TransactionFeeOptions> optionsMonitor, 
+        ILogger<GraphQLProvider> logger, IClusterClient clusterClient)
     {
         _projectInfoProvider = projectInfoProvider;
         _userProjectInfoProvider = userProjectInfoProvider;
         _objectMapper = objectMapper;
         _userService = userService;
         _optionsMonitor = optionsMonitor;
+        _logger = logger;
+        _clusterClient = clusterClient;
     }
 
     public async Task<QueryProjectResultDto> QueryProjectAsync(QueryProjectInfoInput input)
@@ -92,5 +106,32 @@ public class ProjectService : EwellServerAppService, IProjectService
         {
             TransactionFee = transactionFeeOptions.TransactionFee
         });    
+    }
+    
+    public async Task<bool> GetProjectExistAsync(string chainId, string projectId)
+    {
+        try
+        {
+            var grain = _clusterClient.GetGrain<IProjectGrain>(GuidHelper.GenerateId(projectId, chainId));
+            return await grain.GetStateAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "GetProjectExistAsync on chain-projectId {id}-{projectId} error", chainId, projectId);
+            return false;
+        }
+    }
+
+    public async Task SetProjectExistAsync(string chainId, string projectId, bool exist)
+    {
+        try
+        {
+            var grain = _clusterClient.GetGrain<IProjectGrain>(GuidHelper.GenerateId(projectId, chainId));
+            await grain.SetStateAsync(exist);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "SetProjectExistAsync on chain-projectId {id}-{projectId} error ", chainId, projectId);
+        }
     }
 }

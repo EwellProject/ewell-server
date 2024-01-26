@@ -7,9 +7,13 @@ using EwellServer.Grains.Grain.Token;
 using EwellServer.Token.Dto;
 using Microsoft.Extensions.Logging;
 using Orleans;
+using Volo.Abp;
+using Volo.Abp.Auditing;
 
 namespace EwellServer.Token;
 
+[RemoteService(IsEnabled = false)]
+[DisableAuditing]
 public class TokenService : EwellServerAppService, ITokenService
 {
     private readonly IClusterClient _clusterClient;
@@ -23,7 +27,7 @@ public class TokenService : EwellServerAppService, ITokenService
 
     public async Task<TokenGrainDto> GetTokenAsync(string chainId, string symbol)
     {
-        var grainId = GrainIdHelper.GenerateGrainId(chainId, symbol);
+        var grainId = GuidHelper.GenerateGrainId(chainId, symbol);
 
         var tokenGrain = _clusterClient.GetGrain<ITokenGrain>(grainId);
 

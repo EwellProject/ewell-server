@@ -17,6 +17,7 @@ public class UserRecordSyncDataService : ScheduleSyncDataService
     private readonly IUserProjectInfoProvider _userProjectInfoGraphQlProvider;
     private readonly INESTRepository<UserRecordIndex, string> _userRecordRepository;
     private readonly IChainAppService _chainAppService;
+    private const int MaxResultCount = 800;
 
     public UserRecordSyncDataService(ILogger<UserRecordSyncDataService> logger,
         IGraphQLProvider graphQlProvider,
@@ -34,11 +35,10 @@ public class UserRecordSyncDataService : ScheduleSyncDataService
     public override async Task<long> SyncIndexerRecordsAsync(string chainId, long lastEndHeight, long newIndexHeight)
     {
         var skipCount = 0;
-        const int maxResultCount = 800;
         List<UserRecordIndex> userRecords;
         do
         {
-            userRecords = await _userProjectInfoGraphQlProvider.GetUserRecordListAsync(lastEndHeight, 0, chainId, maxResultCount, skipCount);
+            userRecords = await _userProjectInfoGraphQlProvider.GetUserRecordListAsync(lastEndHeight, 0, chainId, MaxResultCount, skipCount);
             _logger.LogInformation("SyncUserRecordInfos GetUserRecordListAsync startBlockHeight: {lastEndHeight} skipCount: {skipCount} count: {count}", 
                 lastEndHeight, skipCount, userRecords.Count);
             if (userRecords.IsNullOrEmpty())

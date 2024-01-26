@@ -24,9 +24,9 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
     private readonly IChainAppService _chainAppService;
     private readonly IDistributedEventBus _distributedEventBus;
     private readonly IObjectMapper _objectMapper;
-    private readonly IGraphQLProvider _graphQlProvider;
     private readonly ITokenService _tokenService;
-    private readonly IProjectGrainService _projectGrainService;
+    private readonly IProjectService _projectService;
+    private const int MaxResultCount = 800;
 
     public ProjectInfoSyncDataService(ILogger<ProjectInfoSyncDataService> logger,
         IGraphQLProvider graphQlProvider,
@@ -34,28 +34,26 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
         IChainAppService chainAppService, 
         INESTRepository<CrowdfundingProjectIndex, string> crowdfundingProjectIndexRepository,
         IDistributedEventBus distributedEventBus, IObjectMapper objectMapper, ITokenService tokenService,
-        IProjectGrainService projectGrainService)
+        IProjectService projectService)
         : base(logger, graphQlProvider)
     {
         _logger = logger;
-        _graphQlProvider = graphQlProvider;
         _userProjectInfoGraphQlProvider = userProjectInfoGraphQlProvider;
         _chainAppService = chainAppService;
         _crowdfundingProjectIndexRepository = crowdfundingProjectIndexRepository;
         _distributedEventBus = distributedEventBus;
         _objectMapper = objectMapper;
         _tokenService = tokenService;
-        _projectGrainService = projectGrainService;
+        _projectService = projectService;
     }
 
     public override async Task<long> SyncIndexerRecordsAsync(string chainId, long lastEndHeight, long newIndexHeight)
     {
         var skipCount = 0;
-        const int maxResultCount = 800;
         List<CrowdfundingProjectIndex> projects;
         do
         {
-            projects = await _userProjectInfoGraphQlProvider.GetProjectListAsync(lastEndHeight, 0, chainId, maxResultCount, skipCount);
+            projects = await _userProjectInfoGraphQlProvider.GetProjectListAsync(lastEndHeight, 0, chainId, MaxResultCount, skipCount);
             _logger.LogInformation("SyncProjectInfos GetProjectListAsync startBlockHeight: {lastEndHeight} skipCount: {skipCount} count: {count}", 
                 lastEndHeight, skipCount, projects.Count);
             if (projects.IsNullOrEmpty())
@@ -84,17 +82,17 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
 
     private async Task FillProjectInfo(List<CrowdfundingProjectIndex> projects)
     {
-        foreach (var p in projects)
+        foreach (var projectIndex in projects)
         {
             //fill real end time
-            p.RealEndTime = p.TokenReleaseTime.AddSeconds(p.PeriodDuration.Mul(p.TotalPeriod));
+            projectIndex.RealEndTime = projectIndex.TokenReleaseTime.AddSeconds(projectIndex.PeriodDuration.Mul(projectIndex.TotalPeriod));
             //fill token info
             var toRaiseToken = await _tokenService
-                .GetTokenAsync(p.ToRaiseToken.ChainId, p.ToRaiseToken.Symbol);
+                .GetTokenAsync(projectIndex.ToRaiseToken.ChainId, projectIndex.ToRaiseToken.Symbol);
             var crowdFundingIssueToken = await _tokenService
-                .GetTokenAsync(p.CrowdFundingIssueToken.ChainId, p.CrowdFundingIssueToken.Symbol);
-            p.ToRaiseToken = _objectMapper.Map<TokenGrainDto, TokenBasicInfo>(toRaiseToken);
-            p.CrowdFundingIssueToken = _objectMapper.Map<TokenGrainDto, TokenBasicInfo>(crowdFundingIssueToken);
+                .GetTokenAsync(projectIndex.CrowdFundingIssueToken.ChainId, projectIndex.CrowdFundingIssueToken.Symbol);
+            projectIndex.ToRaiseToken = _objectMapper.Map<TokenGrainDto, TokenBasicInfo>(toRaiseToken);
+            projectIndex.CrowdFundingIssueToken = _objectMapper.Map<TokenGrainDto, TokenBasicInfo>(crowdFundingIssueToken);
         }
     }
 
@@ -114,7 +112,7 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
         var registerProjects = new List<CrowdfundingProjectIndex>();
         foreach (var project in projects)
         {
-            var projectIdExisted = await _projectGrainService.GetProjectExistAsync(chainId, project.Id);
+            var projectIdExisted = await _projectService.GetProjectExistAsync(chainId, project.Id);
             if (projectIdExisted)
             {
                 _logger.LogInformation("ProcessUpdateProject chainId: {chainId} projectId: {projectId}", chainId, project.Id);
@@ -127,7 +125,7 @@ public class ProjectInfoSyncDataService : ScheduleSyncDataService
         
         foreach (var registerProject in registerProjects)
         {
-            await _projectGrainService.SetProjectExistAsync(chainId, registerProject.Id, true);
+            await _projectService.SetProjectExistAsync(chainId, registerProject.Id, true);
             await _distributedEventBus.PublishAsync(_objectMapper.Map<CrowdfundingProjectIndex, ProjectRegisteredEto>(registerProject));
         }
     }

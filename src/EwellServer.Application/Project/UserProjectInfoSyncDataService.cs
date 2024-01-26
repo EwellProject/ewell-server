@@ -35,7 +35,7 @@ public class UserProjectInfoSyncDataService : ScheduleSyncDataService
     public override async Task<long> SyncIndexerRecordsAsync(string chainId, long lastEndHeight, long newIndexHeight)
     {
         var skipCount = 0;
-        long blockHeight = -1;
+        var blockHeight = -1l;
         List<UserProjectInfoIndex> queryList;
         do
         {
