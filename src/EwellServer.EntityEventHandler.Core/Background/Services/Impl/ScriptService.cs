@@ -66,6 +66,7 @@ public class ScriptService : IScriptService, ITransientDependency
 
     private async Task NextPeriodAsync(string chainName, string projectId, int currentPeriod)
     {
+        _logger.LogInformation("NextPeriodAsyncBegin chainName={chainName} projectId={projectId} currentPeriod={currentPeriod}", chainName, projectId, currentPeriod);
         var ewellInfo = _ewellInfoList.First(x => x.ChainName == chainName);
         var txId = await _transactionService.SendTransactionAsync(chainName, ewellInfo.AdminKey, ewellInfo.EwellAddress,
             EwellConstants.NextPeriod, Hash.LoadFromHex(projectId));
@@ -74,6 +75,7 @@ public class ScriptService : IScriptService, ITransientDependency
 
     private async Task WithdrawAsync(string chainName, string projectId, int currentPeriod)
     {
+        _logger.LogInformation("WithdrawAsyncBegin chainName={chainName} projectId={projectId} currentPeriod={currentPeriod}", chainName, projectId, currentPeriod);
         var ewellInfo = _ewellInfoList.First(x => x.ChainName == chainName);
         var txId = await _transactionService.SendTransactionAsync(chainName, ewellInfo.AdminKey, ewellInfo.EwellAddress,
             EwellConstants.Withdraw, Hash.LoadFromHex(projectId));

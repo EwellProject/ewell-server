@@ -22,7 +22,7 @@ public class TransactionService : ITransactionService, ITransientDependency
     public async Task<string> SendTransactionAsync(string chainName, string privateKey, string toAddress,
         string methodName, IMessage txParam)
     {
-        _logger.LogInformation("SendTransactionAsync begin ToAddress={toAddress} ChainName={chainName} MethodName={methodName}", toAddress, chainName, methodName);
+        _logger.LogInformation("SendTransactionAsyncBegin ToAddress={toAddress} ChainName={chainName} MethodName={methodName}", toAddress, chainName, methodName);
         var client = _clientProvider.GetClient(chainName);
         var ownerAddress = client.GetAddressFromPrivateKey(privateKey);
         var transaction = await client.GenerateTransactionAsync(ownerAddress, toAddress, methodName, txParam);
@@ -32,7 +32,7 @@ public class TransactionService : ITransactionService, ITransientDependency
         {
             RawTransaction = signedTransaction.ToByteArray().ToHex()
         });
-        _logger.LogInformation("SendTransactionAsync end ToAddress={toAddress} ChainName={chainName} MethodName={methodName}, TransactionId={transactionId}", toAddress, chainName, methodName, result.TransactionId);
+        _logger.LogInformation("SendTransactionAsyncEnd ToAddress={toAddress} ChainName={chainName} MethodName={methodName}, TransactionId={transactionId}", toAddress, chainName, methodName, result.TransactionId);
         return result.TransactionId;
     }
 
