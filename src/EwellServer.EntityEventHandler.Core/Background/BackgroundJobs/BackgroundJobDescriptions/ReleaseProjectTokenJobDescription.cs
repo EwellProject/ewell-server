@@ -1,7 +1,9 @@
 using System;
+using Volo.Abp.BackgroundJobs;
 
 namespace EwellServer.EntityEventHandler.Core.Background.BackgroundJobs.BackgroundJobDescriptions;
 
+[BackgroundJobName("ReleaseProjectTokenJobDescription")]
 public class ReleaseProjectTokenJobDescription
 {
     public string ChainName { get; set; }

@@ -1,5 +1,8 @@
+using Volo.Abp.BackgroundJobs;
+
 namespace EwellServer.EntityEventHandler.Core.Background.BackgroundJobs.BackgroundJobDescriptions;
 
+[BackgroundJobName("QueryTransactionStatusJobDescription")]
 public class QueryTransactionStatusJobDescription
 {
     public string ChainName { get; set; }

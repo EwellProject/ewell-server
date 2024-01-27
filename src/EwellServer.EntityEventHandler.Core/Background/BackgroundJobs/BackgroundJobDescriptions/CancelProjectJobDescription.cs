@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Text;
+using Volo.Abp.BackgroundJobs;
 
 namespace EwellServer.EntityEventHandler.Core.Background.BackgroundJobs.BackgroundJobDescriptions;
 
+[BackgroundJobName("CancelProjectJobDescription")]
 public class CancelProjectJobDescription
 {
     public string ChainName { get; set; }
