@@ -23,7 +23,6 @@ using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
 using Microsoft.Extensions.Configuration;
 using Volo.Abp.BackgroundJobs;
-using Volo.Abp.BackgroundJobs.RabbitMQ;
 using Volo.Abp.OpenIddict.Tokens;
 
 namespace EwellServer.EntityEventHandler;
