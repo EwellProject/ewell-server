@@ -111,9 +111,13 @@ public class JobEnqueueService : IJobEnqueueService, ITransientDependency
         const int delay = 1;
         var executionTime = DateTimeOffset.UtcNow.AddSeconds(delay);
         _logger.LogInformation(
-            $"Add New CancelProjectJobDescription Job:\n{cancelProjectJobDescription}\nExpect execution time: {executionTime}");
-        await _backgroundJobManager.EnqueueAsync(cancelProjectJobDescription, BackgroundJobPriority.Normal,
+            "CancelProjectJobDescriptionBegin Job:{cancelProjectJobDescription} Expect execution time: {executionTime}", 
+            cancelProjectJobDescription, executionTime);
+        var jobId = await _backgroundJobManager.EnqueueAsync(cancelProjectJobDescription, BackgroundJobPriority.Normal,
             TimeSpan.FromSeconds(delay));
+        _logger.LogInformation(
+            "CancelProjectJobDescriptionEnd Job:{cancelProjectJobDescription} Expect execution time: {executionTime} jobId={jobId}", 
+            cancelProjectJobDescription, executionTime, jobId);
     }
 
     private void LogWarning(string chainName, string projectId, int currentPeriod, int totalPeriod, long delay)
