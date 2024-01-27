@@ -63,9 +63,18 @@ public class JobEnqueueService : IJobEnqueueService, ITransientDependency
         };
         var executionTime = DateTimeOffset.UtcNow.AddSeconds(delay);
         _logger.LogInformation(
-            $"AddJobAtFirstTimeAsync Job:{jobInfo} Expect execution time: {executionTime}", jobInfo, executionTime);
-
-        await _backgroundJobManager.EnqueueAsync(jobInfo, BackgroundJobPriority.Normal, TimeSpan.FromSeconds(delay));
+            "AddJobAtFirstTimeAsyncBegin Job:{jobInfo} Expect execution time: {executionTime}", jobInfo, executionTime);
+        try
+        {
+            var jobId = await _backgroundJobManager.EnqueueAsync(jobInfo, BackgroundJobPriority.Normal, TimeSpan.FromSeconds(delay));
+            _logger.LogInformation(
+                "AddJobAtFirstTimeAsyncEnd Job:{jobInfo} Expect execution time: {executionTime} JobId:{jobId}", jobInfo, executionTime, jobId);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "AddJobAtFirstTimeAsyncException Job:{jobInfo} Expect execution time: {executionTime}", jobInfo, executionTime);
+        }
+        
     }
 
     public async Task AddJobAsync(ReleaseProjectTokenJobDescription releaseProjectTokenJobDescription)
@@ -74,8 +83,8 @@ public class JobEnqueueService : IJobEnqueueService, ITransientDependency
                                releaseProjectTokenJobDescription.CurrentPeriod * releaseProjectTokenJobDescription.PeriodDuration;
         var delay = triggerTimestamp - DateTimeOffset.Now.ToUnixTimeSeconds();
         var executionTime = DateTimeOffset.UtcNow.AddSeconds(delay);
-        _logger.LogInformation(
-            $"AddJobAsyncReleaseProjectTokenJobDescription Job:{releaseProjectTokenJobDescription} Expect execution time: {executionTime}");
+        _logger.LogInformation("AddJobAsyncReleaseProjectTokenJobDescription Job:{releaseProjectTokenJobDescription} Expect execution time: {executionTime}, delay={delay}", 
+            releaseProjectTokenJobDescription, executionTime, delay);
         if (delay < 0)
         {
             LogWarning(releaseProjectTokenJobDescription.ChainName, releaseProjectTokenJobDescription.Id, releaseProjectTokenJobDescription.CurrentPeriod, releaseProjectTokenJobDescription.TotalPeriod, delay);
