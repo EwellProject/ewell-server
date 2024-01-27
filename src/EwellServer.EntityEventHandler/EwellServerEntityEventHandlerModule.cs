@@ -34,8 +34,8 @@ namespace EwellServer.EntityEventHandler;
     typeof(EwellServerEntityEventHandlerCoreModule),
     typeof(AbpAspNetCoreSerilogModule),
     typeof(AbpEventBusRabbitMqModule),
-    typeof(EwellServerWorkerModule),
-    typeof(AbpBackgroundJobsRabbitMqModule)
+    typeof(EwellServerWorkerModule)
+    // typeof(AbpBackgroundJobsRabbitMqModule)
 )]
 public class EwellServerEntityEventHandlerModule : AbpModule
 {
@@ -46,7 +46,7 @@ public class EwellServerEntityEventHandlerModule : AbpModule
         Configure<WorkerOptions>(configuration);
         Configure<ApiOptions>(configuration.GetSection("Api"));
         Configure<EwellOption>(configuration.GetSection("EwellOption"));
-        Configure<AbpRabbitMqBackgroundJobOptions>(configuration.GetSection("AbpRabbitMqBackgroundJob"));
+        // Configure<AbpRabbitMqBackgroundJobOptions>(configuration.GetSection("AbpRabbitMqBackgroundJob"));
         context.Services.AddHostedService<EwellServerHostedService>();
         context.Services.AddSingleton<IClusterClient>(o =>
         {
