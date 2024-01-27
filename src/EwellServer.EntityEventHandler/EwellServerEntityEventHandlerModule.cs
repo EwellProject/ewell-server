@@ -46,6 +46,7 @@ public class EwellServerEntityEventHandlerModule : AbpModule
         Configure<WorkerOptions>(configuration);
         Configure<ApiOptions>(configuration.GetSection("Api"));
         Configure<EwellOption>(configuration.GetSection("EwellOption"));
+        Configure<AbpRabbitMqBackgroundJobOptions>(configuration.GetSection("AbpRabbitMqBackgroundJob"));
         context.Services.AddHostedService<EwellServerHostedService>();
         context.Services.AddSingleton<IClusterClient>(o =>
         {
