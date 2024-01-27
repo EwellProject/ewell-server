@@ -61,7 +61,9 @@ public class JobEnqueueService : IJobEnqueueService, ITransientDependency
             StartTime = startTime,
             IsNeedUnlockLiquidity = true
         };
-        LogNewJob(jobInfo, delay);
+        var executionTime = DateTimeOffset.UtcNow.AddSeconds(delay);
+        _logger.LogInformation(
+            $"AddJobAtFirstTimeAsync Job:{jobInfo} Expect execution time: {executionTime}", jobInfo, executionTime);
 
         await _backgroundJobManager.EnqueueAsync(jobInfo, BackgroundJobPriority.Normal, TimeSpan.FromSeconds(delay));
     }
@@ -71,6 +73,9 @@ public class JobEnqueueService : IJobEnqueueService, ITransientDependency
         var triggerTimestamp = releaseProjectTokenJobDescription.StartTime.ToUnixTimeSeconds() +
                                releaseProjectTokenJobDescription.CurrentPeriod * releaseProjectTokenJobDescription.PeriodDuration;
         var delay = triggerTimestamp - DateTimeOffset.Now.ToUnixTimeSeconds();
+        var executionTime = DateTimeOffset.UtcNow.AddSeconds(delay);
+        _logger.LogInformation(
+            $"AddJobAsyncReleaseProjectTokenJobDescription Job:{releaseProjectTokenJobDescription} Expect execution time: {executionTime}");
         if (delay < 0)
         {
             LogWarning(releaseProjectTokenJobDescription.ChainName, releaseProjectTokenJobDescription.Id, releaseProjectTokenJobDescription.CurrentPeriod, releaseProjectTokenJobDescription.TotalPeriod, delay);
