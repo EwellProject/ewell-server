@@ -1,7 +1,9 @@
 using System;
 using System.Threading.Tasks;
+using EwellServer.EntityEventHandler.Core.Background.BackgroundJobs;
 using EwellServer.EntityEventHandler.Core.Background.BackgroundJobs.BackgroundJobDescriptions;
 using EwellServer.EntityEventHandler.Core.Background.Options;
+using Hangfire;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Volo.Abp.BackgroundJobs;
@@ -48,7 +50,10 @@ public class JobEnqueueService : IJobEnqueueService, ITransientDependency
             "AddJobAtFirstTimeAsyncBegin Job:{jobInfo} Expect execution time: {executionTime}", jobInfo, executionTime);
         try
         {
-            var jobId = await _backgroundJobManager.EnqueueAsync(jobInfo, BackgroundJobPriority.Normal, TimeSpan.FromSeconds(delay));
+            // var jobId = await _backgroundJobManager.EnqueueAsync(jobInfo, BackgroundJobPriority.Normal, TimeSpan.FromSeconds(delay));
+            //This place
+            var jobId = BackgroundJob.Schedule<IRegisterProjectProvider>(provider =>
+                provider.ExecuteAsync(jobInfo), TimeSpan.FromSeconds(delay));
             _logger.LogInformation(
                 "AddJobAtFirstTimeAsyncEnd Job:{jobInfo} Expect execution time: {executionTime} JobId:{jobId}", jobInfo, executionTime, jobId);
         }
@@ -72,9 +77,21 @@ public class JobEnqueueService : IJobEnqueueService, ITransientDependency
             return;
         }
 
-        LogNewJob(releaseProjectTokenJobDescription, delay);
-        await _backgroundJobManager.EnqueueAsync(releaseProjectTokenJobDescription, BackgroundJobPriority.Normal,
-            TimeSpan.FromSeconds(delay));
+        // LogNewJob(releaseProjectTokenJobDescription, delay);
+        // await _backgroundJobManager.EnqueueAsync(releaseProjectTokenJobDescription, BackgroundJobPriority.Normal,
+        //     TimeSpan.FromSeconds(delay));
+        //This place
+        try
+        {
+            var jobId = BackgroundJob.Schedule<IRegisterProjectProvider>(provider =>
+                provider.ExecuteAsync(releaseProjectTokenJobDescription), TimeSpan.FromSeconds(delay));
+            _logger.LogInformation(
+                "AddJobAsyncReleaseProjectTokenJobDescription Job:{jobInfo} Expect execution time: {executionTime} JobId:{jobId}", releaseProjectTokenJobDescription, executionTime, jobId);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "AddJobAtFirstTimeAsyncException Job:{jobInfo} Expect execution time: {executionTime}", releaseProjectTokenJobDescription, executionTime);
+        }
     }
 
     public async Task AddJobAsync(QueryTransactionStatusJobDescription transactionStatusJobDescription)
@@ -94,11 +111,23 @@ public class JobEnqueueService : IJobEnqueueService, ITransientDependency
         _logger.LogInformation(
             "CancelProjectJobDescriptionBegin Job:{cancelProjectJobDescription} Expect execution time: {executionTime}", 
             cancelProjectJobDescription, executionTime);
-        var jobId = await _backgroundJobManager.EnqueueAsync(cancelProjectJobDescription, BackgroundJobPriority.Normal,
-            TimeSpan.FromSeconds(delay));
-        _logger.LogInformation(
-            "CancelProjectJobDescriptionEnd Job:{cancelProjectJobDescription} Expect execution time: {executionTime} jobId={jobId}", 
-            cancelProjectJobDescription, executionTime, jobId);
+        // var jobId = await _backgroundJobManager.EnqueueAsync(cancelProjectJobDescription, BackgroundJobPriority.Normal,
+        //     TimeSpan.FromSeconds(delay));
+        //This place
+        try
+        {
+            var jobId = BackgroundJob.Schedule<ICancelProjectProvider>(provider =>
+                provider.ExecuteAsync(cancelProjectJobDescription), TimeSpan.FromSeconds(delay));
+            _logger.LogInformation(
+                "CancelProjectJobDescriptionEnd Job:{cancelProjectJobDescription} Expect execution time: {executionTime} jobId={jobId}", 
+                cancelProjectJobDescription, executionTime, jobId);
+        }
+        catch (Exception e)
+        {
+            _logger.LogInformation(
+                "CancelProjectJobDescriptionEnd Job:{cancelProjectJobDescription} Expect execution time: {executionTime}", 
+                cancelProjectJobDescription, executionTime);
+        }
     }
 
     private void LogWarning(string chainName, string projectId, int currentPeriod, int totalPeriod, long delay)

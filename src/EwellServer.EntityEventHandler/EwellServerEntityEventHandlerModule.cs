@@ -24,6 +24,15 @@ using GraphQL.Client.Serializer.Newtonsoft;
 using Microsoft.Extensions.Configuration;
 using Volo.Abp.BackgroundJobs;
 using Volo.Abp.OpenIddict.Tokens;
+using Hangfire;
+using Hangfire.Dashboard;
+using Hangfire.Mongo;
+using Hangfire.Mongo.CosmosDB;
+using Hangfire.Mongo.Migration.Strategies;
+using Hangfire.Mongo.Migration.Strategies.Backup;
+using Volo.Abp.BackgroundJobs.Hangfire;
+using EwellServer.Common.Enum;
+using MongoDB.Driver;
 
 namespace EwellServer.EntityEventHandler;
 
@@ -33,7 +42,8 @@ namespace EwellServer.EntityEventHandler;
     typeof(EwellServerEntityEventHandlerCoreModule),
     typeof(AbpAspNetCoreSerilogModule),
     typeof(AbpEventBusRabbitMqModule),
-    typeof(EwellServerWorkerModule)
+    typeof(EwellServerWorkerModule),
+    typeof(AbpBackgroundJobsHangfireModule)
     // typeof(AbpBackgroundJobsRabbitMqModule)
 )]
 public class EwellServerEntityEventHandlerModule : AbpModule
@@ -45,6 +55,7 @@ public class EwellServerEntityEventHandlerModule : AbpModule
         Configure<WorkerOptions>(configuration);
         Configure<ApiOptions>(configuration.GetSection("Api"));
         Configure<EwellOption>(configuration.GetSection("EwellOption"));
+        ConfigureHangfire(context, configuration);
         // Configure<AbpRabbitMqBackgroundJobOptions>(configuration.GetSection("AbpRabbitMqBackgroundJob"));
         context.Services.AddHostedService<EwellServerHostedService>();
         context.Services.AddSingleton<IClusterClient>(o =>
@@ -70,7 +81,7 @@ public class EwellServerEntityEventHandlerModule : AbpModule
         });
         ConfigureEsIndexCreation();
         ConfigureGraphQl(context, configuration);
-        ConfigureBackgroundJob(configuration);
+        // ConfigureBackgroundJob(configuration);
     }
     public override void OnApplicationInitialization(ApplicationInitializationContext context)
     {
@@ -125,6 +136,55 @@ public class EwellServerEntityEventHandlerModule : AbpModule
             options.AddJob(typeof(ReleaseProjectTokenJob));
             options.AddJob(typeof(CancelProjectJob));
             // options.AddJob(typeof(QueryTransactionStatusJob));
+        });
+    }
+    
+    private void ConfigureHangfire(ServiceConfigurationContext context, IConfiguration configuration)
+    {
+        var mongoType = configuration["Hangfire:MongoType"];
+        var connectionString = configuration["Hangfire:ConnectionString"];
+        if (connectionString.IsNullOrEmpty()) return;
+    
+        if (mongoType.IsNullOrEmpty() ||
+            mongoType.Equals(MongoType.MongoDb.ToString(), StringComparison.OrdinalIgnoreCase))
+        {
+            context.Services.AddHangfire(x =>
+            {
+                x.UseMongoStorage(connectionString, new MongoStorageOptions
+                {
+                    MigrationOptions = new MongoMigrationOptions
+                    {
+                        MigrationStrategy = new MigrateMongoMigrationStrategy(),
+                        BackupStrategy = new CollectionMongoBackupStrategy()
+                    },
+                    CheckConnection = true,
+                    CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.TailNotificationsCollection
+                });
+            });
+        }
+        else if (mongoType.Equals(MongoType.DocumentDb.ToString(), StringComparison.OrdinalIgnoreCase))
+        {
+            context.Services.AddHangfire(config =>
+            {
+                var mongoUrlBuilder = new MongoUrlBuilder(connectionString);
+                var mongoClient = new MongoClient(mongoUrlBuilder.ToMongoUrl());
+                var opt = new CosmosStorageOptions
+                {
+                    MigrationOptions = new MongoMigrationOptions
+                    {
+                        BackupStrategy = new NoneMongoBackupStrategy(),
+                        MigrationStrategy = new DropMongoMigrationStrategy(),
+                    }
+                };
+                config.UseCosmosStorage(mongoClient, mongoUrlBuilder.DatabaseName, opt);
+            });
+        }
+        
+        context.Services.AddHangfireServer(opt =>
+        {
+            opt.SchedulePollingInterval = TimeSpan.FromMilliseconds(3000);
+            opt.HeartbeatInterval = TimeSpan.FromMilliseconds(3000);
+            opt.Queues = new[] { "default", "notDefault" };
         });
     }
 }
