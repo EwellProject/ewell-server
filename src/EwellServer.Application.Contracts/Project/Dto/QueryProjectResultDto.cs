@@ -76,8 +76,8 @@ public class QueryProjectResultDto
     {
         ActiveItems = ActiveItems.OrderByDescending(item => item.CurrentRaisedAmount).ToList();
         //after TokenReleaseTime, project has ended.
-        ClosedItems = ClosedItems.OrderByDescending(item => item.TokenReleaseTime)
-            .ThenByDescending(item => item.CancelTime)
+        ClosedItems = ClosedItems.OrderByDescending(item =>
+                item.TokenReleaseTime > item.CancelTime ? item.TokenReleaseTime : item.CancelTime ?? DateTime.MinValue)
             .ToList();
         CreatedItems = SortingMyItems(CreatedItems);
         ParticipateItems = SortingMyItems(ParticipateItems);
