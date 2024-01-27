@@ -26,7 +26,9 @@ public class ReleaseProjectTokenJob : IAsyncBackgroundJob<ReleaseProjectTokenJob
         _logger.LogInformation("ReleaseProjectTokenJobDescription args={args}", args);
         var nextPeriod = await _scriptService.ProcessReleaseTokenAsync(args);
         if (nextPeriod == args.TotalPeriod)
+        {
             return;
+        }
 
         args.IsNeedUnlockLiquidity = false;
         args.CurrentPeriod = nextPeriod;
