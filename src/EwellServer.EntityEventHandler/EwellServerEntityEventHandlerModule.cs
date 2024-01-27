@@ -34,8 +34,8 @@ namespace EwellServer.EntityEventHandler;
     typeof(EwellServerEntityEventHandlerCoreModule),
     typeof(AbpAspNetCoreSerilogModule),
     typeof(AbpEventBusRabbitMqModule),
-    typeof(EwellServerWorkerModule),
-    typeof(AbpBackgroundJobsRabbitMqModule)
+    typeof(EwellServerWorkerModule)
+    // typeof(AbpBackgroundJobsRabbitMqModule)
 )]
 public class EwellServerEntityEventHandlerModule : AbpModule
 {
