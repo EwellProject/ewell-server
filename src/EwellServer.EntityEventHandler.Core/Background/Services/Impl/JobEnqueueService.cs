@@ -26,32 +26,13 @@ public class JobEnqueueService : IJobEnqueueService, ITransientDependency
     public async Task AddJobAtFirstTimeAsync(string chainName, string projectId, DateTimeOffset startTime,
         int currentPeriod, int totalPeriod, long periodDuration)
     {
-        // var delay = startTime.ToUnixTimeSeconds() - DateTimeOffset.Now.ToUnixTimeSeconds();
-        // if (delay < 0)
-        // {
-        //     LogWarning(chainName, projectId, currentPeriod, totalPeriod, delay);
-        //     delay = 1;
-        // }
-        //
-        // var jobInfo = new ReleaseProjectTokenJobDescription
-        // {
-        //     ChainName = chainName,
-        //     Id = projectId,
-        //     CurrentPeriod = currentPeriod,
-        //     TotalPeriod = totalPeriod,
-        //     PeriodDuration = periodDuration,
-        //     StartTime = startTime,
-        //     IsNeedUnlockLiquidity = true
-        // };
-        // LogNewJob(jobInfo, delay);
-        //
-        // await _backgroundJobManager.EnqueueAsync(jobInfo, BackgroundJobPriority.Normal, TimeSpan.FromSeconds(delay));
+        var delay = startTime.ToUnixTimeSeconds() - DateTimeOffset.Now.ToUnixTimeSeconds();
+        if (delay < 0)
+        {
+            LogWarning(chainName, projectId, currentPeriod, totalPeriod, delay);
+            delay = 1;
+        }
         
-        
-        
-        //test
-        const int delay = 1;
-
         var jobInfo = new ReleaseProjectTokenJobDescription
         {
             ChainName = chainName,
