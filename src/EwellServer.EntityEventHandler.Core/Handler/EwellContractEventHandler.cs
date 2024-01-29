@@ -33,7 +33,8 @@ public class EwellContractEventHandler : IDistributedEventHandler<ProjectRegiste
 
     public async Task HandleEventAsync(ProjectRegisteredEto eto)
     {
-        _logger.LogInformation("HandleEventAsync chainId: {chainId} projectId: {projectId}", eto.ChainId, eto.Id);
+        _logger.LogInformation("HandleEventAsync chainId: {chainId} projectId: {projectId} tokenReleaseTime:{TokenReleaseTime}", 
+            eto.ChainId, eto.Id, eto.TokenReleaseTime);
         await AddUnlockJobAsync(eto.ChainId, eto.Id, eto.TotalPeriod,
             eto.PeriodDuration,
             new Timestamp
