@@ -187,22 +187,8 @@ public class ProjectInfoProvider : IProjectInfoProvider, ISingletonDependency
         //use default
         var sortDescriptor = new SortDescriptor<CrowdfundingProjectIndex>();
 
-        if (input.Types.IsNullOrEmpty())
-        {
-            sortDescriptor.Descending(a => a.CreateTime);
-        }
-        else if (input.QuerySelf() || input.Types.Contains(ProjectType.Active))
-        {
-            sortDescriptor.Descending(a => a.CurrentRaisedAmount);
-        }
-        else if (input.Types.Contains(ProjectType.Closed))
-        {
-            sortDescriptor.Descending(a => a.RealEndTime);
-        }
-        else
-        {
-            sortDescriptor.Descending(a => a.CreateTime);
-        }
+        sortDescriptor.Descending(a => a.CreateTime);
+
         return s => sortDescriptor;
     }
 }
