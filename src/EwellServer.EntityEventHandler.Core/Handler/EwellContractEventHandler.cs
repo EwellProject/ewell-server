@@ -38,7 +38,7 @@ public class EwellContractEventHandler : IDistributedEventHandler<ProjectRegiste
             eto.PeriodDuration,
             new Timestamp
             {
-                Seconds = TimeHelper.GetTimeStampFromDateTimeInSeconds(eto.EndTime)
+                Seconds = TimeHelper.GetTimeStampFromDateTimeInSeconds(eto.TokenReleaseTime)
             });
     }
     
