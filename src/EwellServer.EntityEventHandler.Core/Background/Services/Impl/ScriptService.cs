@@ -66,19 +66,25 @@ public class ScriptService : IScriptService, ITransientDependency
 
     private async Task NextPeriodAsync(string chainName, string projectId, int currentPeriod)
     {
-        _logger.LogInformation("NextPeriodAsyncBegin chainName={chainName} projectId={projectId} currentPeriod={currentPeriod}", chainName, projectId, currentPeriod);
+        _logger.LogInformation("NextPeriodAsyncBegin chainName={chainName} projectId={projectId} currentPeriod={currentPeriod}", 
+            chainName, projectId, currentPeriod);
         var ewellInfo = _ewellInfoList.First(x => x.ChainName == chainName);
         var txId = await _transactionService.SendTransactionAsync(chainName, ewellInfo.AdminKey, ewellInfo.EwellAddress,
             EwellConstants.NextPeriod, Hash.LoadFromHex(projectId));
+        _logger.LogInformation("NextPeriodAsyncEnd chainName={chainName} projectId={projectId} currentPeriod={currentPeriod} txId={txId}", 
+            chainName, projectId, currentPeriod, txId);
         await AddTransactionQueryJobAsync(chainName, projectId, EwellConstants.NextPeriod, txId, currentPeriod);
     }
 
     private async Task WithdrawAsync(string chainName, string projectId, int currentPeriod)
     {
-        _logger.LogInformation("WithdrawAsyncBegin chainName={chainName} projectId={projectId} currentPeriod={currentPeriod}", chainName, projectId, currentPeriod);
+        _logger.LogInformation("WithdrawAsyncBegin chainName={chainName} projectId={projectId} currentPeriod={currentPeriod}", 
+            chainName, projectId, currentPeriod);
         var ewellInfo = _ewellInfoList.First(x => x.ChainName == chainName);
         var txId = await _transactionService.SendTransactionAsync(chainName, ewellInfo.AdminKey, ewellInfo.EwellAddress,
             EwellConstants.Withdraw, Hash.LoadFromHex(projectId));
+        _logger.LogInformation("WithdrawAsyncEnd chainName={chainName} projectId={projectId} currentPeriod={currentPeriod} txId={txId}", 
+            chainName, projectId, currentPeriod, txId);
         await AddTransactionQueryJobAsync(chainName, projectId, EwellConstants.Withdraw, txId, currentPeriod);
     }
 
@@ -90,8 +96,12 @@ public class ScriptService : IScriptService, ITransientDependency
             ProjectId = Hash.LoadFromHex(projectId),
             Users = { users.Select(Address.FromBase58) }
         };
+        _logger.LogInformation("RefundAllAsyncBegin chainName={chainName} projectId={projectId} userCount={userCount}", 
+            chainName, projectId, users.Count);
         var txId = await _transactionService.SendTransactionAsync(chainName, ewellInfo.AdminKey, ewellInfo.EwellAddress,
             EwellConstants.RefundAll, input);
+        _logger.LogInformation("RefundAllAsyncEnd chainName={chainName} projectId={projectId} userCount={userCount} txId={txId}", 
+            chainName, projectId, users.Count, txId);
         await AddTransactionQueryJobAsync(chainName, projectId, EwellConstants.RefundAll, txId);
     }
 
