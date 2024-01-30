@@ -78,7 +78,7 @@ public class SignatureGrantHandler : ITokenExtensionGrant
             return GetForbidResult(OpenIddictConstants.Errors.InvalidRequest,
                 $"The time should be {timeRangeConfig.TimeRange} minutes before and after the current time.");
         }
-        caHash = string.IsNullOrWhiteSpace(caHash) ? caHash : string.Empty;
+        caHash = string.IsNullOrWhiteSpace(caHash) ? string.Empty : caHash;
         
         _logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<SignatureGrantHandler>>();
         _distributedLock = context.HttpContext.RequestServices.GetRequiredService<IAbpDistributedLock>();
