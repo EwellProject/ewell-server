@@ -141,6 +141,7 @@ public class QueryProjectResultBaseDto
     public DateTime CreateTime { get; set; }
     public ProjectStatus Status  { get; set; }
     public DateTime RealEndTime  { get; set; }
+    public string VirtualAddress { get; set; }
     
     public void OfResultBase(string userAddress, DateTime current, Dictionary<string, UserProjectInfoIndex> userProjectDict)
     {
