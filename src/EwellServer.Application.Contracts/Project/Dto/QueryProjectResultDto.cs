@@ -79,8 +79,14 @@ public class QueryProjectResultDto
         ClosedItems = ClosedItems.OrderByDescending(item =>
                 item.TokenReleaseTime > item.CancelTime ? item.TokenReleaseTime : item.CancelTime ?? DateTime.MinValue)
             .ToList();
-        CreatedItems = SortingMyItems(CreatedItems);
-        ParticipateItems = SortingMyItems(ParticipateItems);
+        CreatedItems = CreatedItems.OrderByDescending(item => item.CurrentRaisedAmount)   
+            .ThenByDescending(item => item.CreateTime)
+            .ThenBy(item => item.Status)
+            .ToList();
+        ParticipateItems = ParticipateItems.OrderByDescending(item => item.InvestAmount)   
+            .ThenByDescending(item => item.InvestCreateTime)
+            .ThenBy(item => item.Status)
+            .ToList();
     }
     
     private List<QueryProjectResultBaseDto> SortingMyItems(List<QueryProjectResultBaseDto> myItems)
