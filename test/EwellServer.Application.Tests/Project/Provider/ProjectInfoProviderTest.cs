@@ -122,6 +122,23 @@ public class ProjectInfoProviderTest
         Assert.NotNull(result);
         Assert.Equal(expectedResult.Item1, result.Item1);
     }
+    
+    [Fact]
+    public async Task GetProjectInfosAsync_Test2()
+    {
+        var expectedResult = new CrowdfundingProjectIndex
+        {
+            Id = "1",
+            CurrentRaisedAmount = 100,
+            ChainId = "tDVV",
+            Creator = "vQfjcuW3RbGmkcL74YY4q3BX9UcH5rmwLmbQi3PsZxg8vE9Uk"
+        };
+        
+        _mockCrowdfundingProjectIndexRepository.GetAsync(Arg.Any<Func<QueryContainerDescriptor<CrowdfundingProjectIndex>, QueryContainer>>())
+            .Returns(Task.FromResult(expectedResult));
+        var result = await _provider.GetProjectInfosAsync("chainId", "projectId");
+        Assert.NotNull(result);
+    }
 
     private Tuple<long, List<CrowdfundingProjectIndex>> MockProjectInfos()
     {
