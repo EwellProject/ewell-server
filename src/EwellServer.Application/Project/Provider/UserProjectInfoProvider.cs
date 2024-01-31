@@ -8,7 +8,6 @@ using EwellServer.Dtos;
 using EwellServer.Entities;
 using EwellServer.Project.Index;
 using GraphQL;
-using Microsoft.IdentityModel.Tokens;
 using Nest;
 using Volo.Abp.DependencyInjection;
 
