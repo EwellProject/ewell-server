@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AElf.Indexing.Elasticsearch;
 using EwellServer.Chains;
@@ -56,5 +58,45 @@ public class ProjectInfoSyncDataServiceTest
         _chainAppService.GetListAsync().Returns(new[] { "tDVV" });
         var result = await _service.GetChainIdsAsync();
         result.ShouldNotBeNull();
+    }
+    
+    [Fact]
+    public async Task SyncIndexerRecordsAsync_Test()
+    {
+        // first return
+        _userProjectInfoGraphQlProvider.GetProjectListAsync(Arg.Any<long>(), Arg.Any<long>(),
+                Arg.Any<string>(), Arg.Any<int>(), Arg.Any<int>())
+            .Returns(Task.FromResult(new List<CrowdfundingProjectIndex>()));   
+        var result = await _service.SyncIndexerRecordsAsync("chainId", 1, 1);
+        result.ShouldBe(1);
+        
+        // second return
+        _userProjectInfoGraphQlProvider.GetProjectListAsync(Arg.Any<long>(), Arg.Any<long>(),
+                Arg.Any<string>(), Arg.Any<int>(), Arg.Any<int>())
+            .Returns(
+                Task.FromResult(new List<CrowdfundingProjectIndex> { new()
+                {
+                    BlockHeight = 1,
+                    TokenReleaseTime = new DateTime(),
+                    TotalPeriod = 1,
+                    ToRaiseToken = new TokenBasicInfo { ChainId = "tDVV", Symbol = "elf" },
+                    CrowdFundingIssueToken = new TokenBasicInfo { ChainId = "tDVV", Symbol = "elf" },
+                    IsCanceled = false } }),
+                Task.FromResult(new List<CrowdfundingProjectIndex> { new()
+                {
+                    BlockHeight = 2,
+                    TokenReleaseTime = new DateTime(),
+                    TotalPeriod = 1,
+                    ToRaiseToken = new TokenBasicInfo { ChainId = "tDVV", Symbol = "elf" },
+                    CrowdFundingIssueToken = new TokenBasicInfo { ChainId = "tDVV", Symbol = "elf" },
+                    IsCanceled = true } }),
+                Task.FromResult(new List<CrowdfundingProjectIndex>())
+                );
+        _tokenService.GetTokenAsync(Arg.Any<string>(), Arg.Any<string>())
+            .Returns(Task.FromResult(new TokenGrainDto()));
+        _projectService.GetProjectExistAsync(Arg.Any<string>(), Arg.Any<string>())
+            .Returns(Task.FromResult(true), Task.FromResult(false));
+        result = await _service.SyncIndexerRecordsAsync("chainId", 1, 1);
+        result.ShouldBe(2);
     }
 }

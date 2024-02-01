@@ -8,10 +8,7 @@ using EwellServer.Common;
 using EwellServer.Common.GraphQL;
 using EwellServer.Entities;
 using EwellServer.Project.Provider;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using MongoDB.Driver.Linq;
 using Nest;
 
 namespace EwellServer.Project;
@@ -24,7 +21,7 @@ public class WhitelistSyncDataService : ScheduleSyncDataService
     private readonly IChainAppService _chainAppService;
     private const int MaxResultCount = 800;
 
-    public WhitelistSyncDataService(ILogger<UserRecordSyncDataService> logger,
+    public WhitelistSyncDataService(ILogger<WhitelistSyncDataService> logger,
         IGraphQLProvider graphQlProvider,
         IUserProjectInfoProvider userProjectInfoGraphQlProvider,
         IChainAppService chainAppService, 
