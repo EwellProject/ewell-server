@@ -79,7 +79,7 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
         QueryContainer Filter(QueryContainerDescriptor<UserProjectInfoIndex> f) => f.Bool(b => b.Must(mustQuery));
         
         return await _userProjectInfoIndexRepository.GetSortListAsync(Filter, skip: skipCount, limit: maxResultCount, 
-            sortFunc: _ => new SortDescriptor<UserProjectInfoIndex>().Descending(index => index.InvestAmount));
+            sortFunc: _ => new SortDescriptor<UserProjectInfoIndex>().Descending(index => index.CreateTime));
     }
 
     public async Task<List<UserProjectInfoIndex>> GetSyncUserProjectInfosAsync(int skipCount, string chainId, long startBlockHeight, long endBlockHeight)
