@@ -180,6 +180,7 @@ public class QueryProjectResultBaseDto
             InvestCreateTime = userProject.CreateTime;
             LiquidatedDamageAmount = userProject.LiquidatedDamageAmount;
             ClaimedLiquidatedDamage = userProject.ClaimedLiquidatedDamage;
+            ActualClaimAmount = userProject.ActualClaimAmount;
         }
     }
 }
