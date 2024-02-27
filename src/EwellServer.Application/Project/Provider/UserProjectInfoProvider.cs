@@ -114,8 +114,8 @@ public class UserProjectInfoProvider : IUserProjectInfoProvider, ISingletonDepen
                     data:getProjectList(input: {chainId:$chainId,startBlockHeight:$startBlockHeight,endBlockHeight:$endBlockHeight,maxResultCount:$maxResultCount,skipCount:$skipCount}){
                         data{
                                 id,chainId,blockHeight,creator,crowdFundingType,startTime,endTime,tokenReleaseTime,createTime,cancelTime,
-                                toRaisedAmount,crowdFundingIssueAmount,preSalePrice,publicSalePrice,minSubscription,maxSubscription,listMarketInfo,
-                                liquidityLockProportion,unlockTime,firstDistributeProportion,restDistributeProportion,totalPeriod,additionalInfo,isCanceled,isWithdraw,withdrawTime,
+                                targetRaisedAmount,crowdFundingIssueAmount,preSalePrice,publicSalePrice,minSubscription,maxSubscription,listMarketInfo,
+                                liquidityLockProportion,unlockTime,firstDistributeProportion,restPeriodDistributeProportion,totalPeriod,additionalInfo,isCanceled,isWithdraw,withdrawTime,
                                 isEnableWhitelist,whitelistId,currentRaisedAmount,currentCrowdFundingIssueAmount,participantCount,chainId,currentPeriod,
                                 periodDuration,isBurnRestToken,receivableLiquidatedDamageAmount,lastModificationTime,virtualAddress
                                 toRaiseToken{chainId,symbol},

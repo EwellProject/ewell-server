@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AElf.Contracts.Ewell;
 using AElf.Types;
+using Ewell.Contracts.Ido;
 using EwellServer.EntityEventHandler.Core.Background.BackgroundJobs.BackgroundJobDescriptions;
 using EwellServer.EntityEventHandler.Core.Background.Options;
 using Microsoft.Extensions.Logging;

@@ -64,6 +64,7 @@ namespace EwellServer
             Configure<TokenInfoOptions>(configuration.GetSection("TokenInfoOptions"));
             Configure<AssetsInfoOptions>(configuration.GetSection("AssetsInfoOptions"));
             Configure<TransactionFeeOptions>(configuration.GetSection("TransactionFeeOptions"));
+            Configure<UserTokenOptions>(configuration.GetSection("UserTokenOptions"));
             // Configure<EwellOption>(configuration.GetSection("EwellOption"));
     
             ConfigureConventionalControllers();

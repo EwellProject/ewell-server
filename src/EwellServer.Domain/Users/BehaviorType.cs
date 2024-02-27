@@ -4,7 +4,7 @@ public enum BehaviorType
 {
     Invest,
     Claim,
-    UnInvest,
+    Disinvest,
     LiquidatedDamageClaimed,
     Refund,
     LiquidatedDamageRecord

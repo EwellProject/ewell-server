@@ -109,7 +109,7 @@ public class QueryProjectResultBaseDto
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public DateTime TokenReleaseTime { get; set; }
-    public long ToRaisedAmount { get; set; }
+    public long TargetRaisedAmount { get; set; }
     public long CrowdFundingIssueAmount { get; set; }
     public long PreSalePrice { get; set; }
     public long PublicSalePrice { get; set; }
@@ -119,7 +119,7 @@ public class QueryProjectResultBaseDto
     public int LiquidityLockProportion { get; set; }
     public DateTime? UnlockTime { get; set; }
     public int FirstDistributeProportion { get; set; }
-    public int RestDistributeProportion { get; set; }
+    public int RestPeriodDistributeProportion { get; set; }
     public int TotalPeriod { get; set; }
     public string AdditionalInfo { get; set; }
     public bool IsCanceled { get; set; }

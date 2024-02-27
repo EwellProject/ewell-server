@@ -11,7 +11,8 @@ public static class ValidHelper
 
     private const string PatternLetters = @"^[A-Za-z]+$"; 
     private const string UppercaseNumericHyphen = @"^[A-Z0-9\-]+$"; 
-    
+    public const string NFTSymbolPattern = @"^.+-(?!0+$)[0-9]+$";
+
     public static bool MatchesPattern(this string input, string pattern)
     {
         return Regex.IsMatch(input, pattern);
@@ -24,8 +25,8 @@ public static class ValidHelper
 
     public static bool MatchesNftSymbol(this string symbol)
     {
-        return symbol.MatchesPattern(UppercaseNumericHyphen);
-    }
+        return symbol.Length != 0 &&
+               Regex.IsMatch(symbol, NFTSymbolPattern);    }
     
     public static bool MatchesAddress(this string address)
     {
