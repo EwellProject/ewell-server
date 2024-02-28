@@ -11,10 +11,10 @@ public interface IProjectGrain : IGrainWithStringKey
 
 public class ProjectGrain : Grain<ProjectState>, IProjectGrain
 {
-    public override Task OnActivateAsync()
+    public override async Task OnActivateAsync()
     {
-        ReadStateAsync();
-        return base.OnActivateAsync();
+        await ReadStateAsync();
+        await base.OnActivateAsync();
     }
 
     public async Task SetStateAsync(bool exist)
