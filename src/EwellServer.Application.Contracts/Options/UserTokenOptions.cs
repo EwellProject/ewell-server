@@ -9,7 +9,7 @@ public class UserTokenOptions
     public bool FilterNft { get; set; } = true;
 
     //if FilterNft is true, only support NftSet
-    public HashSet<string> NftSet { get; set; } = new ();
+    public HashSet<string> SupportedNftSymbols { get; set; } = new ();
     
     public bool ToFilterNft(string symbol)
     {
@@ -19,7 +19,7 @@ public class UserTokenOptions
         }
         
         //check NftSet whether contain nft
-        if (symbol.MatchesNftSymbol() && !NftSet.Contains(symbol))
+        if (symbol.MatchesNftSymbol() && !SupportedNftSymbols.Contains(symbol))
         {
             return false;
         }
