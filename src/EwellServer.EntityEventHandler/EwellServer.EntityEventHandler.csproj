@@ -17,6 +17,10 @@
         <PackageReference Include="Volo.Abp.AspNetCore.Serilog" Version="7.0.0" />
         <PackageReference Include="Volo.Abp.Autofac" Version="7.0.0" />
         <PackageReference Include="Volo.Abp.EventBus.RabbitMQ" Version="7.0.0" />
+        <PackageReference Include="Volo.Abp.BackgroundJobs" Version="7.0.0" />
+        <PackageReference Include="Hangfire.Core" Version="1.8.3"/>
+        <PackageReference Include="Hangfire.Mongo" Version="1.7.1"/>
+        <PackageReference Include="Volo.Abp.BackgroundJobs.Hangfire" Version="7.0.0" />
 
     </ItemGroup>
 
@@ -25,6 +29,7 @@
         <ProjectReference Include="..\EwellServer.Application.Contracts\EwellServer.Application.Contracts.csproj" />
         <ProjectReference Include="..\EwellServer.Grains\EwellServer.Grains.csproj" />
         <ProjectReference Include="..\EwellServer.MongoDB\EwellServer.MongoDB.csproj" />
+        <ProjectReference Include="..\EwellServer.Worker\EwellServer.Worker.csproj" />
     </ItemGroup>
     
 

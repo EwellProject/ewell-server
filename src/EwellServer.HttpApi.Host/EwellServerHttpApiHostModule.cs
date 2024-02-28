@@ -22,18 +22,20 @@ using EwellServer.Grains;
 using EwellServer.Middleware;
 using EwellServer.MongoDB;
 using EwellServer.Options;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.Mvc.UI.MultiTenancy;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
-using Volo.Abp.BlobStoring;
+using Volo.Abp.BackgroundJobs;
 using Volo.Abp.BlobStoring.Aliyun;
 using Volo.Abp.Caching;
 using Volo.Abp.Caching.StackExchangeRedis;
 using Volo.Abp.EventBus.RabbitMq;
 using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
+using Volo.Abp.OpenIddict.Tokens;
 using Volo.Abp.Swashbuckle;
 using Volo.Abp.Threading;
 using Volo.Abp.VirtualFileSystem;
@@ -59,15 +61,21 @@ namespace EwellServer
             var configuration = context.Services.GetConfiguration();
             var hostingEnvironment = context.Services.GetHostingEnvironment();
             Configure<ChainOption>(configuration.GetSection("ChainOption"));
-
+            Configure<TokenInfoOptions>(configuration.GetSection("TokenInfoOptions"));
+            Configure<AssetsInfoOptions>(configuration.GetSection("AssetsInfoOptions"));
+            Configure<TransactionFeeOptions>(configuration.GetSection("TransactionFeeOptions"));
+            Configure<UserTokenOptions>(configuration.GetSection("UserTokenOptions"));
+            // Configure<EwellOption>(configuration.GetSection("EwellOption"));
+    
             ConfigureConventionalControllers();
-            // ConfigureAuthentication(context, configuration);
+            ConfigureAuthentication(context, configuration);
             ConfigureLocalization();
             ConfigureCache(configuration);
             ConfigureVirtualFileSystem(context);
             ConfigureRedis(context, configuration, hostingEnvironment);
             ConfigureCors(context, configuration);
             ConfigureSwaggerServices(context, configuration);
+            ConfigureTokenCleanupService();
             ConfigureOrleans(context, configuration);
             ConfigureGraphQl(context, configuration);
             context.Services.AddAutoResponseWrapper();
@@ -200,6 +208,11 @@ namespace EwellServer
                 });
             });
         }
+        
+        private void ConfigureTokenCleanupService()
+        {
+            Configure<TokenCleanupOptions>(x => x.IsCleanupEnabled = false);
+        }
 
         private static void ConfigureOrleans(ServiceConfigurationContext context, IConfiguration configuration)
         {
@@ -288,5 +301,39 @@ namespace EwellServer
             var client = serviceProvider.GetRequiredService<IClusterClient>();
             AsyncHelper.RunSync(client.Close);
         }
+        
+        private void ConfigureAuthentication(ServiceConfigurationContext context, IConfiguration configuration)
+        {
+            context.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = configuration["AuthServer:Authority"];
+                    options.RequireHttpsMetadata = Convert.ToBoolean(configuration["AuthServer:RequireHttpsMetadata"]);
+                    options.Audience = "EwellServer";
+                });
+        }
+        
+        // private void ConfigureBackgroundJob(IConfiguration configuration)
+        // {
+        //     Configure<AbpBackgroundJobOptions>(options =>
+        //     {
+        //         options.IsJobExecutionEnabled = false;
+        //         var ewellConfiguration = configuration.GetSection("EwellOption");
+        //         var isReleaseAuto = ewellConfiguration.GetSection("IsReleaseAuto").Value;
+        //         if (isReleaseAuto.IsNullOrEmpty())
+        //         {
+        //             return;
+        //         }
+        //
+        //         if (!"true".Equals(isReleaseAuto, StringComparison.OrdinalIgnoreCase))
+        //         {
+        //             return;
+        //         }
+        //
+        //         options.IsJobExecutionEnabled = true;
+        //         options.AddJob(typeof(ReleaseProjectTokenJob));
+        //         options.AddJob(typeof(CancelProjectJob));
+        //     });
+        // }
     }
 }

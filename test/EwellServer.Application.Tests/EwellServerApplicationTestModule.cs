@@ -1,9 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using EwellServer.EntityEventHandler.Core;
-using EwellServer.EntityEventHandler.Core.Samples.User;
-using EwellServer.Grains;
-using EwellServer.Samples;
 using Volo.Abp.AuditLogging;
 using Volo.Abp.AuditLogging.MongoDB;
 using Volo.Abp.AutoMapper;
@@ -33,7 +30,5 @@ public class EwellServerApplicationTestModule : AbpModule
         context.Services.AddSingleton(new Mock<IMongoDbContextProvider<IAuditLoggingMongoDbContext>>().Object);
         context.Services.AddSingleton<IAuditLogRepository, MongoAuditLogRepository>();
         context.Services.AddSingleton<IIdentityUserRepository, MongoIdentityUserRepository>();
-        
-        context.Services.AddSingleton<UserUpdateHandler>();
     }
 }

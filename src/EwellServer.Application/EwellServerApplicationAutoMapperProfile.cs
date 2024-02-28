@@ -1,8 +1,10 @@
 using AutoMapper;
-using EwellServer.Samples.Users;
-using EwellServer.Samples.Users.Dto;
-using EwellServer.Samples.Users.Eto;
-using EwellServer.Users.Index;
+using EwellServer.Entities;
+using EwellServer.Etos;
+using EwellServer.Project.Dto;
+using EwellServer.Token;
+using EwellServer.Token.Index;
+using EwellServer.User.Dtos;
 
 namespace EwellServer;
 
@@ -10,9 +12,17 @@ public class EwellServerApplicationAutoMapperProfile : Profile
 {
     public EwellServerApplicationAutoMapperProfile()
     {
-        CreateMap<UserSourceInput, UserGrainDto>().ReverseMap();
-        CreateMap<UserGrainDto, UserDto>().ReverseMap();
-        CreateMap<UserGrainDto, UserInformationEto>().ReverseMap();
         CreateMap<UserIndex, UserDto>().ReverseMap();
+        CreateMap<AddressInfo, UserAddressInfo>().ReverseMap();
+        CreateMap<CrowdfundingProjectIndex, ProjectRegisteredEto>();
+        CreateMap<CrowdfundingProjectIndex, ProjectCanceledEto>();
+        CreateMap<CrowdfundingProjectIndex, QueryProjectResultBaseDto>();
+        CreateMap<IndexerUserToken, UserTokenDto>();
+        CreateMap<TokenGrainDto, TokenBasicInfo>()
+            .ForMember(des => des.Name, opt
+                => opt.MapFrom(source => source.TokenName));
+        CreateMap<UserProjectInfoIndex, ProjectUserDto>()
+            .ForMember(des => des.Address, opt
+                => opt.MapFrom(source => "ELF_" + source.User + "_" + source.ChainId));
     }
 }

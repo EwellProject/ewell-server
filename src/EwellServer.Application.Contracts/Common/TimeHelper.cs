@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace CAServer.Commons;
+namespace EwellServer.Common;
 
 public static class TimeHelper
 {
@@ -30,6 +30,12 @@ public static class TimeHelper
     {
         TimeSpan timeSpan = dateTime.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         return (long)timeSpan.TotalMilliseconds;
+    }
+    
+    public static long GetTimeStampFromDateTimeInSeconds(DateTime dateTime)
+    {
+        TimeSpan timeSpan = dateTime.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        return (long)timeSpan.TotalSeconds;
     }
 
     public static string ToUtcString(this DateTime dateTime)
