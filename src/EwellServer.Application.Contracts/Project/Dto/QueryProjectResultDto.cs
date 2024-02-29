@@ -148,7 +148,7 @@ public class QueryProjectResultBaseDto
     public ProjectStatus Status  { get; set; }
     public DateTime RealEndTime  { get; set; }
     public string VirtualAddress { get; set; }
-    public int LiquidatedDamageProportion { get; set; }
+    public int? LiquidatedDamageProportion { get; set; }
     
     public void OfResultBase(string userAddress, DateTime current, Dictionary<string, UserProjectInfoIndex> userProjectDict)
     {
@@ -173,7 +173,9 @@ public class QueryProjectResultBaseDto
         {
             Status = ProjectStatus.Ended;
         }
-        
+
+        LiquidatedDamageProportion ??= EwellServerConsts.DefaultLiquidatedDamageProportion;
+
         if (!userAddress.IsNullOrEmpty() && userProjectDict.TryGetValue(Id, out var userProject))
         {
             InvestAmount = userProject.InvestAmount;
