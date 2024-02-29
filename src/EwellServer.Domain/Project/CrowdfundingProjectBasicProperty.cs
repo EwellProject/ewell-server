@@ -35,4 +35,5 @@ public class CrowdfundingProjectBasicProperty : CrowdfundingProjectBase
     //TokenReleaseTime.AddSeconds(PeriodDuration.Mul(TotalPeriod)）
     public DateTime RealEndTime { get; set; }
     [Keyword] public string VirtualAddress { get; set; }
+    public int LiquidatedDamageProportion { get; set; }
 }
