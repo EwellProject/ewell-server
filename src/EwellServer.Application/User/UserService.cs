@@ -3,7 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using EwellServer.Common;
 using EwellServer.Grains.Grain.Users;
+using Microsoft.Extensions.Logging;
 using Orleans;
+using Orleans.Runtime;
 using Volo.Abp;
 using Volo.Abp.Auditing;
 using Volo.Abp.Users;
@@ -29,6 +31,9 @@ public class UserService : EwellServerAppService, IUserService
         {
             userAddress = await GetUserAddressAsync(chainId, userId);
         }
+
+        Logger.LogInformation("Get current user Address chainId: {chainId} , userAddress : {userAddress}", chainId,
+            userAddress);
         return userAddress;
     }
     
