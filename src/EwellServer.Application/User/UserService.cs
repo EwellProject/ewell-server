@@ -33,7 +33,7 @@ public class UserService : EwellServerAppService, IUserService
             userAddress = await GetUserAddressAsync(chainId, userId);
         }
 
-        _logger.LogInformation("Get current user address chainId: {chainId} address:{userAddress}", chainId, userId);
+        _logger.LogInformation("Get current user address chainId: {chainId} address:{address}", chainId, userAddress);
         return userAddress;
     }
     
