@@ -88,14 +88,15 @@ public class ProjectService : EwellServerAppService, IProjectService
         var userProjectIndex = await _userProjectInfoProvider.GetProjectUserListAsync(input.ProjectId, input.ChainId, 
             input.Address, input.MaxResultCount, input.SkipCount);
         var projectIndex = await _projectInfoProvider.GetProjectInfosAsync(input.ChainId, input.ProjectId);
-        var resultDto = new QueryProjectUserResultDto
+        if (projectIndex == null)
         {
-            TotalCount = userProjectIndex.Item1,
-            Users = _objectMapper.Map<List<UserProjectInfoIndex>, List<ProjectUserDto>>(userProjectIndex.Item2),
-            TotalAmount = projectIndex?.CurrentRaisedAmount ?? 0,
-            TotalUser = projectIndex?.ParticipantCount ?? 0,
-            VirtualAddress = projectIndex?.VirtualAddress
-        };
+            return new QueryProjectUserResultDto();
+        }
+        var resultDto = _objectMapper.Map<CrowdfundingProjectIndex, QueryProjectUserResultDto>(projectIndex);
+        resultDto.Users = _objectMapper.Map<List<UserProjectInfoIndex>, List<ProjectUserDto>>(userProjectIndex.Item2);
+        resultDto.TotalCount = userProjectIndex.Item1;
+        resultDto.TotalAmount = projectIndex.CurrentRaisedAmount;
+        resultDto.TotalUser = projectIndex.ParticipantCount;
         return resultDto;
     }
 

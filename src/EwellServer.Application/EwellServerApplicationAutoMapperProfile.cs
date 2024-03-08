@@ -24,5 +24,6 @@ public class EwellServerApplicationAutoMapperProfile : Profile
         CreateMap<UserProjectInfoIndex, ProjectUserDto>()
             .ForMember(des => des.Address, opt
                 => opt.MapFrom(source => "ELF_" + source.User + "_" + source.ChainId));
+        CreateMap<CrowdfundingProjectIndex, QueryProjectUserResultDto>();
     }
 }

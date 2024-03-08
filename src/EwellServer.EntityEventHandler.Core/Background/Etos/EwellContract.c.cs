@@ -50,6 +50,7 @@ namespace Ewell.Contracts.Ido {
         PeriodDuration = PeriodDuration,
         VirtualAddress = VirtualAddress,
         TokenReleaseTime = TokenReleaseTime,
+        LiquidatedDamageProportion = LiquidatedDamageProportion,
       };
     }
   }
@@ -284,6 +285,25 @@ namespace Ewell.Contracts.Ido {
     }
   }
 
+  public partial class LiquidatedDamageProportionUpdated : aelf::IEvent<LiquidatedDamageProportionUpdated>
+  {
+    public global::System.Collections.Generic.IEnumerable<LiquidatedDamageProportionUpdated> GetIndexed()
+    {
+      return new List<LiquidatedDamageProportionUpdated>
+      {
+      };
+    }
+
+    public LiquidatedDamageProportionUpdated GetNonIndexed()
+    {
+      return new LiquidatedDamageProportionUpdated
+      {
+        ProjectId = ProjectId,
+        LiquidatedDamageProportion = LiquidatedDamageProportion,
+      };
+    }
+  }
+
   #endregion
   public static partial class EwellContractContainer
   {
@@ -301,7 +321,9 @@ namespace Ewell.Contracts.Ido {
     static readonly aelf::Marshaller<global::Ewell.Contracts.Ido.InvestInput> __Marshaller_InvestInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Ewell.Contracts.Ido.InvestInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Ewell.Contracts.Ido.ReFundAllInput> __Marshaller_ReFundAllInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Ewell.Contracts.Ido.ReFundAllInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Ewell.Contracts.Ido.ClaimInput> __Marshaller_ClaimInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Ewell.Contracts.Ido.ClaimInput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Ewell.Contracts.Ido.UpdateLiquidatedDamageProportionInput> __Marshaller_UpdateLiquidatedDamageProportionInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Ewell.Contracts.Ido.UpdateLiquidatedDamageProportionInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::AElf.Types.Address> __Marshaller_aelf_Address = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::AElf.Types.Address.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Ewell.Contracts.Ido.LiquidatedDamageConfig> __Marshaller_LiquidatedDamageConfig = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Ewell.Contracts.Ido.LiquidatedDamageConfig.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Ewell.Contracts.Ido.ProjectInfo> __Marshaller_ProjectInfo = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Ewell.Contracts.Ido.ProjectInfo.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Ewell.Contracts.Ido.ProjectListInfo> __Marshaller_ProjectListInfo = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Ewell.Contracts.Ido.ProjectListInfo.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Ewell.Contracts.Ido.ExtraInfoIdList> __Marshaller_ExtraInfoIdList = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Ewell.Contracts.Ido.ExtraInfoIdList.Parser.ParseFrom);
@@ -432,11 +454,25 @@ namespace Ewell.Contracts.Ido {
         __Marshaller_aelf_Hash,
         __Marshaller_google_protobuf_Empty);
 
+    static readonly aelf::Method<global::Ewell.Contracts.Ido.UpdateLiquidatedDamageProportionInput, global::Google.Protobuf.WellKnownTypes.Empty> __Method_UpdateLiquidatedDamageProportion = new aelf::Method<global::Ewell.Contracts.Ido.UpdateLiquidatedDamageProportionInput, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "UpdateLiquidatedDamageProportion",
+        __Marshaller_UpdateLiquidatedDamageProportionInput,
+        __Marshaller_google_protobuf_Empty);
+
     static readonly aelf::Method<global::AElf.Types.Address, global::Google.Protobuf.WellKnownTypes.Empty> __Method_SetProxyAccountContract = new aelf::Method<global::AElf.Types.Address, global::Google.Protobuf.WellKnownTypes.Empty>(
         aelf::MethodType.Action,
         __ServiceName,
         "SetProxyAccountContract",
         __Marshaller_aelf_Address,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Ewell.Contracts.Ido.LiquidatedDamageConfig, global::Google.Protobuf.WellKnownTypes.Empty> __Method_SetLiquidatedDamageConfig = new aelf::Method<global::Ewell.Contracts.Ido.LiquidatedDamageConfig, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "SetLiquidatedDamageConfig",
+        __Marshaller_LiquidatedDamageConfig,
         __Marshaller_google_protobuf_Empty);
 
     static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::AElf.Types.Address> __Method_GetWhitelistContractAddress = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::AElf.Types.Address>(
@@ -530,6 +566,13 @@ namespace Ewell.Contracts.Ido {
         __Marshaller_google_protobuf_Empty,
         __Marshaller_aelf_Address);
 
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Ewell.Contracts.Ido.LiquidatedDamageConfig> __Method_GetLiquidatedDamageConfig = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Ewell.Contracts.Ido.LiquidatedDamageConfig>(
+        aelf::MethodType.View,
+        __ServiceName,
+        "GetLiquidatedDamageConfig",
+        __Marshaller_google_protobuf_Empty,
+        __Marshaller_LiquidatedDamageConfig);
+
     #endregion
 
     #region Descriptors
@@ -550,7 +593,6 @@ namespace Ewell.Contracts.Ido {
       }
     }
     #endregion
-    
   }
 }
 #endregion

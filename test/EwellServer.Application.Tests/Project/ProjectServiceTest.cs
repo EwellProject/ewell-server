@@ -90,6 +90,8 @@ public class ProjectServiceTest
             SkipCount = 0,
             Address = "address"
         };
+        _mockObjectMapper.Map<CrowdfundingProjectIndex, QueryProjectUserResultDto>(Arg.Any<CrowdfundingProjectIndex>())
+            .Returns(new QueryProjectUserResultDto(){TotalCount = 1});
         _mockUserProjectInfoProvider.GetProjectUserListAsync(Arg.Any<string>(),
                 Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>(), Arg.Any<int>())
             .Returns(Task.FromResult(new Tuple<long, List<UserProjectInfoIndex>>(1, new List<UserProjectInfoIndex> { new() })));

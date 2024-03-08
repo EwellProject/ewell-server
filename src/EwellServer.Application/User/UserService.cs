@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EwellServer.Common;
 using EwellServer.Grains.Grain.Users;
+using Microsoft.Extensions.Logging;
 using Orleans;
 using Volo.Abp;
 using Volo.Abp.Auditing;
@@ -15,10 +16,12 @@ namespace EwellServer.User;
 public class UserService : EwellServerAppService, IUserService
 {
     private readonly IClusterClient _clusterClient;
+    private readonly ILogger<IUserService> _logger;
 
-    public UserService(IClusterClient clusterClient)
+    public UserService(IClusterClient clusterClient, ILogger<IUserService> logger)
     {
         _clusterClient = clusterClient;
+        _logger = logger;
     }
 
     public async Task<string> GetCurrentUserAddressAsync(string chainId)
@@ -29,6 +32,8 @@ public class UserService : EwellServerAppService, IUserService
         {
             userAddress = await GetUserAddressAsync(chainId, userId);
         }
+
+        _logger.LogInformation("Get current user address chainId: {chainId} address:{address}", chainId, userAddress);
         return userAddress;
     }
     

@@ -63,7 +63,7 @@ public class TokenGrain : Grain<TokenState>, ITokenGrain
         State.Decimals = token.Decimals;
         State.TokenName = token.TokenName;
 
-        _logger.LogInformation("[TokenGrain] get token info chainId {} symbol {} decimals {} tokenName {}",
+        _logger.LogInformation("[TokenGrain] get token info chainId {chainId} symbol {symbol} decimals {decimals} tokenName {tokenName}",
             State.ChainId, State.Symbol, State.Decimals, State.TokenName);
         await WriteStateAsync();
 
