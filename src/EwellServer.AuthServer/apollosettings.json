@@ -1,0 +1,11 @@
+{
+  "apollo": {
+    "UseApollo": false,
+    "AppId": "",
+    "MetaServer":
+    "",
+    "Namespaces": [
+      ""
+    ]
+  }
+}

@@ -1,3 +1,4 @@
+using CAServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -45,6 +46,8 @@ public class Program
             {
                 services.AddApplication<EwellServerOrleansSiloModule>();
             })
+            .ConfigureAppConfiguration((h, c) => c.AddJsonFile("apollosettings.json"))
+            .UseApollo() 
             .UseOrleansSnapshot()
             .UseAutofac()
             .UseSerilog();

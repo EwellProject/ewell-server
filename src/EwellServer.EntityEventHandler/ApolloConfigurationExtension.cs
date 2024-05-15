@@ -1,17 +1,16 @@
 using System.Collections.Generic;
-using Com.Ctrip.Framework.Apollo.Logging;
 using Microsoft.Extensions.Configuration;
+using Com.Ctrip.Framework.Apollo.Logging;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
-namespace EwellServer.Extension;
+namespace CAServer;
 
 public static class ApolloConfigurationExtension
 {
     public static IHostBuilder UseApollo(this IHostBuilder builder)
     {
         LogManager.UseConsoleLogging(LogLevel.Info);
-        
         return builder
             .ConfigureAppConfiguration((config) =>
             {
@@ -26,6 +25,5 @@ public static class ApolloConfigurationExtension
                     config.AddApollo(apolloOption);
                 }
             });
-        
     }
 }
