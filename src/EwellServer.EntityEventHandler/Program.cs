@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using CAServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -44,6 +45,8 @@ namespace EwellServer.EntityEventHandler
                 {
                     services.AddApplication<EwellServerEntityEventHandlerModule>();
                 })
+                .ConfigureAppConfiguration((h, c) => c.AddJsonFile("apollosettings.json"))
+                .UseApollo() 
                 .UseAutofac()
                 .UseSerilog();
     }

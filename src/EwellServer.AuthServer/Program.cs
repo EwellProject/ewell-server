@@ -1,3 +1,4 @@
+using CAServer;
 using Serilog;
 using Serilog.Events;
 
@@ -31,6 +32,8 @@ public class Program
             Log.Information("Starting EwellServer.AuthServer.");
             var builder = WebApplication.CreateBuilder(args);
             builder.Host.AddAppSettingsSecretsJson()
+                .ConfigureAppConfiguration((h, c) => c.AddJsonFile("apollosettings.json"))
+                .UseApollo()
                 .UseAutofac()
                 .UseSerilog();
             await builder.AddApplicationAsync<EwellAuthServerModule>();

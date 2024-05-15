@@ -21,9 +21,10 @@ public static class OrleansHostExtensions
         var configSection = configuration.GetSection("Orleans");
         if (configSection == null)
             throw new ArgumentNullException(nameof(configSection), "The OrleansServer node is missing");
-        return hostBuilder.UseOrleans(siloBuilder =>
+        return hostBuilder.UseOrleans((context,siloBuilder) => 
         {
             //Configure OrleansSnapshot
+            configSection = context.Configuration.GetSection("Orleans");
             siloBuilder
                 .ConfigureEndpoints(advertisedIP:IPAddress.Parse(configSection.GetValue<string>("AdvertisedIP")),siloPort: configSection.GetValue<int>("SiloPort"), gatewayPort: configSection.GetValue<int>("GatewayPort"), listenOnAnyHostAddress: true)
                 .UseMongoDBClient(configSection.GetValue<string>("MongoDBClient"))

@@ -28,8 +28,9 @@ namespace EwellServer
                 Log.Information("Starting EwellServer.HttpApi.Host");
 
                 var builder = WebApplication.CreateBuilder(args);
-                builder.Configuration.AddJsonFile("apollo.appsettings.json");
+                // builder.Configuration.AddJsonFile("apollo.appsettings.json");
                 builder.Host.AddAppSettingsSecretsJson()
+                    .ConfigureAppConfiguration((h, c) => c.AddJsonFile("apollosettings.json"))
                     .UseApollo()
                     .UseAutofac()
                     .UseSerilog();
