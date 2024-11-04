@@ -15,7 +15,6 @@ using Orleans.Providers.MongoDB.Configuration;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
-using Volo.Abp.EventBus.RabbitMq;
 using Volo.Abp.Modularity;
 using Volo.Abp.Threading;
 using GraphQL.Client.Abstractions;
@@ -33,6 +32,9 @@ using Hangfire.Mongo.Migration.Strategies.Backup;
 using Volo.Abp.BackgroundJobs.Hangfire;
 using EwellServer.Common.Enum;
 using MongoDB.Driver;
+using Volo.Abp.EventBus.Kafka;
+using Volo.Abp.Kafka;
+using Confluent.Kafka;
 
 namespace EwellServer.EntityEventHandler;
 
@@ -41,10 +43,9 @@ namespace EwellServer.EntityEventHandler;
     typeof(AbpAspNetCoreSerilogModule),
     typeof(EwellServerEntityEventHandlerCoreModule),
     typeof(AbpAspNetCoreSerilogModule),
-    typeof(AbpEventBusRabbitMqModule),
     typeof(EwellServerWorkerModule),
-    typeof(AbpBackgroundJobsHangfireModule)
-    // typeof(AbpBackgroundJobsRabbitMqModule)
+    typeof(AbpBackgroundJobsHangfireModule),
+    typeof(AbpEventBusKafkaModule)
 )]
 public class EwellServerEntityEventHandlerModule : AbpModule
 {
@@ -56,7 +57,6 @@ public class EwellServerEntityEventHandlerModule : AbpModule
         Configure<ApiOptions>(configuration.GetSection("Api"));
         Configure<EwellOption>(configuration.GetSection("EwellOption"));
         ConfigureHangfire(context, configuration);
-        // Configure<AbpRabbitMqBackgroundJobOptions>(configuration.GetSection("AbpRabbitMqBackgroundJob"));
         context.Services.AddHostedService<EwellServerHostedService>();
         context.Services.AddSingleton<IClusterClient>(o =>
         {
@@ -81,6 +81,7 @@ public class EwellServerEntityEventHandlerModule : AbpModule
         });
         ConfigureEsIndexCreation();
         ConfigureGraphQl(context, configuration);
+        ConfigureKafka(context, configuration);
         // ConfigureBackgroundJob(configuration);
     }
     public override void OnApplicationInitialization(ApplicationInitializationContext context)
@@ -185,6 +186,30 @@ public class EwellServerEntityEventHandlerModule : AbpModule
             opt.SchedulePollingInterval = TimeSpan.FromMilliseconds(3000);
             opt.HeartbeatInterval = TimeSpan.FromMilliseconds(3000);
             opt.Queues = new[] { "default", "notDefault" };
+        });
+    }
+    
+    private void ConfigureKafka(ServiceConfigurationContext context, IConfiguration configuration)
+    {
+        Configure<AbpKafkaOptions>(options =>
+        {
+            options.Connections.Default.BootstrapServers = configuration.GetValue<string>("Kafka:Connections:Default:BootstrapServers");
+            //options.Connections.Default.SaslUsername = "user";
+            //options.Connections.Default.SaslPassword = "pwd";
+            options.ConfigureConsumer = config =>
+            {
+                config.SocketTimeoutMs = configuration.GetValue<int>("Kafka:Consumer:SocketTimeoutMs");
+                config.Acks = Acks.All;
+                config.GroupId = configuration.GetValue<string>("Kafka:EventBus:GroupId");
+                config.EnableAutoCommit = true;
+                config.AutoCommitIntervalMs = configuration.GetValue<int>("Kafka:Consumer:AutoCommitIntervalMs");
+            };
+            options.ConfigureTopic = topic =>
+            {
+                topic.Name = configuration.GetValue<string>("Kafka:EventBus:TopicName");
+                topic.ReplicationFactor = -1;
+                topic.NumPartitions = 1;
+            };
         });
     }
 }

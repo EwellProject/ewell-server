@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using AutoResponseWrapper;
+using Confluent.Kafka;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
@@ -28,11 +29,11 @@ using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.Mvc.UI.MultiTenancy;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
-using Volo.Abp.BackgroundJobs;
 using Volo.Abp.BlobStoring.Aliyun;
 using Volo.Abp.Caching;
 using Volo.Abp.Caching.StackExchangeRedis;
-using Volo.Abp.EventBus.RabbitMq;
+using Volo.Abp.EventBus.Kafka;
+using Volo.Abp.Kafka;
 using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.OpenIddict.Tokens;
@@ -51,8 +52,8 @@ namespace EwellServer
         typeof(EwellServerMongoDbModule),
         typeof(AbpAspNetCoreSerilogModule),
         typeof(AbpSwashbuckleModule),
-        typeof(AbpEventBusRabbitMqModule),
-        typeof(AbpBlobStoringAliyunModule)
+        typeof(AbpBlobStoringAliyunModule),
+        typeof(AbpEventBusKafkaModule)
     )]
     public class EwellServerHttpApiHostModule : AbpModule
     {
@@ -78,6 +79,7 @@ namespace EwellServer
             ConfigureTokenCleanupService();
             ConfigureOrleans(context, configuration);
             ConfigureGraphQl(context, configuration);
+            ConfigureKafka(context, configuration);
             context.Services.AddAutoResponseWrapper();
         }
 
@@ -311,6 +313,37 @@ namespace EwellServer
                     options.RequireHttpsMetadata = Convert.ToBoolean(configuration["AuthServer:RequireHttpsMetadata"]);
                     options.Audience = "EwellServer";
                 });
+        }
+        
+        private void ConfigureKafka(ServiceConfigurationContext context, IConfiguration configuration)
+        {
+            Configure<AbpKafkaOptions>(options =>
+            {
+                options.Connections.Default.BootstrapServers = configuration.GetValue<string>("Kafka:Connections:Default:BootstrapServers");
+                //options.Connections.Default.SaslUsername = "user";
+                //options.Connections.Default.SaslPassword = "pwd";
+                options.ConfigureProducer = config =>
+                {
+                    config.MessageTimeoutMs = configuration.GetValue<int>("Kafka:Producer:MessageTimeoutMs");
+                    config.MessageSendMaxRetries = configuration.GetValue<int>("Kafka:Producer:MessageSendMaxRetries");
+                    config.SocketTimeoutMs = configuration.GetValue<int>("Kafka:Producer:SocketTimeoutMs");
+                    config.Acks = Acks.All;
+                };
+                options.ConfigureConsumer = config =>
+                {
+                    config.SocketTimeoutMs = configuration.GetValue<int>("Kafka:Consumer:SocketTimeoutMs");
+                    config.Acks = Acks.All;
+                    config.GroupId = configuration.GetValue<string>("Kafka:EventBus:GroupId");
+                    config.EnableAutoCommit = true;
+                    config.AutoCommitIntervalMs = configuration.GetValue<int>("Kafka:Consumer:AutoCommitIntervalMs");
+                };
+                options.ConfigureTopic = topic =>
+                {
+                    topic.Name = configuration.GetValue<string>("Kafka:EventBus:TopicName");
+                    topic.ReplicationFactor = -1;
+                    topic.NumPartitions = 1;
+                };
+            });
         }
         
         // private void ConfigureBackgroundJob(IConfiguration configuration)

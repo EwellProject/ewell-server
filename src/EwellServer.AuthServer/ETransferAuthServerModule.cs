@@ -25,7 +25,6 @@ using Volo.Abp.BackgroundJobs;
 using Volo.Abp.Caching;
 using Volo.Abp.Caching.StackExchangeRedis;
 using Volo.Abp.DistributedLocking;
-using Volo.Abp.EventBus.RabbitMq;
 using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.OpenIddict.ExtensionGrantTypes;
@@ -46,7 +45,6 @@ namespace EwellServer.Auth;
     typeof(EwellServerMongoDbModule),
     typeof(EwellServerDomainModule),
     typeof(AbpAspNetCoreSerilogModule),
-    typeof(AbpEventBusRabbitMqModule),
     typeof(EwellServerGrainsModule)
 )]
 public class EwellAuthServerModule : AbpModule
