@@ -8,6 +8,8 @@ using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans.Providers.MongoDB.Configuration;
 using Orleans.Statistics;
+using Serilog;
+
 namespace EwellServer.Silo.Extensions;
 
 public static class OrleansHostExtensions
@@ -23,6 +25,13 @@ public static class OrleansHostExtensions
         var advertisedIP = isRunningInKubernetes ?  Environment.GetEnvironmentVariable("POD_IP") :configSection.GetValue<string>("AdvertisedIP");
         var clusterId = isRunningInKubernetes ? Environment.GetEnvironmentVariable("ORLEANS_CLUSTER_ID") : configSection.GetValue<string>("ClusterId");
         var serviceId = isRunningInKubernetes ? Environment.GetEnvironmentVariable("ORLEANS_SERVICE_ID") : configSection.GetValue<string>("ServiceId");
+        Log.Logger.Warning("==  isRunningInKubernetes: {0}", configSection.GetValue<bool>("isRunningInKubernetes"));
+        Log.Logger.Warning("==  POD_IP: {0}", Environment.GetEnvironmentVariable("POD_IP"));
+        Log.Logger.Warning("==  SiloPort: {0}", configSection.GetValue<int>("SiloPort"));
+        Log.Logger.Warning("==  GatewayPort: {0}", configSection.GetValue<int>("GatewayPort"));
+        Log.Logger.Warning("==  DatabaseName: {0}", configSection.GetValue<string>("DataBase"));
+        Log.Logger.Warning("==  ClusterId: {0}", Environment.GetEnvironmentVariable("ORLEANS_CLUSTER_ID"));
+        Log.Logger.Warning("==  ServiceId: {0}", Environment.GetEnvironmentVariable("ORLEANS_SERVICE_ID"));
         if (configSection == null)
             throw new ArgumentNullException(nameof(configSection), "The OrleansServer node is missing");
         return hostBuilder.UseOrleans((context,siloBuilder) => 
