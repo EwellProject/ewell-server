@@ -20,6 +20,13 @@ public static class OrleansHostExtensions
             .AddJsonFile("appsettings.json")
             .Build();
         if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+        var configurationDict = new Dictionary<string, string>();
+        foreach (var pair in configuration.AsEnumerable())
+        {
+            if (pair.Value != null) configurationDict[pair.Key] = pair.Value;
+        }
+        var jsonResult = JsonConvert.SerializeObject(configurationDict, Formatting.Indented);
+        Log.Warning("Application Configuration: {Config}", jsonResult);
         var configSection = configuration.GetSection("Orleans");
         var isRunningInKubernetes = configSection.GetValue<bool>("IsRunningInKubernetes");
         var advertisedIP = isRunningInKubernetes ?  Environment.GetEnvironmentVariable("POD_IP") :configSection.GetValue<string>("AdvertisedIP");
