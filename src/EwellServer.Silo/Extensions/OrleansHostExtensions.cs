@@ -21,7 +21,7 @@ public static class OrleansHostExtensions
             .Build();
         if (configuration == null) throw new ArgumentNullException(nameof(configuration));
         var configSection = configuration.GetSection("Orleans");
-        var isRunningInKubernetes = configSection.GetValue<bool>("isRunningInKubernetes");
+        var isRunningInKubernetes = configSection.GetValue<bool>("IsRunningInKubernetes");
         var advertisedIP = isRunningInKubernetes ?  Environment.GetEnvironmentVariable("POD_IP") :configSection.GetValue<string>("AdvertisedIP");
         var clusterId = isRunningInKubernetes ? Environment.GetEnvironmentVariable("ORLEANS_CLUSTER_ID") : configSection.GetValue<string>("ClusterId");
         var serviceId = isRunningInKubernetes ? Environment.GetEnvironmentVariable("ORLEANS_SERVICE_ID") : configSection.GetValue<string>("ServiceId");
