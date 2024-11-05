@@ -25,7 +25,7 @@ public static class OrleansHostExtensions
         var advertisedIP = isRunningInKubernetes ?  Environment.GetEnvironmentVariable("POD_IP") :configSection.GetValue<string>("AdvertisedIP");
         var clusterId = isRunningInKubernetes ? Environment.GetEnvironmentVariable("ORLEANS_CLUSTER_ID") : configSection.GetValue<string>("ClusterId");
         var serviceId = isRunningInKubernetes ? Environment.GetEnvironmentVariable("ORLEANS_SERVICE_ID") : configSection.GetValue<string>("ServiceId");
-        Log.Logger.Warning("==  isRunningInKubernetes: {0}", configSection.GetValue<bool>("isRunningInKubernetes"));
+        Log.Logger.Warning("==  isRunningInKubernetes: {0}", configSection.GetValue<bool>("IsRunningInKubernetes"));
         Log.Logger.Warning("==  POD_IP: {0}", Environment.GetEnvironmentVariable("POD_IP"));
         Log.Logger.Warning("==  SiloPort: {0}", configSection.GetValue<int>("SiloPort"));
         Log.Logger.Warning("==  GatewayPort: {0}", configSection.GetValue<int>("GatewayPort"));
