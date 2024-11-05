@@ -23,7 +23,6 @@ public static class OrleansHostExtensions
         var configSection = configuration.GetSection("Orleans");
         if (configSection == null)
             throw new ArgumentNullException(nameof(configSection), "The OrleansServer node is missing");
-        
         return hostBuilder.UseOrleans((context,siloBuilder) => 
         {
             //Configure OrleansSnapshot
